@@ -67,9 +67,11 @@ def template_for(kind: str, rel: str, values: dict[str, str]) -> Path | None:
 def changed_in_project(manifest: dict, workspace: Path, fresh_ws: Path, ops_name: str) -> list[tuple[str, str, str]]:
     """(repo, rel, kind) for every skeleton-owned file the project changed."""
     project = manifest["answers"]["project"]
+    # Older manifests have no repo_kinds; those repos follow <project>-<kind>.
+    kinds = manifest.get("repo_kinds", {})
     changed: list[tuple[str, str, str]] = []
     for repo, owned in manifest["skeleton_owned"].items():
-        kind = repo[len(project) + 1:]
+        kind = kinds.get(repo, repo[len(project) + 1:])
         live_repo = workspace / repo
         if not live_repo.exists():
             print(f"skip    {repo} is not next to {ops_name}")
