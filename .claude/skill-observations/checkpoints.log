@@ -1,3 +1,4 @@
 2026-09-27 session-start: log created with the repo; no observations yet
 2026-09-27 checkpoint: 1 observation (manifest completeness), mainBrain build session
 2026-09-27 session-start scan: files=1 parsed=1
+2026-09-27 checkpoint: 1 observation (create-repos input typed by hand), repo-creation follow-up session
