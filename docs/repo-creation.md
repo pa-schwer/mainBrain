@@ -95,7 +95,18 @@ With "Only select repositories", every new repo has to be added by hand
 before a session can push to it, which brings back the click this page
 removes. "All repositories" covers repos created later.
 
-## 4. Proof
+## 4. The approval gate
+
+Where: this repository → Settings → Environments → New environment →
+name `provisioning` → **Required reviewers** → add yourself → Save.
+
+The workflow declares `environment: provisioning`, so every run waits for
+your Approve click in Actions before it creates anything. The same
+environment gates the Firebase provisioning workflow
+(`docs/gcp-provisioning.md`). Without the environment the workflow still
+runs, unreviewed; create it before the first real spawn.
+
+## 5. Proof
 
 Actions → "Create repositories" → Run workflow, with
 `repos: mainbrain-smoke-test`, `visibility: private`, and `owner` set to

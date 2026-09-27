@@ -3,6 +3,23 @@
 Two projects, `{{FIREBASE_STAGING}}` and `{{FIREBASE_PROD}}`. Everything is
 done twice, once per project, unless a step says otherwise.
 
+**Automatic path (default).** When mainBrain's "Create Firebase projects"
+workflow is armed for your Google Cloud organization
+(`mainBrain/docs/gcp-provisioning.md`, once, about thirty minutes), F1 to
+F5 are one run: the session triggers it with the slug, the region and the
+two repo names; you approve the run in mainBrain's Actions (it waits for
+your click, and nothing is created before it); the workflow creates both
+projects in the `mainbrain-projects` folder, links Blaze, sets a budget
+with alerts, enables the APIs, adds Firebase, Firestore Native and
+Email/Password sign-in, creates the deploy account with its four roles and
+stores its key as `FIREBASE_SERVICE_ACCOUNT_STAGING` and `_PROD` on
+`{{PROJECT}}-functions`, creates the web app and commits its public config
+into `{{PROJECT}}-app`. Proof: the `Deploy` workflow of
+`{{PROJECT}}-functions` is green on the next push. Read F1 to F5 below as
+what the run did, and as the manual path if it is not armed.
+
+**Manual path.** Each step below, by hand.
+
 ### F1 — Create the projects
 
 Where: https://console.firebase.google.com/ → Add project.

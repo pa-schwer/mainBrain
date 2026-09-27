@@ -75,6 +75,21 @@ Ask nothing. In this order:
    workflow, the repos are created by hand, on a personal account or an
    organization.
 
+## 4b. Provision Firebase, if the stack has functions or app
+
+After the push, when the answers include `functions` or `app`: trigger
+this repo's "Create Firebase projects" workflow
+(`.github/workflows/create-firebase-projects.yml`) with `project` = the
+slug, `region` = the answers' region, `functions_repo` and `app_repo` =
+`<owner>/<repo>` from the answers (empty for a kind not in the stack), and
+the two `firebase_*` ids if the answers override them. Tell the user, in
+one line, that the run waits for their approval in mainBrain's Actions.
+Do not wait in a loop: end the turn, and check the run when the user
+says it is approved or when you are next asked. Green means `HANDOFF.md`
+F1 to F5 are done. Red with a name "is not set" means
+`docs/gcp-provisioning.md` was never done: say so, point at it, and leave
+F1 to F5 to the manual path.
+
 ## 5. Hand over
 
 Tell the user, in their language:
