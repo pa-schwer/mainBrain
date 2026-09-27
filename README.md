@@ -12,6 +12,15 @@ bash scripts/spawn.sh examples/answers.example.json --out /tmp/demo
 cat /tmp/demo/acme/HANDOFF.md
 ```
 
+## Repositories are created for you
+
+A session cannot create a GitHub repository, so mainBrain does it from a
+workflow: `.github/workflows/create-repos.yml` holds a token in this
+repo's secrets and creates empty, private repos when a session asks. One
+setup per GitHub account or organization, in `docs/repo-creation.md`.
+After it, `spawn-project` goes from questionnaire to pushed repos with no
+click, and the generated `HANDOFF.md` step G1 is a log line.
+
 Read `CLAUDE.md` for the model, `docs/repo-creation.md` to let a session
 create the repositories itself, `docs/questionnaire.md` for the questions,
 `docs/upstream.md` for how improvements in a project come back here.
