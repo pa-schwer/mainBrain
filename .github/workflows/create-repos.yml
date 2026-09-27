@@ -1,0 +1,95 @@
+name: Create repositories
+
+# Creates the GitHub repositories for a spawned project, so a session does
+# not have to ask a human for HANDOFF.md step G1. A session triggers this
+# workflow; the workflow holds the credential the session cannot have.
+#
+# Why a workflow: a GitHub App installed on a personal account cannot create
+# repositories, and the session's proxy replaces any token a session sends
+# with the app's own. A repository secret is the one place a personal
+# access token can live and act. docs/repo-creation.md says how to set it
+# up, once.
+
+on:
+  workflow_dispatch:
+    inputs:
+      repos:
+        description: "Repositories to create, comma-separated, names only (owner is the one that holds the token)"
+        required: true
+        type: string
+      visibility:
+        description: "private or public"
+        required: true
+        default: private
+        type: choice
+        options: [private, public]
+      description:
+        description: "One line, applied to every repository"
+        required: false
+        default: ""
+        type: string
+
+permissions: {}
+
+jobs:
+  create:
+    name: create ${{ inputs.repos }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the repository-creation token
+        env:
+          REPO_ADMIN_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
+        run: |
+          if [ -z "${REPO_ADMIN_TOKEN}" ]; then
+            echo "REPO_ADMIN_TOKEN is not set, so no repository can be created."
+            echo
+            echo "Fix: docs/repo-creation.md. A personal access token with the"
+            echo "right to create repositories, added to this repository as the"
+            echo "REPO_ADMIN_TOKEN secret."
+            echo
+            echo "This step fails rather than skips."
+            exit 1
+          fi
+
+      - name: Create each repository, skipping the ones that exist
+        env:
+          GH_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
+          REPOS: ${{ inputs.repos }}
+          VISIBILITY: ${{ inputs.visibility }}
+          DESCRIPTION: ${{ inputs.description }}
+        run: |
+          owner=$(gh api user --jq .login)
+          echo "owner: ${owner}"
+          failed=0
+          IFS=',' read -ra names <<< "${REPOS}"
+          for raw in "${names[@]}"; do
+            name=$(echo "${raw}" | tr -d '[:space:]')
+            [ -z "${name}" ] && continue
+            if ! echo "${name}" | grep -qE '^[A-Za-z0-9._-]+$'; then
+              echo "SKIP    ${name}: not a repository name"
+              failed=$((failed + 1))
+              continue
+            fi
+            if gh api "repos/${owner}/${name}" --silent 2>/dev/null; then
+              echo "exists  ${owner}/${name}"
+              continue
+            fi
+            # Empty on purpose: the generated repo brings its own README,
+            # .gitignore and first commit, and an initialized remote would
+            # turn the first push into a merge.
+            if gh repo create "${owner}/${name}" "--${VISIBILITY}" --description "${DESCRIPTION}" > /dev/null; then
+              echo "created ${owner}/${name}"
+            else
+              echo "FAIL    ${owner}/${name}"
+              failed=$((failed + 1))
+            fi
+          done
+          [ "${failed}" -eq 0 ] || exit 1
+
+      - name: Remind about the app installation
+        run: |
+          echo "If the Claude GitHub App is installed for 'All repositories' on"
+          echo "this account, the new repositories are reachable now. If it is"
+          echo "installed for selected repositories, add them at"
+          echo "https://github.com/apps/claude/installations/select_target"
+          echo "before a session can push (HANDOFF.md, G2)."

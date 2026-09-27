@@ -59,9 +59,12 @@ never talks to GitHub, Firebase or Cloudflare; `HANDOFF.md` is where that
 starts, and each step there ends with the check that proves it done.
 
 Autonomy is the goal: everything a session can do, the generator does.
-What it cannot do (create a repo on a personal account, a billing account,
-a console click, a secret paste) is written down step by step, with the
-proof, so the human does it once and never guesses.
+What it cannot do (a billing account, a console click, a secret paste) is
+written down step by step, with the proof, so the human does it once and
+never guesses. Creating the repositories is the one step that moves from
+human to machine with a one-time setup: `docs/repo-creation.md` puts a
+token in this repo's secrets, and the "Create repositories" workflow
+(`.github/workflows/create-repos.yml`) creates them when a session asks.
 
 ## The library
 
