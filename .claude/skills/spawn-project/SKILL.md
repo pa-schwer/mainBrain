@@ -63,8 +63,8 @@ Ask nothing. In this order:
 
 1. Trigger this repo's "Create repositories" workflow
    (`.github/workflows/create-repos.yml`) with `repos` set to the
-   comma-separated repo names from the answers file and `visibility`
-   `private`. Wait for the run. Green means the repos exist, empty. Red
+   comma-separated repo names from the answers file, `owner` set to the
+   answers file's `owner`, and `visibility` `private`. Wait for the run. Green means the repos exist, empty. Red
    with "REPO_ADMIN_TOKEN is not set" means the one-time setup in
    `docs/repo-creation.md` has not been done: say so in one line, point at
    it, and continue with step 2 in case the repos were created by hand.

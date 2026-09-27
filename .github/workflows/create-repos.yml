@@ -14,8 +14,13 @@ on:
   workflow_dispatch:
     inputs:
       repos:
-        description: "Repositories to create, comma-separated, names only (owner is the one that holds the token)"
+        description: "Repositories to create, comma-separated, names only"
         required: true
+        type: string
+      owner:
+        description: "Organization or user that receives them; empty means the account that owns the token"
+        required: false
+        default: ""
         type: string
       visibility:
         description: "private or public"
@@ -55,10 +60,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
           REPOS: ${{ inputs.repos }}
+          OWNER: ${{ inputs.owner }}
           VISIBILITY: ${{ inputs.visibility }}
           DESCRIPTION: ${{ inputs.description }}
         run: |
-          owner=$(gh api user --jq .login)
+          # An organization needs the token's resource owner to be that
+          # organization (docs/repo-creation.md); the API says so with a 403
+          # or 404 on create, and the FAIL line below carries it.
+          owner="${OWNER:-$(gh api user --jq .login)}"
           echo "owner: ${owner}"
           failed=0
           IFS=',' read -ra names <<< "${REPOS}"
