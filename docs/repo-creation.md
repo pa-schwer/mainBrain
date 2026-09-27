@@ -32,8 +32,11 @@ Where: https://github.com/settings/personal-access-tokens/new
 
 - Token name `mainbrain-repo-admin`.
 - Resource owner: your user, or the organization from step 0.
-- Expiration: one year. Put the date in your calendar; the workflow fails
-  with a 401 the day it expires.
+- Expiration: **365 days or less**. An organization can cap the lifetime
+  of the tokens it accepts, and the cap is 366 days by default; a longer
+  token fails on create with a 403 that names the limit and links to the
+  token. Put the date in your calendar; the workflow fails with a 401 the
+  day it expires.
 - Repository access: **All repositories**. Creating a repository is an
   account-level act, so the token cannot be scoped to repos that do not
   exist yet.
@@ -41,7 +44,9 @@ Where: https://github.com/settings/personal-access-tokens/new
   else. (Contents is not needed: the workflow creates empty repos and the
   session pushes with its own credentials.)
 
-**Classic**, if the fine-grained token is refused on repository creation:
+**Classic**, only if the fine-grained token is refused for a reason the
+log does not explain (the workflow creates through the REST API, which
+accepts fine-grained tokens; `gh repo create` would not):
 
 - Scopes: `repo` only. It is broader than needed; keep the expiration
   short and rotate.
