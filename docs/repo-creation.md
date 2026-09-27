@@ -83,6 +83,20 @@ the organization if the token was made for one. The run prints
 (Settings → Danger zone); a second run prints `exists` and does nothing,
 which is the idempotence the session relies on.
 
+## Reading a red run
+
+Every failure seen while setting this up, what it means, and the fix. The
+workflow prints GitHub's message as is; this table is the translation.
+
+| The log says | It means | Fix |
+|---|---|---|
+| `REPO_ADMIN_TOKEN is not set` | step 2 not done | add the secret |
+| `forbids access via a fine-grained personal access tokens if the token's lifetime is greater than 366 days` | the organization caps token lifetime; the token is longer or has no expiration | edit the token's expiration to 365 days or less (the message links to it); GitHub keeps the value, no re-paste |
+| `does not have the correct permissions to execute CreateRepository` | an older version of the workflow used `gh repo create`, which goes through GraphQL | update mainBrain; the workflow creates through REST now |
+| `You need admin access to the organization before adding a repository to it` | the token's Resource owner is your user, not the organization | generate a new token with the organization as Resource owner (step 0 first if it is not in the list), paste it into the secret |
+| `401` | the token expired or was revoked | generate a new one, paste it |
+| `exists <owner>/<name>` | not an error: the repo was already there, nothing was touched | none |
+
 ## How a session uses it
 
 `spawn-project` step 4: after the generator has made the first commit in

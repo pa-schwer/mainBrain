@@ -28,3 +28,13 @@ installation does not hold the Administration permission. G1 stays a
 human step whatever the owner type. Checking the owner type works through
 a repository search (`owner.type`); `/users/{login}` is blocked in
 sessions.
+
+## Repository creation from a workflow, what it took [2026-09-27]
+
+Four runs to green on an organization. A GitHub App on a personal account
+cannot create repos; the session proxy replaces any token a session sends,
+so the credential has to live in Actions secrets. Then, in order: the
+organization capped token lifetime at 366 days; `gh repo create` goes
+through GraphQL, which refuses fine-grained tokens (REST accepts them);
+and a token whose Resource owner is the user cannot create in the
+organization. `docs/repo-creation.md` has the table.
