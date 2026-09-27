@@ -20,7 +20,8 @@ read.
 ## Secrets: names only, never values
 
 - Secret names appear in templates and docs as placeholders and examples
-  (`STRIPE_SECRET`, `OPS_READ_TOKEN`, `FIREBASE_SERVICE_ACCOUNT_*`). A value
+  (`STRIPE_SECRET`, `OPS_READ_TOKEN`, `FIREBASE_SERVICE_ACCOUNT_*`,
+  `REPO_ADMIN_TOKEN`). A value
   next to any name is a finding. `library/harness/security-patterns.json`
   lists the shapes to catch.
 - A Google service-account JSON (`"type": "service_account"`,
@@ -37,7 +38,11 @@ read.
   weakens a rule in `firestore.rules`, a workflow or a hook is a finding
   multiplied by every project spawned after it.
 - Generated workflows pass a secret only through `env:`, never
-  interpolated into `run:` text, and never echo one.
+  interpolated into `run:` text, and never echo one. The same holds for
+  this repo's own workflows; `create-repos.yml` is the one that holds a
+  credential with account-level rights, and it creates empty repositories
+  and nothing else. An edit that makes it push, delete, or change settings
+  is a finding.
 
 ## Skills and agents are executable instructions
 

@@ -51,13 +51,21 @@ read `<parent>/<project>/spawn.log`, fix the cause in the skeleton (a
 skeleton bug, since the example spawn is green in CI) and re-run with
 `--force`; then that fix is a mainBrain pull request too.
 
-## 4. Push, if the repos exist
+## 4. Create the repos and push
 
-Ask nothing. Check with `add_repo` whether `<owner>/<project>-ops` is
-reachable. If it is, run `bash <parent>/<project>/push-all.sh`, then
-open no pull request: the first commit on `main` is the scaffold. If it is
-not reachable, say so in one line and point at `HANDOFF.md` step G1: the
-repos are created by hand on a personal account.
+Ask nothing. In this order:
+
+1. Trigger this repo's "Create repositories" workflow
+   (`.github/workflows/create-repos.yml`) with `repos` set to the
+   comma-separated repo names from the answers file and `visibility`
+   `private`. Wait for the run. Green means the repos exist, empty. Red
+   with "REPO_ADMIN_TOKEN is not set" means the one-time setup in
+   `docs/repo-creation.md` has not been done: say so in one line, point at
+   it, and continue with step 2 in case the repos were created by hand.
+2. Check with `add_repo` whether `<owner>/<ops repo>` is reachable. If it
+   is, attach every repo and run `bash <parent>/<project>/push-all.sh`;
+   open no pull request, the first commit on `main` is the scaffold. If it
+   is not, say so and point at `HANDOFF.md` G1 and G2.
 
 ## 5. Hand over
 

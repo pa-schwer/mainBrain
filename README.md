@@ -12,7 +12,8 @@ bash scripts/spawn.sh examples/answers.example.json --out /tmp/demo
 cat /tmp/demo/acme/HANDOFF.md
 ```
 
-Read `CLAUDE.md` for the model, `docs/questionnaire.md` for the questions,
+Read `CLAUDE.md` for the model, `docs/repo-creation.md` to let a session
+create the repositories itself, `docs/questionnaire.md` for the questions,
 `docs/upstream.md` for how improvements in a project come back here.
 
 This repo is public and holds nothing private: no customer, no account, no

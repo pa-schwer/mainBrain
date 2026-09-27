@@ -5,6 +5,10 @@ so a session cannot do G1. Everything after it is a click or a paste.
 
 ### G1 — Create the repositories
 
+Skip this step when mainBrain's "Create repositories" workflow is set up
+(`mainBrain/docs/repo-creation.md`): the session triggers it and the repos
+appear empty, as below. Otherwise, by hand:
+
 Where: https://github.com/new, signed in as `{{OWNER}}`.
 
 Create each one **empty**: no README, no .gitignore, no license. The
@@ -22,8 +26,9 @@ Proof: the URLs above open.
 
 Where: https://github.com/apps/claude/installations/select_target
 
-Choose the `{{OWNER}}` account and either "All repositories" or add each
-repo from G1 to the selection. Without this, a session cannot clone,
+Choose the `{{OWNER}}` account and **All repositories**, so a repo created
+later is reachable without another visit here; or add each repo from G1
+to the selection. Without this, a session cannot clone,
 push or open a pull request on them, whatever else is configured.
 
 Then, in the Claude Code environment, attach the repos (step E1).
