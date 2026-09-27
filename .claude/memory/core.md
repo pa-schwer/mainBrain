@@ -13,9 +13,10 @@ rest is a generated `HANDOFF.md` with a proof per step.
 
 ## Environment
 
-Web sessions: no `gh`, no `firebase`, no `wrangler`. A GitHub App on a
-personal account cannot create repositories, so `HANDOFF.md` G1 is a
-human step. The container is ephemeral; git is the only persistence.
+Web sessions: no `gh`, no `firebase`, no `wrangler`. The Claude GitHub
+App cannot create repositories, on a personal account or an organization,
+so `HANDOFF.md` G1 is a human step. The container is ephemeral; git is
+the only persistence.
 → topics/environment.md
 
 ## Spawns

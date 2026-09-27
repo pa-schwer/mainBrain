@@ -38,6 +38,12 @@ Read the file back and show the user a five-line summary: repos, needs,
 secrets, services, domain. Do not wait for confirmation unless something
 was ambiguous; the founder's standing rule is to build.
 
+If the founder hands over a brand, voice or copy document, draw the
+one-line description from it, and after the generator runs, put the
+document verbatim in `<project>-ops/BRAND.md` (it replaces the
+placeholder) in a second commit on `main`, with `docs/product.md` filled
+from it in English. Sessions in every repo read it there by path.
+
 ## 3. Run the generator
 
 ```bash
@@ -65,7 +71,9 @@ Ask nothing. In this order:
 2. Check with `add_repo` whether `<owner>/<ops repo>` is reachable. If it
    is, attach every repo and run `bash <parent>/<project>/push-all.sh`;
    open no pull request, the first commit on `main` is the scaffold. If it
-   is not, say so and point at `HANDOFF.md` G1 and G2.
+   is not, say so and point at `HANDOFF.md` G1 and G2: without the
+   workflow, the repos are created by hand, on a personal account or an
+   organization.
 
 ## 5. Hand over
 

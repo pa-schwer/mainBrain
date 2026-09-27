@@ -60,3 +60,5 @@ npm run build       # tsc
 - Conventional commits.
 - The working agreement in `{{PROJECT}}-ops/docs/workflow.md` applies here
   in full.
+- A label, level or message this code returns ends up in front of a user.
+  Read `{{PROJECT}}-ops/BRAND.md` in full before adding or changing one.
