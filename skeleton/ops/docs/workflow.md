@@ -42,6 +42,9 @@ lose.
 | Front ends | `main` preview | `prod` production |
 | Third-party accounts | test mode | live mode |
 
+Project ids, numbers and hostnames are recorded in each repo's config and
+in `docs/environments.md` once they exist. They are not guessed.
+
 `prod` only ever moves forward to a commit that was on `main` and was
 tested on staging. Nothing is committed to `prod` directly:
 

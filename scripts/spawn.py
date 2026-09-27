@@ -238,6 +238,18 @@ def firebase_section(a: dict) -> str:
         "One service account key per project, held as `FIREBASE_SERVICE_ACCOUNT_STAGING`",
         "and `FIREBASE_SERVICE_ACCOUNT_PROD` in the functions repo. Four roles: Editor,",
         "Secret Manager Admin, Cloud Functions Admin, Cloud Run Admin (HANDOFF.md, F4).",
+        "",
+        "### What a green deploy means",
+        "",
+        "The first deploy on a fresh project can lose one function: the parallel",
+        "creates race to make the `gcf-v2-sources` bucket, one gets a 409, and the",
+        "CLI logs it as a warning and exits 0. `deploy.yml` therefore ends with a",
+        "step that lists the project's functions and compares them with what",
+        "`src/index.ts` exports. Green means every export is live. A red verify",
+        "step on a first deploy says to re-run; the second run finds the bucket.",
+        "",
+        "Function URLs are read from the Firebase console, Functions tab, when a",
+        "third party needs one. They are recorded here once they exist.",
     ]
     return "\n".join(lines)
 
