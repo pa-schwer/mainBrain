@@ -84,6 +84,9 @@ def load_answers(path: Path) -> dict:
         raise SystemExit(f"unknown repo kind(s): {', '.join(unknown)}. Known: {', '.join(KINDS)}")
     answers["repos"] = [k for k in KINDS if k in repos]
 
+    answers.setdefault("repo_names", {})
+    REPO_NAMES.clear()
+    REPO_NAMES.update(answers["repo_names"])
     answers.setdefault("domain", f"{answers['project']}.example")
     answers.setdefault("app_domain", f"app.{answers['domain']}")
     answers.setdefault("api_domain", f"api.{answers['domain']}")
@@ -100,8 +103,14 @@ def load_answers(path: Path) -> dict:
 
 
 # ------------------------------------------------------------------ values
+# Repos are named <project>-<kind> unless the answers say otherwise. The
+# override exists for a project that predates the generator and cannot be
+# renamed; a new project keeps the convention.
+REPO_NAMES: dict[str, str] = {}
+
+
 def repo_name(project: str, kind: str) -> str:
-    return f"{project}-{kind}"
+    return REPO_NAMES.get(kind, f"{project}-{kind}")
 
 
 def build_values(a: dict, entries: list[dict], today: str) -> dict[str, str]:
@@ -543,6 +552,7 @@ def main(argv: list[str]) -> int:
         "answers": a,
         "skills": [e["name"] for e in entries],
         "skeleton_owned": owned,
+        "repo_kinds": {repo_name(a["project"], k): k for k in a["repos"]},
     }
     (ops / ".mainbrain").mkdir(exist_ok=True)
     (ops / ".mainbrain/manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
