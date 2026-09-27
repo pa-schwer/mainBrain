@@ -86,7 +86,18 @@ jobs:
             # Empty on purpose: the generated repo brings its own README,
             # .gitignore and first commit, and an initialized remote would
             # turn the first push into a merge.
-            if gh repo create "${owner}/${name}" "--${VISIBILITY}" --description "${DESCRIPTION}" > /dev/null; then
+            # REST, not `gh repo create`: that command goes through GraphQL,
+            # which refuses a fine-grained token on createRepository. The
+            # REST endpoints accept one with Administration: write.
+            private=$([ "${VISIBILITY}" = private ] && echo true || echo false)
+            if [ "${owner}" = "$(gh api user --jq .login)" ]; then
+              endpoint="user/repos"
+            else
+              endpoint="orgs/${owner}/repos"
+            fi
+            if gh api --method POST "${endpoint}" \
+                 -f name="${name}" -f description="${DESCRIPTION}" -F private="${private}" \
+                 --silent; then
               echo "created ${owner}/${name}"
             else
               echo "FAIL    ${owner}/${name}"
