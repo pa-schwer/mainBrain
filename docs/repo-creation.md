@@ -10,14 +10,28 @@ This page removes that step. After it, a session runs the
 repos with a token that never leaves GitHub. One setup, ten minutes, done
 once per GitHub account.
 
+## 0. If the repositories go to an organization
+
+The token is still created from your user settings, but its **Resource
+owner** is the organization, and the organization has to allow that
+first. Once, as an organization owner:
+
+https://github.com/organizations/<org>/settings/personal-access-tokens
+
+"Allow access via fine-grained personal access tokens", and "Do not
+require administrator approval" unless you want to approve each token by
+hand. Then, when running the workflow, set its `owner` input to the
+organization; empty means the account that owns the token.
+
 ## 1. Create the token
 
-Where: https://github.com/settings/tokens?type=beta (fine-grained), or
-https://github.com/settings/tokens/new (classic).
+Where: https://github.com/settings/personal-access-tokens/new
+(fine-grained), or https://github.com/settings/tokens/new (classic).
 
 **Fine-grained** (preferred):
 
 - Token name `mainbrain-repo-admin`.
+- Resource owner: your user, or the organization from step 0.
 - Expiration: one year. Put the date in your calendar; the workflow fails
   with a 401 the day it expires.
 - Repository access: **All repositories**. Creating a repository is an
@@ -58,7 +72,8 @@ removes. "All repositories" covers repos created later.
 ## 4. Proof
 
 Actions → "Create repositories" → Run workflow, with
-`repos: mainbrain-smoke-test`, `visibility: private`. The run prints
+`repos: mainbrain-smoke-test`, `visibility: private`, and `owner` set to
+the organization if the token was made for one. The run prints
 `created <owner>/mainbrain-smoke-test`. Delete that repository afterwards
 (Settings → Danger zone); a second run prints `exists` and does nothing,
 which is the idempotence the session relies on.
