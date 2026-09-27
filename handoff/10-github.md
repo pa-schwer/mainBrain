@@ -1,28 +1,53 @@
 ## G — GitHub
 
-A session cannot do G1. On a personal account the API refuses repository
-creation to any GitHub App; on an organization the Claude App gets a 403
-unless its installation holds the Administration permission, which it does
-not ask for. Everything after G1 is a click or a paste.
+Repository creation has two paths. The **automatic** one is the default:
+mainBrain's "Create repositories" workflow holds a token the session
+cannot have, and the session triggers it. The **manual** one is the
+fallback when that workflow was never armed for `{{OWNER}}`.
+
+A session cannot create a repository on its own: on a personal account the
+API refuses repository creation to any GitHub App, on an organization the
+Claude App gets a 403 because its installation does not hold the
+Administration permission, and the session's proxy replaces any token a
+session sends with the app's own. So the credential lives in mainBrain's
+Actions secrets, and acts from there. Everything after G1 is a click or a
+paste.
 
 ### G1 — Create the repositories
 
-Skip this step when mainBrain's "Create repositories" workflow is set up
-(`mainBrain/docs/repo-creation.md`): the session triggers it and the repos
-appear empty, as below. Otherwise, by hand:
-
-Where: https://github.com/new, signed in as `{{OWNER}}`.
-
-Create each one **empty**: no README, no .gitignore, no license. The
-generated repo already has all three, and an initialized remote makes the
-first push a merge.
+The repositories this project needs, all **empty**: no README, no
+.gitignore, no license. The generated repo already has all three, and an
+initialized remote makes the first push a merge. Private.
 
 {{REPO_CREATE_LIST}}
 
-Visibility: private. Default branch name does not matter; the push below
-sets `main`.
+**Path A, automatic (default).** Done once for `{{OWNER}}`, in
+`mainBrain/docs/repo-creation.md`: a fine-grained token with the account
+(or the organization) as resource owner, Administration read and write on
+all repositories, 365 days; stored as `REPO_ADMIN_TOKEN` in
+`mainBrain`'s Actions secrets; the Claude App installed for **All
+repositories** so the new repos are reachable without a second visit.
 
-Proof: the URLs above open.
+Then the session does the rest, with no click:
+
+1. It triggers `Create repositories` in mainBrain (Actions → Create
+   repositories → Run workflow) with `repos` = the names above,
+   `owner` = `{{OWNER}}`, `visibility` = `private`.
+2. The run prints one line per repo: `created {{OWNER}}/<name>`, or
+   `exists {{OWNER}}/<name>` when it was already there (nothing is touched).
+3. It pushes with `push-all.sh` (G3).
+
+If the run is red, its log names the cause and the fix; the table in
+`mainBrain/docs/repo-creation.md`, "Reading a red run", translates each
+message. `REPO_ADMIN_TOKEN is not set` means path A was never armed:
+fall back to path B, or arm it (ten minutes, once).
+
+**Path B, by hand.** Where: https://github.com/new, signed in as
+`{{OWNER}}`. One repo at a time, from the list above, empty, private.
+Default branch name does not matter; the push sets `main`.
+
+Proof, either path: the URLs above open and each shows "This repository
+is empty" until G3.
 
 ### G2 — Let Claude reach them
 

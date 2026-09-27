@@ -345,7 +345,7 @@ def write_handoff(ws: Path, a: dict, values: dict[str, str], entries: list[dict]
     fronts = [k for k in repos if k in FRONTEND]
     firebase = bool(FIREBASE & set(repos))
 
-    groups = [("G", "GitHub", "every repo"), ("E", "Claude Code environment", "every session")]
+    groups = [("G", "GitHub (G1 automatic when mainBrain's workflow is armed)", "every repo"), ("E", "Claude Code environment", "every session")]
     if firebase:
         groups.insert(1, ("F", "Firebase and Google Cloud", "functions, app"))
     if fronts:

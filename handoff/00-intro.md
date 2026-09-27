@@ -17,6 +17,11 @@ earlier ones. Tick the box when the proof is green, not before.
 A session that needs one of these steps names it by number and waits. It
 never invents a value and never skips the proof.
 
+One step has an automatic path: G1, creating the repositories, is done by
+mainBrain's "Create repositories" workflow when that workflow has been
+armed once for `{{OWNER}}` (`mainBrain/docs/repo-creation.md`). Then the
+session creates and pushes without a click, and G1 is a line in a log.
+
 | Group | Steps | Needed for |
 |---|---|---|
 {{GROUPS_TABLE}}

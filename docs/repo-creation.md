@@ -23,6 +23,27 @@ require administrator approval" unless you want to approve each token by
 hand. Then, when running the workflow, set its `owner` input to the
 organization; empty means the account that owns the token.
 
+## The flow, once armed
+
+```
+answers file ──spawn.sh──▶ workspace (first commit in every repo)
+      │
+      └──▶ session triggers "Create repositories" (repos, owner, private)
+                 │  workflow: REPO_ADMIN_TOKEN ──▶ POST /orgs/{owner}/repos
+                 │            or /user/repos, one per name, skip if exists
+                 ▼
+            empty private repos ──add_repo + push-all.sh──▶ main pushed, CI runs
+```
+
+Three properties the rest of this page protects:
+
+- the token never leaves GitHub: it is read by the workflow, never by a
+  session, never by a file;
+- the workflow has one verb: create an empty repository, skip an existing
+  one. It never pushes, deletes, or changes a setting;
+- what lands in a repo still goes through the session's own credentials,
+  so the app installation and the working agreement gate it as before.
+
 ## 1. Create the token
 
 Where: https://github.com/settings/personal-access-tokens/new
