@@ -158,6 +158,7 @@ git push origin origin/main:prod
   in full: one goal per session, side findings to
   `{{PROJECT}}-ops/docs/bugs.md`, an acceptance journal for every release
   to staging, and no promotion to prod until the founder has filled it.
-- All copy in {{COPY_LANGUAGE}}.
+- All copy in {{COPY_LANGUAGE}}, by the rules in `{{PROJECT}}-ops/BRAND.md`.
+  Read that file in full before writing anything a user will read.
 - Every feature lands with a happy-path test, error logging, and a line in
   `{{PROJECT}}-ops/docs/decisions.md` if an architectural choice was made.

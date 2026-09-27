@@ -10,13 +10,21 @@ proof for every manual step.
 ## A GitHub App on a personal account cannot create repositories [2026-09-27]
 
 `POST /user/repos` returns 403 for an installation token whatever its
-permissions. On an organization it works through `/orgs/{org}/repos`. The
-generator sets the remotes and writes `push-all.sh`; creating the repos is
-`HANDOFF.md` step G1, and reaching them afterwards needs the app install
-updated (G2).
+permissions. The generator sets the remotes and writes `push-all.sh`;
+creating the repos is `HANDOFF.md` step G1, and reaching them afterwards
+needs the app install updated (G2).
 
 ## Sessions are ephemeral; git is the only persistence [2026-09-27]
 
 The container is reclaimed between sessions and `~/.claude/` goes with it.
 Memory and the observation log live in the repo. `HANDOFF.md` step E2 is
 the environment setup script that reinstalls dependencies per session.
+
+## On an organization too, as installed [2026-09-27]
+
+`POST /orgs/{org}/repos` answered 403 "Resource not accessible by
+integration" on an organization where the Claude App was installed: the
+installation does not hold the Administration permission. G1 stays a
+human step whatever the owner type. Checking the owner type works through
+a repository search (`owner.type`); `/users/{login}` is blocked in
+sessions.

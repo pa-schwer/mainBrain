@@ -1,7 +1,9 @@
 ## G — GitHub
 
-A GitHub App installed on a personal account cannot create repositories,
-so a session cannot do G1. Everything after it is a click or a paste.
+A session cannot do G1. On a personal account the API refuses repository
+creation to any GitHub App; on an organization the Claude App gets a 403
+unless its installation holds the Administration permission, which it does
+not ask for. Everything after G1 is a click or a paste.
 
 ### G1 — Create the repositories
 

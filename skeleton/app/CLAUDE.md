@@ -111,7 +111,8 @@ bash scripts/no-hardcoded-tokens.sh
   that Claude merges when CI is green.
 - The working agreement in `{{PROJECT}}-ops/docs/workflow.md` applies here
   in full.
-- All copy in {{COPY_LANGUAGE}}.
+- All copy in {{COPY_LANGUAGE}}, by the rules in `{{PROJECT}}-ops/BRAND.md`.
+  Read that file in full before writing anything a user will read.
 - Design tokens are never hardcoded.
 - Every feature lands with a happy-path test, error logging, and a line in
   `{{PROJECT}}-ops/docs/decisions.md` if an architectural choice was made.

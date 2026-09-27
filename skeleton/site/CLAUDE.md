@@ -84,7 +84,8 @@ of the Vite types make `astro check` fail on the Tailwind plugin.
   that Claude merges when CI is green.
 - The working agreement in `{{PROJECT}}-ops/docs/workflow.md` applies here
   in full.
-- All copy in {{COPY_LANGUAGE}}.
+- All copy in {{COPY_LANGUAGE}}, by the rules in `{{PROJECT}}-ops/BRAND.md`.
+  Read that file in full before writing anything a user will read.
 - Design tokens are never hardcoded.
 - Motion goes through `animate` and is gated by `review-animations` when
   those skills are installed in ops.

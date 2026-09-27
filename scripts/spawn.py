@@ -119,7 +119,8 @@ def build_values(a: dict, entries: list[dict], today: str) -> dict[str, str]:
     names = [repo_name(p, k) for k in repos]
     product = [k for k in repos if k != "ops"]
 
-    arch_lines = [f"├── {repo_name(p, k) + '/':<20}{PURPOSE[k]}" for k in repos]
+    width = max(len(n) for n in names) + 3  # the slash and two spaces, whatever the slug length
+    arch_lines = [f"├── {n + '/':<{width}}{PURPOSE[k]}" for n, k in zip(names, repos)]
     arch_lines[-1] = arch_lines[-1].replace("├──", "└──", 1)
 
     copies = [f"{repo_name(p, k)}/{SCHEMA_COPY[k]}" for k in product]
@@ -433,8 +434,8 @@ def write_push_script(ws: Path, a: dict) -> None:
     script = f"""#!/usr/bin/env bash
 # Push main of every generated repo to its origin. Safe to re-run.
 # The remotes were set by mainBrain at spawn time; the repos themselves
-# are created by hand (HANDOFF.md, G1) because a GitHub App on a personal
-# account cannot create them.
+# are created by hand (HANDOFF.md, G1) because the Claude GitHub App
+# cannot create them, on a personal account or an organization.
 set -uo pipefail
 cd "$(dirname "${{BASH_SOURCE[0]}}")"
 failed=0
