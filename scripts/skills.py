@@ -97,11 +97,11 @@ def plugin_ids(entries: list[dict]) -> list[str]:
 
 
 def standing(entries: list[dict]) -> list[dict]:
-    return [e for e in entries if e["kind"] != "plugin" and e["mode"] in STANDING_MODES]
+    return [e for e in entries if e["mode"] in STANDING_MODES and e["kind"] != "plugin"]
 
 
 def on_demand(entries: list[dict]) -> list[dict]:
-    return [e for e in entries if e["kind"] != "plugin" and e["mode"] not in STANDING_MODES]
+    return [e for e in entries if e["mode"] not in STANDING_MODES and e["kind"] != "plugin"]
 
 
 def table(entries: list[dict]) -> str:

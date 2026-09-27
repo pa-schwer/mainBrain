@@ -110,9 +110,8 @@ def build_values(a: dict, entries: list[dict], today: str) -> dict[str, str]:
     names = [repo_name(p, k) for k in repos]
     product = [k for k in repos if k != "ops"]
 
-    arch = "\n".join(f"├── {repo_name(p, k) + '/':<20}{PURPOSE[k]}" for k in repos)
-    arch = arch.rsplit("├──", 1)
-    arch = "└──".join(arch) if len(arch) == 2 else arch[0]
+    arch_lines = [f"├── {repo_name(p, k) + '/':<20}{PURPOSE[k]}" for k in repos]
+    arch_lines[-1] = arch_lines[-1].replace("├──", "└──", 1)
 
     copies = [f"{repo_name(p, k)}/{SCHEMA_COPY[k]}" for k in product]
     secret_names = ", ".join(f"`{s['name']}`" for s in a["secrets"])
@@ -138,7 +137,7 @@ def build_values(a: dict, entries: list[dict], today: str) -> dict[str, str]:
         "REPO_LIST": ", ".join(f"`{n}`" for n in names),
         "REPO_DIRS": " ".join(names),
         "SIBLINGS": " ".join(repo_name(p, k) for k in product),
-        "ARCHITECTURE_MAP": arch,
+        "ARCHITECTURE_MAP": "\n".join(arch_lines),
         "FORBIDDEN_ZONES": "\n".join(f"| `{repo_name(p, k)}` | {FORBIDDEN[k]} |" for k in repos),
         "SCHEMA_COPY_LIST": "\n".join(f"- `{c}`" for c in copies) or "- (no product repo yet)",
         "SCHEMA_COPY_COMMENT": "\n".join(f"//   {c}" for c in copies) or "//   (no product repo yet)",
@@ -153,21 +152,28 @@ def build_values(a: dict, entries: list[dict], today: str) -> dict[str, str]:
         "FIREBASE_SECTION": firebase_section(a),
         "CLOUDFLARE_SECTION": cloudflare_section(a),
         "SERVICES_TABLE": "\n".join(
-            f"| {s['name']} | {s.get('staging', 'test mode')} | {s.get('prod', 'live mode')} | {', '.join(f'`{n}`' for n in s.get('secrets', [])) or '—'} |"
+            f"| {s['name']} | {s.get('staging', 'test mode')} | {s.get('prod', 'live mode')} | {service_secrets(s)} |"
             for s in a["services"]
         ) or "| (none yet) | | | |",
+        "SCHEMA_JOB": "",  # per repo, set in render_repo
+        "REPO_NAME": "",
     }
-    values["SCHEMA_JOB"] = ""  # per repo, set in render_repo
-    values["REPO_NAME"] = ""
     return values
+
+
+def service_secrets(service: dict) -> str:
+    return ", ".join(f"`{n}`" for n in service.get("secrets", [])) or "—"
+
+
+def front_domain(a: dict, kind: str) -> str:
+    return a["domain"] if kind == "site" else a["app_domain"]
 
 
 def github_secrets_table(a: dict) -> str:
     p = a["project"]
     rows = []
-    for k in a["repos"]:
-        if k == "ops":
-            continue
+    product = [k for k in a["repos"] if k != "ops"]
+    for k in product:
         rows.append(f"| `{repo_name(p, k)}` | `OPS_READ_TOKEN` | PAT, Contents: read on `{a['owner']}/{repo_name(p, 'ops')}` |")
     if "functions" in a["repos"]:
         rows.append(f"| `{repo_name(p, 'functions')}` | `FIREBASE_SERVICE_ACCOUNT_STAGING` | service account JSON, {a['firebase_staging']} |")
@@ -191,12 +197,13 @@ def firebase_section(a: dict) -> str:
     if "functions" in a["repos"]:
         lines.append(f"| Deploys from | `main` of `{repo_name(p, 'functions')}` | `prod` of `{repo_name(p, 'functions')}` |")
     if "app" in a["repos"]:
+        rules_repo = repo_name(p, "functions") if "functions" in a["repos"] else "the functions repo"
         lines += [
             "",
             "### Web app config",
             "",
             "Public by construction: it ships inside the dashboard bundle. The security",
-            f"boundary is `firestore.rules` in `{repo_name(p, 'functions') if 'functions' in a['repos'] else 'the functions repo'}`. The two configs are",
+            f"boundary is `firestore.rules` in `{rules_repo}`. The two configs are",
             f"committed in `{repo_name(p, 'app')}` as `.env.staging` and `.env.production`;",
             "`scripts/build.mjs` picks one by branch.",
         ]
@@ -241,8 +248,7 @@ def cloudflare_section(a: dict) -> str:
         "|---|---|---|---|---|---|",
     ]
     for k in fronts:
-        domain = a["domain"] if k == "site" else a["app_domain"]
-        lines.append(f"| `{repo_name(p, k)}` | `{a['owner']}/{repo_name(p, k)}` | `prod` | `npm run build` | `npx wrangler deploy` | `{domain}` |")
+        lines.append(f"| `{repo_name(p, k)}` | `{a['owner']}/{repo_name(p, k)}` | `prod` | `npm run build` | `npx wrangler deploy` | `{front_domain(a, k)}` |")
     return "\n".join(lines)
 
 
@@ -266,7 +272,8 @@ def render_repo(kind: str, out: Path, values: dict[str, str]) -> list[str]:
     src_root = SKELETON / kind
     owned: list[str] = []
     per_repo = dict(values, REPO_NAME=out.name)
-    per_repo["SCHEMA_JOB"] = render((SHARED / "schema-job.yml").read_text(encoding="utf-8"), per_repo, "schema-job.yml") if kind != "ops" else ""
+    if kind != "ops":
+        per_repo["SCHEMA_JOB"] = render((SHARED / "schema-job.yml").read_text(encoding="utf-8"), per_repo, "schema-job.yml")
 
     for src in sorted(src_root.rglob("*")):
         if src.is_dir():
@@ -285,13 +292,11 @@ def render_repo(kind: str, out: Path, values: dict[str, str]) -> list[str]:
 
 def install_harness(ops: Path, entries: list[dict], values: dict[str, str]) -> list[str]:
     claude = ops / ".claude"
-    (claude / "hooks").mkdir(parents=True, exist_ok=True)
     owned = []
 
-    copy_rendered(LIBRARY / "harness/session-start.sh", claude / "hooks/session-start.sh", values)
-    copy_rendered(LIBRARY / "harness/claude-security-guidance.md", claude / "claude-security-guidance.md", values)
-    copy_rendered(LIBRARY / "harness/security-patterns.json", claude / "security-patterns.json", values)
-    owned += [".claude/hooks/session-start.sh", ".claude/claude-security-guidance.md", ".claude/security-patterns.json"]
+    for rel in ("hooks/session-start.sh", "claude-security-guidance.md", "security-patterns.json"):
+        copy_rendered(LIBRARY / "harness" / Path(rel).name, claude / rel, values)
+        owned.append(f".claude/{rel}")
 
     settings = json.loads((LIBRARY / "harness/settings.json").read_text(encoding="utf-8"))
     settings["enabledPlugins"] = {pid: True for pid in skills.plugin_ids(entries)}
@@ -301,17 +306,12 @@ def install_harness(ops: Path, entries: list[dict], values: dict[str, str]) -> l
     # session-context.md lists only the standing directives that were installed.
     context = (LIBRARY / "harness/session-context.md").read_text(encoding="utf-8")
     installed = {e["name"] for e in entries}
-    sections = re.split(r"(?m)^(?=## )", context)
-    kept = [sections[0]]
-    for section in sections[1:]:
-        name = section.split(" ", 2)[1]
-        if name in installed:
-            kept.append(section)
+    head, *sections = re.split(r"(?m)^(?=## )", context)
+    kept = [head] + [section for section in sections if section.split(" ", 2)[1] in installed]
     (claude / "session-context.md").write_text("".join(kept).rstrip() + "\n", encoding="utf-8")
     owned.append(".claude/session-context.md")
 
-    for line in skills.install(ops, entries):
-        owned.append(line)
+    owned += skills.install(ops, entries)
     return owned
 
 
@@ -371,14 +371,14 @@ def write_handoff(ws: Path, a: dict, values: dict[str, str], entries: list[dict]
         if "site" in fronts else ""
     )
     hv["CF_DOMAIN_LIST"] = "\n".join(
-        f"- [ ] `{a['domain'] if k == 'site' else a['app_domain']}` → Worker `{repo_name(p, k)}`" for k in fronts
+        f"- [ ] `{front_domain(a, k)}` → Worker `{repo_name(p, k)}`" for k in fronts
     )
     hv["SECRETS_TABLE"] = "\n".join(
         f"| `{s['name']}` | {s.get('service', '')} | {s.get('used_by', 'functions')} | from the {s.get('service', 'service')} test account | from the live account |"
         for s in a["secrets"]
     )
     hv["SERVICES_HANDOFF_TABLE"] = "\n".join(
-        f"| {s['name']} | {s.get('staging', 'test mode')} | {s.get('prod', 'live mode')} | {', '.join(f'`{n}`' for n in s.get('secrets', [])) or '—'} | {s.get('where', 'the service dashboard')} |"
+        f"| {s['name']} | {s.get('staging', 'test mode')} | {s.get('prod', 'live mode')} | {service_secrets(s)} | {s.get('where', 'the service dashboard')} |"
         for s in a["services"]
     )
     hv["PLAYWRIGHT_LINE"] = (
@@ -433,53 +433,54 @@ done
 
 
 # ------------------------------------------------------------ install/check
-def run(cmd: list[str], cwd: Path, log: Path) -> bool:
+def run(cmd: list[str], cwd: Path, log: Path, env: dict[str, str] | None = None, check: bool = False) -> bool:
     with log.open("a", encoding="utf-8") as fh:
         fh.write(f"\n$ {' '.join(cmd)}   (in {cwd})\n")
         fh.flush()
-        result = subprocess.run(cmd, cwd=cwd, stdout=fh, stderr=subprocess.STDOUT, text=True)
+        result = subprocess.run(cmd, cwd=cwd, env=env, stdout=fh, stderr=subprocess.STDOUT, text=True, check=check)
     return result.returncode == 0
 
 
 def install_and_check(ws: Path, a: dict, log: Path) -> list[tuple[str, str, bool]]:
-    results = []
+    results: list[tuple[str, str, bool]] = []
     p = a["project"]
     for kind in a["repos"]:
         repo = ws / repo_name(p, kind)
+
+        def check(label: str, cmd: list[str]) -> bool:
+            ok = run(cmd, repo, log)
+            results.append((repo.name, label, ok))
+            return ok
+
         if kind == "ops":
-            results.append((repo.name, "check-schema.sh", run(["bash", "scripts/check-schema.sh"], repo, log)))
+            check("check-schema.sh", ["bash", "scripts/check-schema.sh"])
             continue
-        ok = run(["npm", "install", "--silent", "--no-audit", "--no-fund"], repo, log)
-        results.append((repo.name, "npm install", ok))
-        if not ok:
+        if not check("npm install", ["npm", "install", "--silent", "--no-audit", "--no-fund"]):
             continue
-        results.append((repo.name, "npm run typecheck", run(["npm", "run", "typecheck", "--silent"], repo, log)))
-        results.append((repo.name, "npm test", run(["npm", "test", "--silent"], repo, log)))
+        check("npm run typecheck", ["npm", "run", "typecheck", "--silent"])
+        check("npm test", ["npm", "test", "--silent"])
         if kind in FRONTEND:
-            results.append((repo.name, "no-hardcoded-tokens.sh", run(["bash", "scripts/no-hardcoded-tokens.sh"], repo, log)))
+            check("no-hardcoded-tokens.sh", ["bash", "scripts/no-hardcoded-tokens.sh"])
         if kind == "site":
-            results.append((repo.name, "npm run build", run(["npm", "run", "build", "--silent"], repo, log)))
+            check("npm run build", ["npm", "run", "build", "--silent"])
         if kind == "app":
-            results.append((repo.name, "vite build", run(["npx", "vite", "build"], repo, log)))
+            check("vite build", ["npx", "vite", "build"])
     return results
 
 
 def git_init(ws: Path, a: dict, log: Path) -> None:
     p = a["project"]
+    env = dict(os.environ, GIT_AUTHOR_NAME="mainBrain", GIT_AUTHOR_EMAIL="mainbrain@localhost",
+               GIT_COMMITTER_NAME="mainBrain", GIT_COMMITTER_EMAIL="mainbrain@localhost")
     for kind in a["repos"]:
         repo = ws / repo_name(p, kind)
-        env = dict(os.environ, GIT_AUTHOR_NAME="mainBrain", GIT_AUTHOR_EMAIL="mainbrain@localhost",
-                   GIT_COMMITTER_NAME="mainBrain", GIT_COMMITTER_EMAIL="mainbrain@localhost")
         for cmd in (
             ["git", "init", "--quiet", "-b", "main"],
             ["git", "remote", "add", "origin", f"https://github.com/{a['owner']}/{repo.name}.git"],
             ["git", "add", "-A"],
             ["git", "commit", "--quiet", "-m", f"chore: scaffold {repo.name} from mainBrain\n\nGenerated by mainBrain spawn on {dt.date.today().isoformat()}. HANDOFF.md at the workspace root lists what a human still has to do."],
         ):
-            with log.open("a", encoding="utf-8") as fh:
-                fh.write(f"\n$ {' '.join(cmd)}   (in {repo})\n")
-                fh.flush()
-                subprocess.run(cmd, cwd=repo, env=env, stdout=fh, stderr=subprocess.STDOUT, check=True)
+            run(cmd, repo, log, env=env, check=True)
 
 
 def mainbrain_commit() -> str:
@@ -523,10 +524,11 @@ def main(argv: list[str]) -> int:
     schema = (ops / "docs/schema/types.ts").read_bytes()
     for kind in a["repos"]:
         if kind in SCHEMA_COPY:
-            dst = ws / repo_name(a["project"], kind) / SCHEMA_COPY[kind]
+            name = repo_name(a["project"], kind)
+            dst = ws / name / SCHEMA_COPY[kind]
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_bytes(schema)
-            owned[repo_name(a["project"], kind)].append(SCHEMA_COPY[kind])
+            owned[name].append(SCHEMA_COPY[kind])
 
     harness = install_harness(ops, entries, values)
     for line in harness:
@@ -555,7 +557,8 @@ def main(argv: list[str]) -> int:
         print("installing dependencies and running every check (see spawn.log) ...")
         for repo, check, ok in install_and_check(ws, a, log):
             print(f"  {'ok  ' if ok else 'FAIL'}  {repo:<24} {check}")
-            failed += 0 if ok else 1
+            if not ok:
+                failed += 1
 
     if not args.no_git:
         git_init(ws, a, log)
