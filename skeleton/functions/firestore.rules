@@ -1,0 +1,42 @@
+rules_version = '2';
+
+// {{TITLE}} security rules.
+//
+// Two invariants, and everything else follows from them:
+//   1. An account reads only its own subtree.
+//   2. Nothing is client-writable. Every write goes through a Cloud
+//      Function using the Admin SDK, which bypasses these rules.
+//
+// Identity comes from a custom claim, not from a document lookup. A lookup
+// costs a read on every rule evaluation and can be raced during
+// onboarding; the claim is set once when the user is created.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function belongsTo(accountId) {
+      return signedIn() && request.auth.token.accountId == accountId;
+    }
+
+    match /accounts/{accountId} {
+      allow read: if belongsTo(accountId);
+      allow write: if false;
+
+      match /{document=**} {
+        allow read: if belongsTo(accountId);
+        allow write: if false;
+      }
+    }
+
+    // Anything not matched above is denied. Listed explicitly so a new
+    // top-level collection is closed on the day it is created, not on the
+    // day someone remembers to close it.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

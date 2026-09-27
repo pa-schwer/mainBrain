@@ -1,0 +1,40 @@
+---
+/**
+ * Page shell: document, head, and the global stylesheet.
+ *
+ * No state and no business logic. This repo renders markup; anything that
+ * needs to remember something belongs in the app, and anything that
+ * decides something belongs in the functions repo.
+ */
+import "../styles/global.css";
+import { absoluteUrl } from "../lib/url";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const canonical = Astro.site ? absoluteUrl(Astro.site.href, Astro.url.pathname) : undefined;
+---
+
+<!doctype html>
+<html lang="{{HTML_LANG}}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <!-- No favicon yet: the mark comes with the design tokens. The empty
+         data URL stops the browser requesting /favicon.ico. -->
+    <link rel="icon" href="data:," />
+  </head>
+  <body class="antialiased">
+    <slot />
+  </body>
+</html>

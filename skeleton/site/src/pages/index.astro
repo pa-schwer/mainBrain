@@ -1,0 +1,18 @@
+---
+/**
+ * The landing page. Scaffold only: one heading, one line, no claim.
+ *
+ * Copy comes through the copywriting skill when the product is specced;
+ * styling comes from the design system once its tokens exist. Until then,
+ * Tailwind defaults and nothing invented.
+ */
+import Base from "../layouts/Base.astro";
+import { SITE_TITLE } from "../config";
+---
+
+<Base title={SITE_TITLE} description="{{DESCRIPTION}}">
+  <main class="mx-auto max-w-2xl px-6 py-24">
+    <h1 class="text-3xl font-semibold tracking-tight">{SITE_TITLE}</h1>
+    <p class="mt-4 text-lg">{{DESCRIPTION}}</p>
+  </main>
+</Base>

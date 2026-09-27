@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "{{FIREBASE_STAGING}}",
+    "staging": "{{FIREBASE_STAGING}}",
+    "prod": "{{FIREBASE_PROD}}"
+  }
+}

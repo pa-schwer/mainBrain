@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  library:
+    name: library and skeleton are consistent
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/check-library.sh
+
+  spawn:
+    name: example spawn is green end to end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # The whole thing: render, install, typecheck, test, build, token
+      # check, first commit, in every generated repo. A skeleton change
+      # that does not spawn green does not merge.
+      - run: bash scripts/spawn.sh examples/answers.example.json --out "${RUNNER_TEMP}/spawn" --force
+      - name: No placeholder survives in a generated file
+        run: |
+          if grep -rIE '\{\{[A-Z0-9_]+\}\}' "${RUNNER_TEMP}/spawn/acme" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=skills --exclude-dir=.mainbrain; then
+            echo "a placeholder reached a generated file"; exit 1
+          fi
+          echo "clean"
+      - name: upstream.py runs on the fresh workspace and finds nothing owed
+        run: |
+          out=$(python3 scripts/upstream.py "${RUNNER_TEMP}/spawn/acme/acme-ops")
+          echo "$out"
+          echo "$out" | grep -q "changed in the project since spawn (0)"

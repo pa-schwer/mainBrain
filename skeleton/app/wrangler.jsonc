@@ -1,0 +1,18 @@
+// Cloudflare Workers config. This Worker has no script: it serves the
+// static build in dist/ through Workers Static Assets.
+//
+// Workers Builds runs `npm run build` and then `npx wrangler deploy` on each
+// push. The production branch is `prod`; every other branch gets a preview
+// deployment, which is how `main` becomes staging. The build picks the
+// Firebase project from the branch; see scripts/build.mjs.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "{{PROJECT}}-app",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    // A single-page app: any path that is not a file serves index.html and
+    // the client router takes over.
+    "not_found_handling": "single-page-application"
+  }
+}

@@ -1,0 +1,109 @@
+name: Deploy
+
+# main deploys to staging. prod deploys to prod, and prod only ever moves by
+# fast-forward from a main commit the founder tested on staging. See
+# {{PROJECT}}-ops/docs/workflow.md.
+
+on:
+  push:
+    branches: [main, prod]
+
+# One deploy per target at a time, and a queued one waits rather than
+# cancelling: a cancelled firebase deploy can leave half the functions on
+# the old version.
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy ${{ github.ref_name == 'prod' && 'prod' || 'staging' }}
+    runs-on: ubuntu-latest
+    env:
+      TARGET: ${{ github.ref_name == 'prod' && 'prod' || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+
+      - name: Require the deploy credential, and check it matches the target
+        env:
+          SA_STAGING: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
+          SA_PROD: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
+        run: |
+          if [ "${TARGET}" = prod ]; then
+            sa="${SA_PROD}"; name=FIREBASE_SERVICE_ACCOUNT_PROD; expected={{FIREBASE_PROD}}
+          else
+            sa="${SA_STAGING}"; name=FIREBASE_SERVICE_ACCOUNT_STAGING; expected={{FIREBASE_STAGING}}
+          fi
+
+          if [ -z "${sa}" ]; then
+            echo "${name} is not set, so nothing can be deployed to ${TARGET}."
+            echo
+            echo "Fix: HANDOFF.md, step F4. Firebase console -> project ${expected}"
+            echo "-> Project settings -> Service accounts -> Generate new private"
+            echo "key, and add the whole JSON file as the ${name} secret on this"
+            echo "repository."
+            echo
+            echo "This step fails rather than skips."
+            exit 1
+          fi
+
+          printf '%s' "${sa}" > "${RUNNER_TEMP}/sa.json"
+
+          # A swapped secret would deploy staging code to prod with a green
+          # run. The credential names its project; it has to be the target.
+          actual=$(jq -r '.project_id // empty' "${RUNNER_TEMP}/sa.json")
+          if [ "${actual}" != "${expected}" ]; then
+            echo "${name} is a credential for '${actual:-<not a service account JSON>}',"
+            echo "but the target is '${expected}'. Refusing to deploy."
+            exit 1
+          fi
+          echo "credential ok: ${actual}"
+
+      - name: Deploy functions and Firestore rules
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+        run: |
+          npx --yes firebase-tools@14 deploy \
+            --only functions,firestore \
+            --project "${TARGET}" \
+            --non-interactive --force
+
+      # A first deploy on a fresh project can exit 0 with one function never
+      # created: parallel creates race to make the sources bucket, one loses
+      # with a 409, and the CLI reports it as a warning. Green has to mean
+      # every function that src/index.ts exports is live, so this step asks
+      # the project and compares.
+      - name: Verify every exported function is deployed
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+        run: |
+          expected=$(grep -oE '^export \{ [A-Za-z0-9_]+ \}' src/index.ts \
+            | sed -E 's/export \{ ([A-Za-z0-9_]+) \}/\1/' | sort)
+          deployed=$(npx --yes firebase-tools@14 functions:list \
+            --project "${TARGET}" --json \
+            | jq -r '.result[].id' | sort)
+
+          echo "expected:"; echo "${expected}" | sed 's/^/  /'
+          echo "deployed:"; echo "${deployed}" | sed 's/^/  /'
+
+          missing=$(comm -23 <(echo "${expected}") <(echo "${deployed}"))
+          if [ -n "${missing}" ]; then
+            echo
+            echo "Not deployed on ${TARGET}:"
+            echo "${missing}" | sed 's/^/  /'
+            echo
+            echo "Re-run this workflow. A first deploy on a fresh project can"
+            echo "lose one function to a bucket-creation race; the second"
+            echo "run finds the bucket in place. If the same function is"
+            echo "missing twice, read the deploy step's log for it."
+            exit 1
+          fi
+          echo "all exported functions are deployed on ${TARGET}"

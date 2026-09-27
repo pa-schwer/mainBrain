@@ -1,0 +1,20 @@
+node_modules/
+dist/
+*.log
+
+# Firebase local state. Emulator exports and debug logs, never committed.
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Secrets live in Firebase Secret Manager. Nothing resembling one is ever
+# written to this tree, but an .env that slips in must not reach a commit.
+# The two per-project param files are the exception: they carry config that
+# firebase-tools binds to defineInt/defineString, never a secret.
+.env
+.env.*
+!.env.{{FIREBASE_STAGING}}
+!.env.{{FIREBASE_PROD}}
+*.pem
+service-account*.json

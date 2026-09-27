@@ -1,0 +1,28 @@
+{
+  "patterns": [
+    {
+      "rule_name": "aws_access_key_id",
+      "regex": "\\bAKIA[0-9A-Z]{16}\\b",
+      "reminder": "AWS access key id in edited content. This repo holds no AWS credential; remove it and rotate the key.",
+      "exclude_paths": ["**/.claude/security-patterns.json"]
+    },
+    {
+      "rule_name": "stripe_live_secret_key",
+      "substrings": ["sk_live_"],
+      "reminder": "Stripe live secret key prefix. STRIPE_SECRET lives in Firebase Secret Manager, never in a file. Remove it and rotate the key in the Stripe dashboard.",
+      "exclude_paths": ["**/.claude/security-patterns.json"]
+    },
+    {
+      "rule_name": "github_personal_access_token",
+      "regex": "\\bghp_[A-Za-z0-9]{20,}\\b",
+      "reminder": "GitHub personal access token. OPS_READ_TOKEN is a GitHub repository secret, never a file. Remove it and revoke the token at github.com/settings/tokens.",
+      "exclude_paths": ["**/.claude/security-patterns.json"]
+    },
+    {
+      "rule_name": "pem_private_key",
+      "substrings": ["-----BEGIN PRIVATE KEY", "-----BEGIN RSA PRIVATE KEY", "-----BEGIN EC PRIVATE KEY", "-----BEGIN OPENSSH PRIVATE KEY"],
+      "reminder": "Private key material. A Firebase service-account JSON carries one; it belongs in a GitHub secret or an environment variable, never in a file here. Remove it and generate a new key.",
+      "exclude_paths": ["**/.claude/security-patterns.json"]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.log
+
+# Cloudflare local state
+.wrangler/
+
+# .env.staging and .env.production carry the Firebase web config, which is
+# public by construction and committed. Anything else named .env is not.
+.env
+.env.*
+!.env.staging
+!.env.production

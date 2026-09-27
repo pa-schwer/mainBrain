@@ -1,0 +1,16 @@
+/*
+ * Design tokens. PLACEHOLDER.
+ *
+ * The canonical source is {{PROJECT}}-ops/docs/design-system.md, which is
+ * itself a placeholder: no palette, no type scale, no spacing rule is
+ * settled yet.
+ *
+ * This file stays empty of values on purpose. A stand-in palette that looks
+ * deliberate is harder to find and remove later than one that is obviously
+ * absent, so build with Tailwind's own defaults until the real tokens land.
+ *
+ * When they do, they arrive here as raw CSS variables (light, and dark
+ * under [data-theme="dark"]) mapped by a Tailwind v4 `@theme` block to
+ * utilities, and nowhere else. No hex value and no font stack is written
+ * into a component; scripts/no-hardcoded-tokens.sh enforces it.
+ */

@@ -1,0 +1,84 @@
+  schema:
+    name: schema matches {{PROJECT}}-ops
+    runs-on: ubuntu-latest
+    steps:
+      # check-schema.sh finds siblings next to the ops checkout, so the
+      # layout of these two paths is what makes it work.
+      - uses: actions/checkout@v4
+        with:
+          path: {{REPO_NAME}}
+
+      - name: Require the ops read token
+        env:
+          OPS_READ_TOKEN: ${{ secrets.OPS_READ_TOKEN }}
+        run: |
+          if [ -z "${OPS_READ_TOKEN}" ]; then
+            echo "OPS_READ_TOKEN is not set, so the canonical schema cannot be"
+            echo "fetched and this check cannot run."
+            echo
+            echo "Fix: HANDOFF.md, step G3. A fine-grained PAT with Contents: read"
+            echo "on the {{PROJECT}}-ops repository, added to this repository"
+            echo "as the OPS_READ_TOKEN secret."
+            echo
+            echo "This step fails rather than skips. A schema check that"
+            echo "quietly passes when it did not run is worse than no check."
+            exit 1
+          fi
+
+      # The owner login is resolved from the API rather than written down:
+      # a fine-grained PAT authorizes by repository id, and an alias of the
+      # owner's login comes back 404 before the grant is even consulted.
+      - name: Resolve the ops repo and check the token can read it
+        env:
+          OPS_TOKEN: ${{ secrets.OPS_READ_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          owner=$(curl -sS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${THIS_REPO}" | jq -r '.owner.login')
+          if [ -z "${owner}" ] || [ "${owner}" = "null" ]; then
+            echo "Could not resolve this repository's owner."
+            exit 1
+          fi
+          echo "canonical owner: ${owner}"
+
+          ops="${owner}/{{PROJECT}}-ops"
+          code=$(curl -sSL -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer ${OPS_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${ops}")
+          echo "GET /repos/${ops} -> ${code}"
+
+          case "${code}" in
+            200)
+              echo "The token can read the ops repo."
+              echo "OPS_REPO=${ops}" >> "$GITHUB_ENV" ;;
+            404)
+              echo "The token authenticates but has no grant on ${ops}."
+              echo "In the token's settings, Repository access must be"
+              echo "'Only select repositories' with {{PROJECT}}-ops selected, and"
+              echo "Repository permissions must include Contents: Read."
+              exit 1 ;;
+            401)
+              echo "The token is rejected: expired, revoked, or mistyped."
+              exit 1 ;;
+            *)
+              echo "Unexpected status. Read the code above against"
+              echo "https://docs.github.com/rest/repos/repos#get-a-repository"
+              exit 1 ;;
+          esac
+
+      # A plain clone rather than actions/checkout, which resolves the
+      # default branch through a REST call before fetching anything and
+      # reports a failure there as "Not Found" after three tries.
+      - name: Clone {{PROJECT}}-ops
+        env:
+          OPS_TOKEN: ${{ secrets.OPS_READ_TOKEN }}
+        run: |
+          git clone --depth 1 --quiet \
+            "https://${OPS_TOKEN}@github.com/${OPS_REPO}.git" \
+            {{PROJECT}}-ops
+
+      - run: bash {{PROJECT}}-ops/scripts/check-schema.sh

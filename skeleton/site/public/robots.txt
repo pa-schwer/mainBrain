@@ -1,0 +1,3 @@
+# Pre-launch: nothing is indexed. LAUNCH.md flips this.
+User-agent: *
+Disallow: /

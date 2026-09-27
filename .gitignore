@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+node_modules/
+# A spawned workspace never lives inside this repo. spawn.sh writes next
+# to it by default; this catches a --out that points here by mistake.
+/*/HANDOFF.md
+/*/push-all.sh
+/*/spawn.log

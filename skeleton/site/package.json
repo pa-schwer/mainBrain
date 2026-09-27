@@ -1,0 +1,27 @@
+{
+  "name": "{{PROJECT}}-site",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "{{TITLE}} public site. Astro + Tailwind, static, served by a Cloudflare Worker.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "deploy": "wrangler deploy",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "astro": "^5.2.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@tailwindcss/vite": "^4.0.6",
+    "tailwindcss": "^4.0.6",
+    "typescript": "^5.7.3",
+    "vite": "^6.4.3",
+    "vitest": "^3.2.7",
+    "wrangler": "^4.0.0"
+  }
+}

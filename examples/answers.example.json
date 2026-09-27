@@ -1,0 +1,25 @@
+{
+  "$comment": "Answers to docs/questionnaire.md. Copy, fill, run scripts/spawn.sh on it. Every key not listed as required has a default noted in the questionnaire.",
+  "project": "acme",
+  "title": "Acme",
+  "description": "An example product spawned from mainBrain to prove the generator.",
+  "owner": "example-owner",
+  "domain": "acme.example",
+  "app_domain": "app.acme.example",
+  "api_domain": "api.acme.example",
+  "region": "us-central1",
+  "copy_language": "US English",
+  "html_lang": "en",
+  "firebase_staging": "acme-staging",
+  "firebase_prod": "acme-prod",
+  "repos": ["site", "functions", "app", "lib"],
+  "needs": ["motion", "marketing-copy", "conversion", "experiments"],
+  "skills_exclude": [],
+  "secrets": [
+    { "name": "STRIPE_SECRET", "service": "Stripe", "used_by": "functions", "needed_from": "the billing cycle" },
+    { "name": "STRIPE_WEBHOOK_SECRET", "service": "Stripe", "used_by": "functions", "needed_from": "the billing cycle" }
+  ],
+  "services": [
+    { "name": "Stripe", "staging": "test mode", "prod": "live mode", "secrets": ["STRIPE_SECRET", "STRIPE_WEBHOOK_SECRET"], "where": "dashboard.stripe.com → Developers" }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "$comment": "The skills library index. scripts/check-library.sh verifies every entry against the files on disk, and scripts/spawn.sh reads `needs` and `default_for` to pick what a new project gets. `needs` are the answers of the questionnaire in docs/questionnaire.md. `default_for` names repo kinds whose presence installs the entry without being asked.",
+  "needs": {
+    "prose": "every session writes prose: commit messages, docs, replies",
+    "memory": "context that survives a session",
+    "self-improvement": "friction noticed during work becomes a skill candidate",
+    "discovery": "search the open skills ecosystem for what is missing",
+    "code-quality": "a simplification pass on every diff",
+    "security": "pattern check on every edit, review of every diff and commit",
+    "skill-authoring": "write or evaluate skills of your own",
+    "browser-testing": "drive a local web app with Playwright",
+    "ui": "static UI guidance: style, color, type, layout",
+    "motion": "animation and interaction, plus a merge gate for it",
+    "marketing-copy": "conversion copy for public pages",
+    "conversion": "audit a page or form that already exists",
+    "signup": "self-serve account creation flow",
+    "activation": "the path from paid to first value",
+    "experiments": "design an A/B test before a change ships as one"
+  },
+  "entries": [
+    {
+      "name": "stop-slop", "kind": "skill", "mode": "standing",
+      "path": "skills/stop-slop", "origin": "vendored (Hardik Pandya)", "license": "in bundle",
+      "summary": "Removes AI writing patterns from every piece of prose.",
+      "needs": ["prose"], "default_for": ["ops"], "local_change": false
+    },
+    {
+      "name": "task-observer", "kind": "skill", "mode": "standing",
+      "path": "skills/task-observer", "origin": "rebelytics/one-skill-to-rule-them-all", "license": "CC BY 4.0",
+      "summary": "Watches each session for corrections and methodology worth keeping as skills. Log pinned inside the repo because the container is ephemeral.",
+      "needs": ["self-improvement"], "default_for": ["ops"], "local_change": false
+    },
+    {
+      "name": "find-skills", "kind": "skill", "mode": "standing",
+      "path": "skills/find-skills", "origin": "vercel-labs/skills", "license": "MIT",
+      "summary": "Finds installable skills for a need nothing here covers. skills.sh is blocked from the web container; search GitHub instead.",
+      "needs": ["discovery"], "default_for": ["ops"], "local_change": false
+    },
+    {
+      "name": "mem", "kind": "command", "mode": "standing",
+      "path": "commands/mem.md", "origin": "vendored", "license": "commands/LICENSE-mem",
+      "summary": "Hierarchical memory at .claude/memory/, committed to git.",
+      "needs": ["memory"], "default_for": ["ops"], "local_change": false
+    },
+    {
+      "name": "code-simplifier", "kind": "agent", "mode": "standing",
+      "path": "agents/code-simplifier.md", "origin": "anthropics/claude-plugins-official", "license": "Apache 2.0",
+      "summary": "Simplification pass on every code change before commit. Invoked as an agent, never loaded as a skill.",
+      "needs": ["code-quality"], "default_for": ["site", "functions", "app", "lib"],
+      "local_change": true, "local_change_note": "The 'Apply Project Standards' list points at each repo's CLAUDE.md instead of another project's conventions."
+    },
+    {
+      "name": "security-guidance", "kind": "plugin", "mode": "automatic",
+      "path": "harness/claude-security-guidance.md", "origin": "anthropics/claude-plugins-official", "license": "Apache 2.0",
+      "plugin_id": "security-guidance@claude-plugins-official",
+      "summary": "Pattern check on every edit, model review of the diff at the end of every turn, agentic review on every commit and push. Its repo rules are the two harness files.",
+      "needs": ["security"], "default_for": ["ops"], "local_change": false
+    },
+    {
+      "name": "ui-ux-pro-max", "kind": "plugin", "mode": "on-demand",
+      "path": null, "origin": "nextlevelbuilder/ui-ux-pro-max-skill", "license": "see marketplace",
+      "plugin_id": "ui-ux-pro-max@ui-ux-pro-max-skill",
+      "summary": "The single source of static UI guidance. Do not enable a second one (frontend-design, taste-skill): two advisors on one task produce two aesthetics.",
+      "needs": ["ui"], "default_for": ["site", "app"], "local_change": false
+    },
+    {
+      "name": "skill-creator", "kind": "skill", "mode": "on-demand",
+      "path": "skills/skill-creator", "origin": "anthropics/claude-plugins-official", "license": "Apache 2.0",
+      "summary": "Create, edit and evaluate skills. Needs python3.",
+      "needs": ["skill-authoring"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "webapp-testing", "kind": "skill", "mode": "on-demand",
+      "path": "skills/webapp-testing", "origin": "ComposioHQ/awesome-claude-skills", "license": "Apache 2.0",
+      "summary": "Playwright against a local web app.",
+      "needs": ["browser-testing"], "default_for": ["site", "app"],
+      "local_change": true, "local_change_note": "Addendum on running Playwright in the web container: pip install per session, executable_path=/opt/pw-browsers/chromium."
+    },
+    {
+      "name": "animate", "kind": "skill", "mode": "on-demand",
+      "path": "skills/animate", "origin": "emilkowalski/skills", "license": "MIT",
+      "summary": "Builds motion and interaction. Pairs with review-animations.",
+      "needs": ["motion"], "default_for": [],
+      "local_change": true, "local_change_note": "Addendum: ui-ux-pro-max owns static UI; sample curves are examples, not tokens; an animation library is a recorded decision."
+    },
+    {
+      "name": "review-animations", "kind": "skill", "mode": "gate",
+      "path": "skills/review-animations", "origin": "emilkowalski/skills", "license": "MIT",
+      "summary": "Merge gate on any site or app pull request that touches motion. disable-model-invocation upstream, so Claude reads it by path; a Block verdict stops the merge.",
+      "needs": ["motion"], "default_for": [],
+      "local_change": true, "local_change_note": "Addendum: when it runs, Tailwind default durations and easings accepted until motion tokens exist, motion only."
+    },
+    {
+      "name": "copywriting", "kind": "skill", "mode": "on-demand",
+      "path": "skills/copywriting", "origin": "coreyhaines31/marketingskills", "license": "MIT",
+      "summary": "Conversion copy for public pages.",
+      "needs": ["marketing-copy"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "cro", "kind": "skill", "mode": "on-demand",
+      "path": "skills/cro", "origin": "coreyhaines31/marketingskills", "license": "MIT",
+      "summary": "Audits a page or form that already exists. Form CRO is a reference inside it.",
+      "needs": ["conversion"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "signup", "kind": "skill", "mode": "on-demand",
+      "path": "skills/signup", "origin": "coreyhaines31/marketingskills", "license": "MIT",
+      "summary": "Self-serve account creation flow.",
+      "needs": ["signup"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "onboarding", "kind": "skill", "mode": "on-demand",
+      "path": "skills/onboarding", "origin": "coreyhaines31/marketingskills", "license": "MIT",
+      "summary": "A customer's path from paid to first value.",
+      "needs": ["activation"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "ab-testing", "kind": "skill", "mode": "on-demand",
+      "path": "skills/ab-testing", "origin": "coreyhaines31/marketingskills", "license": "MIT",
+      "summary": "Designs an experiment before a change ships as a test.",
+      "needs": ["experiments"], "default_for": [], "local_change": false
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+*.log
+
+# Cloudflare local state
+.wrangler/
+
+# No secret belongs in this repo. A public site has no server and nothing
+# to authenticate with; an .env here means something is in the wrong repo.
+.env
+.env.*

@@ -1,0 +1,7 @@
+# Response headers, read by Workers Static Assets.
+#
+# Defaults only. Nothing here encodes a brand or a product decision.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
