@@ -18,6 +18,9 @@ The rest is in `docs/product.md`: who it is for, what it promises, what the
 promises cost when missed. A promise with a number in it becomes a constant
 with a test in the functions repo, never prose alone.
 
+How it speaks is in `BRAND.md` at the root of this repo: the voice, the
+copy rules, the checklist for any pull request that changes visible text.
+
 ## Architecture map
 
 {{REPO_COUNT}} directories, {{REPO_COUNT}} git repos, no submodules. Each deploys independently.
@@ -78,7 +81,8 @@ or pasted into an issue. `scripts/bootstrap.sh` does not touch them.
   request that Claude opens and merges when the gates are green, without
   asking. Delivered means on `main`. The founder is asked one thing, go
   prod. See `docs/workflow.md`.
-- All copy in {{COPY_LANGUAGE}}.
+- All copy in {{COPY_LANGUAGE}}, by the rules in `BRAND.md`. Read that file in
+  full before writing anything a user will read.
 - Design tokens are never hardcoded. They come from `docs/design-system.md`,
   which is a placeholder until the tokens are supplied. Until then build
   with Tailwind defaults; do not invent brand values as a stand-in.

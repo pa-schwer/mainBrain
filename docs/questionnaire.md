@@ -17,6 +17,10 @@ filled one) and travel with the project in
 | `description` | One sentence: what it does, for whom | one line | `docs/product.md`, the scaffold page, package descriptions |
 | `owner` | GitHub owner (user or organization) | must be able to hold private repos | remotes, CI owner resolution, `HANDOFF.md` |
 
+A brand, voice or copy document the founder already has is not a
+question: it goes verbatim into `<project>-ops/BRAND.md` after the spawn,
+and the description is drawn from it.
+
 ## 2. Shape of the stack
 
 `repos`: which kinds to create. `ops` is always created.
