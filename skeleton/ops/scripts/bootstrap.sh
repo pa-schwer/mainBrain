@@ -88,6 +88,8 @@ for repo in "${SIBLINGS[@]}"; do
     continue
   fi
   echo "  npm i  $repo"
+  # install, not ci: the container state is cached after this runs, and a
+  # lockfile-exact install buys nothing at this stage.
   (cd "$dest" && npm install --silent) || {
     echo "         install failed"
     failures=$((failures + 1))
@@ -98,7 +100,8 @@ done
 echo
 echo "== schema =="
 # Invoked through bash, not executed directly: a checkout that lost the
-# exec bit must not turn a schema check into a silent skip.
+# exec bit (a zip export, a copy across filesystems) must not turn a schema
+# check into a silent skip.
 bash "$OPS_ROOT/scripts/check-schema.sh" || failures=$((failures + 1))
 
 # ------------------------------------------------------------- verdict

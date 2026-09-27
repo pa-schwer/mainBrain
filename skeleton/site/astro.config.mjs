@@ -11,8 +11,9 @@ export default defineConfig({
   output: "static",
 
   build: {
-    // Inlining the stylesheet removes the one render-blocking request on
-    // the page, which is most of the mobile Lighthouse performance budget.
+    // The whole stylesheet is a few kB. Inlining it removes the one
+    // render-blocking request on the page, which is most of the mobile
+    // Lighthouse performance budget.
     inlineStylesheets: "always",
   },
 

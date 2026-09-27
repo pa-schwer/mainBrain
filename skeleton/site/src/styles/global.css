@@ -1,2 +1,14 @@
 @import "tailwindcss";
 @import "./tokens.css";
+
+/*
+ * Motion that should play when it scrolls into view, not on load.
+ * An inline script in Base marks <html data-motion> when JavaScript runs
+ * and the visitor has not asked for reduced motion; only then do
+ * [data-reveal] blocks hold their animations until Base's observer sets
+ * data-play. Without JavaScript, everything simply plays on load.
+ */
+:root[data-motion] [data-reveal]:not([data-play]),
+:root[data-motion] [data-reveal]:not([data-play]) * {
+  animation-play-state: paused;
+}

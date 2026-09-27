@@ -26,7 +26,8 @@ git push origin origin/main:prod
 
 A fast-forward, nothing else. If the push is rejected as non-fast-forward,
 someone committed to `prod` directly; stop and find out who and why before
-forcing anything.
+forcing anything. The push triggers the functions deploy on `prod` and the
+Cloudflare production builds of site and app.
 
 Rollback: push the previous `main` commit to `prod` the same way. It is a
 fast-forward too, since `prod` never holds a commit `main` did not.
@@ -39,6 +40,10 @@ fast-forward too, since `prod` never holds a commit `main` did not.
 3. Verify with a real request against staging before touching prod.
 4. Disable the old version. Do not destroy it the same day; a failed
    rotation needs something to roll back to.
+
+Rotating a secret that signs inbound webhooks invalidates signature
+validation the moment it takes effect. Rotate it in a quiet window and
+watch the first inbound event.
 
 ## A third-party service is down
 
