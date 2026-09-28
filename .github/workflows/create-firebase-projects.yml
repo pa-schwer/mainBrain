@@ -1,0 +1,126 @@
+name: Create Firebase projects
+
+# Provisions the staging and prod Firebase projects of a spawned project:
+# HANDOFF.md F1 to F5 with no click. A session triggers it; a human
+# approves the run (the `provisioning` environment requires a reviewer);
+# the workflow acts with a Google Cloud identity the session cannot have.
+#
+# Why a workflow, and why approval: creating projects and linking billing
+# is the one act here that can create a bill. The identity is reachable
+# only through Workload Identity Federation from this repository, the
+# scope is one folder and one billing account, and every run waits for
+# the founder's approval in the Actions UI. docs/gcp-provisioning.md is
+# the one-time setup; scripts/provision-firebase.sh is what runs.
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Project slug (names the folder entries and the web app)"
+        required: true
+        type: string
+      staging_id:
+        description: "Google Cloud project id for staging (empty: <slug>-staging)"
+        required: false
+        default: ""
+        type: string
+      prod_id:
+        description: "Google Cloud project id for prod (empty: <slug>-prod)"
+        required: false
+        default: ""
+        type: string
+      region:
+        description: "Firestore and Functions region"
+        required: true
+        default: us-central1
+        type: string
+      functions_repo:
+        description: "owner/name of the functions repo, receives the deploy keys as secrets (empty: skip)"
+        required: false
+        default: ""
+        type: string
+      app_repo:
+        description: "owner/name of the app repo, receives .env.staging and .env.production (empty: print instead)"
+        required: false
+        default: ""
+        type: string
+      budget_staging:
+        description: "Monthly budget for staging, in the billing currency"
+        required: true
+        default: "10"
+        type: string
+      budget_prod:
+        description: "Monthly budget for prod, in the billing currency"
+        required: true
+        default: "50"
+        type: string
+
+permissions:
+  contents: read
+  id-token: write   # Workload Identity Federation: GitHub mints the OIDC token GCP trusts
+
+jobs:
+  provision:
+    name: provision ${{ inputs.project }}
+    runs-on: ubuntu-latest
+    # A human approves every run: Settings -> Environments -> provisioning
+    # -> Required reviewers (docs/gcp-provisioning.md, step 6).
+    environment: provisioning
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require the provisioning identity and the account ids
+        env:
+          WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
+          PROVISIONER_SA: ${{ vars.GCP_PROVISIONER_SA }}
+          FOLDER_ID: ${{ vars.GCP_FOLDER_ID }}
+          BILLING_ACCOUNT: ${{ secrets.GCP_BILLING_ACCOUNT }}
+          REPO_ADMIN_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
+        run: |
+          missing=0
+          for v in WIF_PROVIDER PROVISIONER_SA FOLDER_ID BILLING_ACCOUNT REPO_ADMIN_TOKEN; do
+            if [ -z "${!v}" ]; then
+              echo "$v is not set."
+              missing=$((missing + 1))
+            fi
+          done
+          if [ "$missing" -gt 0 ]; then
+            echo
+            echo "Fix: docs/gcp-provisioning.md. Repository variables GCP_WIF_PROVIDER,"
+            echo "GCP_PROVISIONER_SA and GCP_FOLDER_ID; secrets GCP_BILLING_ACCOUNT and"
+            echo "REPO_ADMIN_TOKEN (the latter with Secrets and Contents write)."
+            echo
+            echo "This step fails rather than skips."
+            exit 1
+          fi
+
+      - name: "Authenticate to Google Cloud (no key, OIDC from this run)"
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_PROVISIONER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: beta
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - run: npm install -g firebase-tools@14
+
+      - name: Provision staging and prod
+        env:
+          PROJECT: ${{ inputs.project }}
+          STAGING_ID: "${{ inputs.staging_id || format('{0}-staging', inputs.project) }}"
+          PROD_ID: "${{ inputs.prod_id || format('{0}-prod', inputs.project) }}"
+          REGION: ${{ inputs.region }}
+          FOLDER_ID: ${{ vars.GCP_FOLDER_ID }}
+          BILLING_ACCOUNT: ${{ secrets.GCP_BILLING_ACCOUNT }}
+          FUNCTIONS_REPO: ${{ inputs.functions_repo }}
+          APP_REPO: ${{ inputs.app_repo }}
+          BUDGET_STAGING: ${{ inputs.budget_staging }}
+          BUDGET_PROD: ${{ inputs.budget_prod }}
+          GH_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
+        run: bash scripts/provision-firebase.sh

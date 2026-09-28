@@ -40,6 +40,9 @@ jobs:
   create:
     name: create ${{ inputs.repos }}
     runs-on: ubuntu-latest
+    # A human approves every run: Settings -> Environments -> provisioning
+    # -> Required reviewers (docs/repo-creation.md, step 5).
+    environment: provisioning
     steps:
       - name: Require the repository-creation token
         env:
