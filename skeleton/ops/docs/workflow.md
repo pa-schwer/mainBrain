@@ -70,6 +70,9 @@ The gates, in order, all automated:
 - an animation review, run by Claude with `review-animations` on every
   site or app pull request that touches motion, when that skill is
   installed; Block is red
+- a UI review, run by Claude with `web-design-guidelines` on every site or
+  app pull request that touches markup, styles or components; a finding
+  on accessibility, focus, forms or its anti-pattern list is red
 
 A gate that is red blocks the merge. There is no override.
 

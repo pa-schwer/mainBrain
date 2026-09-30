@@ -2,8 +2,8 @@
 
 ## Candidates weighed and their verdicts [2026-09-30]
 
-- `vercel-labs/agent-skills` web-design-guidelines (MIT): worth a gate on
-  site and app PRs. About 100 code-level rules, output `file:line`. The
+- `vercel-labs/agent-skills` web-design-guidelines (MIT): installed as a
+  gate on site and app PRs [2026-09-30]. About 100 code-level rules, output `file:line`. The
   upstream skill fetches its rules from GitHub on each run; vendor
   `vercel-labs/web-interface-guidelines/command.md` instead. Its Animation
   section yields to review-animations, its Content & Copy section (US
@@ -33,5 +33,5 @@ sits in the site and app `CLAUDE.md` instead.
 ui-ux-pro-max covers dashboards and product types (BI/Analytics styles, a
 density dial, a shadcn stack), and animate targets product components
 (drawers, toasts, dropdowns). Upstream `emilkowalski/skills` also ships
-`pick-ui-library`, not vendored: a component library choice is a decision
-line in the project, per the animate addendum.
+`pick-ui-library`, vendored for the app [2026-09-30]: each pick is a
+decision line in the project before the install.
