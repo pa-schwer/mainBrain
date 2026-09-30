@@ -44,6 +44,19 @@ variables named as in the design system (light, and dark under
 hex value, a color function, or a `font-family` declaration anywhere under
 `src/` except `tokens.css`.
 
+## Defaults to reach past
+
+A model with no brief produces these. Check every page against the list,
+and the real tokens against it when `design-system.md` gets filled:
+
+> Do not default to: AI-purple gradients, centered hero over dark mesh,
+> three equal feature cards, generic glassmorphism on everything,
+> infinite-loop micro-animations everywhere, Inter + slate-900.
+
+Quoted from `Leonxlnx/taste-skill` (MIT), section 0.D. An item on the
+list ships only when the brief or `{{PROJECT}}-ops/docs/design-system.md`
+names it.
+
 ## Pre-launch settings that have to change at launch
 
 `robots.txt` disallows everything and `site` in `astro.config.mjs` is
@@ -89,3 +102,6 @@ of the Vite types make `astro check` fail on the Tailwind plugin.
 - Design tokens are never hardcoded.
 - Motion goes through `animate` and is gated by `review-animations` when
   those skills are installed in ops.
+- `ui-ux-pro-max` answers static questions only. Leave its `--motion` dial
+  unset: it attaches GSAP snippets, and an animation library lands only
+  after its line in `{{PROJECT}}-ops/docs/decisions.md`.

@@ -114,5 +114,10 @@ bash scripts/no-hardcoded-tokens.sh
 - All copy in {{COPY_LANGUAGE}}, by the rules in `{{PROJECT}}-ops/BRAND.md`.
   Read that file in full before writing anything a user will read.
 - Design tokens are never hardcoded.
+- Motion goes through `animate` and is gated by `review-animations` when
+  those skills are installed in ops.
+- `ui-ux-pro-max` answers static questions only. Leave its `--motion` dial
+  unset: it attaches GSAP snippets, and an animation library lands only
+  after its line in `{{PROJECT}}-ops/docs/decisions.md`.
 - Every feature lands with a happy-path test, error logging, and a line in
   `{{PROJECT}}-ops/docs/decisions.md` if an architectural choice was made.
