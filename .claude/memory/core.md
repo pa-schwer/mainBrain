@@ -23,3 +23,10 @@ the only persistence.
 
 One line per spawn, kinds and needs only.
 → topics/spawns.md
+
+## Library
+
+One source per domain. Candidates already weighed (web-design-guidelines,
+playwright-cli, taste-skill, awesome-design-md) and the container config
+playwright-cli needs.
+→ topics/library.md
