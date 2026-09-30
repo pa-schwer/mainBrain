@@ -10,6 +10,8 @@
     "skill-authoring": "write or evaluate skills of your own",
     "browser-testing": "drive a local web app with Playwright",
     "ui": "static UI guidance: style, color, type, layout",
+    "ui-review": "a merge gate on UI code: accessibility, focus, forms, performance",
+    "components": "one library per UI task, each pick a recorded decision",
     "motion": "animation and interaction, plus a merge gate for it",
     "marketing-copy": "conversion copy for public pages",
     "conversion": "audit a page or form that already exists",
@@ -62,6 +64,20 @@
       "plugin_id": "ui-ux-pro-max@ui-ux-pro-max-skill",
       "summary": "The single source of static UI guidance. Do not enable a second one (frontend-design, taste-skill): two advisors on one task produce two aesthetics.",
       "needs": ["ui"], "default_for": ["site", "app"], "local_change": false
+    },
+    {
+      "name": "web-design-guidelines", "kind": "skill", "mode": "gate",
+      "path": "skills/web-design-guidelines", "origin": "vercel-labs/agent-skills + vercel-labs/web-interface-guidelines", "license": "MIT",
+      "summary": "Merge gate on any site or app pull request that touches UI: about 100 rules on accessibility, focus, forms, performance and i18n, checked in code, findings as file:line. Rules vendored in command.md, never fetched.",
+      "needs": ["ui-review"], "default_for": ["site", "app"],
+      "local_change": true, "local_change_note": "Addendum: read command.md instead of fetching; accessibility, focus, forms and anti-pattern findings block; review-animations, BRAND.md and ui-ux-pro-max keep their domains."
+    },
+    {
+      "name": "pick-ui-library", "kind": "skill", "mode": "on-demand",
+      "path": "skills/pick-ui-library", "origin": "emilkowalski/skills", "license": "MIT",
+      "summary": "Picks one library per UI task (primitives, toasts, command menu, charts, virtualization, drag and drop, state). disable-model-invocation upstream, so Claude reads it by path; animate sends component work here.",
+      "needs": ["components"], "default_for": ["app"],
+      "local_change": true, "local_change_note": "Addendum: a pick is a decision line before install; React picks go to the app; next-themes skipped; motion rows go through animate."
     },
     {
       "name": "skill-creator", "kind": "skill", "mode": "on-demand",

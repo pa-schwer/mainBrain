@@ -226,8 +226,9 @@ not copy a `cubic-bezier` into site or app code.
 
 **Tools.** The ladder in step 3 stops before Motion unless a decision says
 otherwise. Adding Motion or any animation package is a line in
-`docs/decisions.md` first. `pick-ui-library` is not installed here; a
-component library choice is also a decision, recorded before it lands.
+`docs/decisions.md` first. `pick-ui-library` comes with the app; read it
+by path, since it does not trigger on its own. A component library choice
+is also a decision, recorded before it lands.
 
 **Before merge.** Code built with this skill still goes through
 `review-animations`.
