@@ -404,8 +404,8 @@ def write_handoff(ws: Path, a: dict, values: dict[str, str], entries: list[dict]
         for s in a["services"]
     )
     hv["PLAYWRIGHT_LINE"] = (
-        "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 pip install --quiet playwright   # webapp-testing; browsers are at /opt/pw-browsers"
-        if any(e["name"] == "webapp-testing" for e in entries) else "# (no browser testing skill installed)"
+        "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install -g --silent @playwright/cli@0.1.22   # playwright-cli; browsers are at /opt/pw-browsers"
+        if any(e["name"] == "playwright-cli" for e in entries) else "# (no browser testing skill installed)"
     )
     hv["PROOFS_TABLE"] = "\n".join(f"| {s} | {pr} | {w} |" for s, pr, w in proofs)
 

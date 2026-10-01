@@ -8,7 +8,7 @@
     "code-quality": "a simplification pass on every diff",
     "security": "pattern check on every edit, review of every diff and commit",
     "skill-authoring": "write or evaluate skills of your own",
-    "browser-testing": "drive a local web app with Playwright",
+    "browser-testing": "drive a local web app with playwright-cli",
     "ui": "static UI guidance: style, color, type, layout",
     "ui-review": "a merge gate on UI code: accessibility, focus, forms, performance",
     "components": "one library per UI task, each pick a recorded decision",
@@ -86,11 +86,11 @@
       "needs": ["skill-authoring"], "default_for": [], "local_change": false
     },
     {
-      "name": "webapp-testing", "kind": "skill", "mode": "on-demand",
-      "path": "skills/webapp-testing", "origin": "ComposioHQ/awesome-claude-skills", "license": "Apache 2.0",
-      "summary": "Playwright against a local web app.",
+      "name": "playwright-cli", "kind": "skill", "mode": "on-demand",
+      "path": "skills/playwright-cli", "origin": "microsoft/playwright-cli", "license": "Apache 2.0",
+      "summary": "Drives a local web app from the shell: open, click, type, snapshot with element refs, screenshots, traces, video, request mocking, test generation. Node, no script to write.",
       "needs": ["browser-testing"], "default_for": ["site", "app"],
-      "local_change": true, "local_change_note": "Addendum on running Playwright in the web container: pip install per session, executable_path=/opt/pw-browsers/chromium."
+      "local_change": true, "local_change_note": "Addendum on the web container: pinned 0.1.22 installed by the setup script, Chromium at /opt/pw-browsers/chromium passed on open, output in /tmp, serve over http, no gh for attachments."
     },
     {
       "name": "animate", "kind": "skill", "mode": "on-demand",
