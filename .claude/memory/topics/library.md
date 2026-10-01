@@ -10,11 +10,12 @@
   English, Title Case) to BRAND.md. ui-ux-pro-max already holds 119 UX
   rules that overlap part of it, with no diff-review mode.
 - `microsoft/playwright-cli` (Apache 2.0, 0.1.x on a Playwright alpha):
-  worth replacing webapp-testing, never beside it. Runs in the web
-  container once `.playwright/cli.config.json` sets
-  `browser.launchOptions.executablePath` to `/opt/pw-browsers/chromium`;
-  without it, it looks for Chrome at `/opt/google/chrome` and fails. It
-  blocks `file://`, so serve pages over http.
+  replaced webapp-testing [2026-10-01], pinned at 0.1.22. Runs in the web
+  container once `open` gets `PLAYWRIGHT_MCP_BROWSER=chromium` and
+  `PLAYWRIGHT_MCP_EXECUTABLE_PATH=/opt/pw-browsers/chromium`; later
+  commands reuse that browser. Without them it looks for Chrome at
+  `/opt/google/chrome` and fails. `PLAYWRIGHT_MCP_OUTPUT_DIR` keeps its
+  files out of the repo. It blocks `file://`, so serve pages over http.
 - `Leonxlnx/taste-skill` (MIT): out. Second static advisor, also drives
   motion (a MOTION_INTENSITY dial, prescribes the Motion library), assumes
   Next.js Server Components, landing pages only. Its anti-default list
