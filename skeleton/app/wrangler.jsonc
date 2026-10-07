@@ -9,6 +9,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "{{PROJECT}}-app",
   "compatibility_date": "2026-09-01",
+  // A branch other than `prod` may build with `npx wrangler preview`, which
+  // refuses a config without this block; empty is enough.
+  "previews": {},
   "assets": {
     "directory": "./dist",
     // A single-page app: any path that is not a file serves index.html and

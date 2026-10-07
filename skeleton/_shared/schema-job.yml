@@ -16,7 +16,7 @@
             echo "OPS_READ_TOKEN is not set, so the canonical schema cannot be"
             echo "fetched and this check cannot run."
             echo
-            echo "Fix: HANDOFF.md, step G3. A fine-grained PAT with Contents: read"
+            echo "Fix: HANDOFF.md, step G4. A fine-grained PAT with Contents: read"
             echo "on the {{PROJECT}}-ops repository, added to this repository"
             echo "as the OPS_READ_TOKEN secret."
             echo

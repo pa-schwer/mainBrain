@@ -9,6 +9,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "{{PROJECT}}-site",
   "compatibility_date": "2026-09-01",
+  // A branch other than `prod` may build with `npx wrangler preview`, which
+  // refuses a config without this block; empty is enough.
+  "previews": {},
   "assets": {
     "directory": "./dist",
     // A path that matches nothing serves the 404 page Astro builds, with a
