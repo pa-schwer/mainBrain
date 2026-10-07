@@ -21,7 +21,7 @@
     {
       "rule_name": "pem_private_key",
       "substrings": ["-----BEGIN PRIVATE KEY", "-----BEGIN RSA PRIVATE KEY", "-----BEGIN EC PRIVATE KEY", "-----BEGIN OPENSSH PRIVATE KEY"],
-      "reminder": "Private key material. A Firebase service-account JSON carries one; it belongs in a GitHub secret or an environment variable, never in a file here. Remove it and generate a new key.",
+      "reminder": "Private key material. A service-account JSON carries one, and no deploy here uses a key: it authenticates through Workload Identity Federation. Remove the file and delete the key in Google Cloud.",
       "exclude_paths": ["**/.claude/security-patterns.json"]
     }
   ]

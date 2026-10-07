@@ -11,7 +11,8 @@
         "test",
         "firebase-debug.log",
         "firestore-debug.log",
-        "*.local"
+        "*.local",
+        "gha-creds-*.json"
       ],
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run build"

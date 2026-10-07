@@ -185,9 +185,6 @@ def github_secrets_table(a: dict) -> str:
     product = [k for k in a["repos"] if k != "ops"]
     for k in product:
         rows.append(f"| `{repo_name(p, k)}` | `OPS_READ_TOKEN` | PAT, Contents: read on `{a['owner']}/{repo_name(p, 'ops')}` |")
-    if "functions" in a["repos"]:
-        rows.append(f"| `{repo_name(p, 'functions')}` | `FIREBASE_SERVICE_ACCOUNT_STAGING` | service account JSON, {a['firebase_staging']} |")
-        rows.append(f"| `{repo_name(p, 'functions')}` | `FIREBASE_SERVICE_ACCOUNT_PROD` | service account JSON, {a['firebase_prod']} |")
     return "\n".join(rows) or "| (none) | | |"
 
 
@@ -235,11 +232,14 @@ def firebase_section(a: dict) -> str:
         "in that project, so a secret is declared in the cycle that first reads it",
         "and created before that cycle's first deploy (HANDOFF.md, F6).",
         "",
-        "### Deploy credential",
+        "### Deploy identity",
         "",
-        "One service account key per project, held as `FIREBASE_SERVICE_ACCOUNT_STAGING`",
-        "and `FIREBASE_SERVICE_ACCOUNT_PROD` in the functions repo. Four roles: Editor,",
-        "Secret Manager Admin, Cloud Functions Admin, Cloud Run Admin (HANDOFF.md, F4).",
+        "No key. Each project holds a `github-deploy` service account with four roles",
+        "(Editor, Secret Manager Admin, Cloud Functions Admin, Cloud Run Admin) and a",
+        "Workload Identity pool that trusts the functions repo's GitHub OIDC token on",
+        "one branch: `main` for staging, `prod` for prod. The repo knows each pool by",
+        "the variables `GCP_WIF_PROVIDER_STAGING` and `GCP_WIF_PROVIDER_PROD`, which",
+        "identify and grant nothing (HANDOFF.md, F4).",
         "",
         "### What a green deploy means",
         "",

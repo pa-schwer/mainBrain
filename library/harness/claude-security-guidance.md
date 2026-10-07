@@ -8,10 +8,13 @@ as the control plane of the product, not as the product.
 
 - Secret names appear in docs and workflows and must never appear with a
   value anywhere in this repo. The names this project uses: {{SECRET_NAMES}},
-  `OPS_READ_TOKEN`, `FIREBASE_SERVICE_ACCOUNT_STAGING`,
-  `FIREBASE_SERVICE_ACCOUNT_PROD`. A value next to any of them is a finding.
+  `OPS_READ_TOKEN`. A value next to any of them is a finding.
 - A Google service-account JSON (`"type": "service_account"`,
   `"private_key"`) is a secret wherever it appears, including base64.
+- No service account key exists in this project: the functions deploy
+  authenticates through Workload Identity Federation. A key, or a step
+  that creates one (`gcloud iam service-accounts keys create`), is a
+  finding even where it would make a red deploy green.
 - A Firebase web config block (`apiKey` starting `AIza`, `authDomain`,
   `projectId`, `appId`) is a set of public identifiers that ship in a
   browser bundle; the security boundary is `firestore.rules` in the

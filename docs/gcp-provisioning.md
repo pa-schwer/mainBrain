@@ -1,7 +1,7 @@
 # Letting mainBrain create Firebase projects
 
 Out of the box a session cannot create a Google Cloud project, link it to
-billing, or hand a deploy key to a repository. `HANDOFF.md` F1 to F5 ask a
+billing, or let a repository deploy to it. `HANDOFF.md` F1 to F5 ask a
 human for each. This page moves those five steps to the
 "Create Firebase projects" workflow of this repo: the session triggers
 it, a human approves the run, and the workflow provisions staging and
@@ -16,7 +16,9 @@ its proof.
 - **No key in GitHub.** The workflow authenticates through Workload
   Identity Federation: GitHub mints a short-lived OIDC token for the run,
   Google trusts it for one service account, from one repository. Nothing
-  to rotate, nothing to leak.
+  to rotate, nothing to leak. The projects it creates trust their
+  functions repo the same way, one branch each, so no deploy holds a key
+  either.
 - **One folder, one billing account.** The identity can create projects in
   the `mainbrain-projects` folder and link them to one billing account.
   It cannot touch a project outside the folder.
@@ -113,17 +115,59 @@ echo "GCP_FOLDER_ID=$FOLDER_ID"
 
 Proof: the three `echo` lines print values; keep them for step 4.
 
+### The folder's exceptions to the organization's defaults
+
+An organization created on or after 3 May 2024 enforces Google's
+secure-by-default policies. Three of them break this stack, so the
+folder overrides those three, before the first run. The others stay,
+the ban on service account keys included: nothing here uses a key.
+
+| Constraint | What it breaks | Folder setting |
+|---|---|---|
+| `iam.allowedPolicyMemberDomains` | the `allUsers` invoker grant a public HTTPS function or a webhook needs | allow all |
+| `iam.automaticIamGrantsForDefaultServiceAccounts` | Editor on the default compute account, which Cloud Functions v2 builds and runs as | not enforced |
+| `storage.uniformBucketLevelAccess` | Firebase's default Storage bucket, which an enforcing organization can refuse | not enforced |
+
+In the same Cloud Shell, with `ORG_ID` and `FOLDER_ID` still set:
+
+```bash
+# Setting a policy takes the Organization Policy Administrator role,
+# which the organization admin does not hold by default.
+gcloud organizations add-iam-policy-binding "$ORG_ID" \
+  --member="user:$(gcloud config get-value account)" \
+  --role=roles/orgpolicy.policyAdmin --condition=None
+
+cat > /tmp/policy.yaml <<EOF
+name: folders/$FOLDER_ID/policies/iam.allowedPolicyMemberDomains
+spec:
+  rules:
+  - allowAll: true
+EOF
+gcloud org-policies set-policy /tmp/policy.yaml
+
+for c in iam.automaticIamGrantsForDefaultServiceAccounts storage.uniformBucketLevelAccess; do
+  printf 'name: folders/%s/policies/%s\nspec:\n  rules:\n  - enforce: false\n' "$FOLDER_ID" "$c" > /tmp/policy.yaml
+  gcloud org-policies set-policy /tmp/policy.yaml
+done
+```
+
+Proof: `gcloud org-policies describe iam.allowedPolicyMemberDomains
+--folder="$FOLDER_ID" --effective` shows `allowAll: true`, and the same
+command on the other two shows `enforce: false`. An older organization
+enforces none of the three, and the commands change nothing there.
+
 ## 3. The GitHub token, widened
 
 The workflow writes two things into the project's repositories: the
-deploy key as an Actions secret of the functions repo, and the public
-Firebase web config as two files of the app repo. The `REPO_ADMIN_TOKEN`
-from `docs/repo-creation.md` needs two more permissions:
+deploy identity's two provider ids as Actions variables of the functions
+repo, and the public Firebase web config as two files of the app repo.
+The `REPO_ADMIN_TOKEN` from `docs/repo-creation.md` needs two more
+permissions:
 
 Where: https://github.com/settings/personal-access-tokens → the token →
 Repository permissions:
 
-- **Secrets: Read and write**
+- **Variables: Read and write**
 - **Contents: Read and write**
 
 Keep Administration: Read and write. Regenerate if GitHub asks, and paste

@@ -20,8 +20,7 @@ read.
 ## Secrets: names only, never values
 
 - Secret names appear in templates and docs as placeholders and examples
-  (`STRIPE_SECRET`, `OPS_READ_TOKEN`, `FIREBASE_SERVICE_ACCOUNT_*`,
-  `REPO_ADMIN_TOKEN`). A value
+  (`STRIPE_SECRET`, `OPS_READ_TOKEN`, `REPO_ADMIN_TOKEN`). A value
   next to any name is a finding. `library/harness/security-patterns.json`
   lists the shapes to catch.
 - A Google service-account JSON (`"type": "service_account"`,
