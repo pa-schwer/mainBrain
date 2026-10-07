@@ -35,7 +35,7 @@ mainBrain/
 ├── handoff/        the human steps, one section per service, rendered per stack
 ├── scripts/        spawn, skills, upstream, check-library, check-drift
 ├── examples/       an answers file that spawns every kind
-└── docs/           questionnaire, workflow, decisions, upstream rule
+└── docs/           questionnaire, workflow, decisions, upstream rule, adoption
 ```
 
 ## Spawning a project

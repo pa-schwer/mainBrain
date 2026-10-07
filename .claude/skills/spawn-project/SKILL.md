@@ -27,8 +27,16 @@ section:
    enters the chat.
 
 If the user has already answered some of it in the request, do not ask
-again. If the user says "just defaults", take the defaults and ask only
-for the slug, the title, the description and the owner.
+again.
+
+If one of the repos already exists with a history of its own (a site
+that went live before the stack), do not ask whether to replace it: it is
+adopted. Its kind goes under `adopted` in the answers, its name under
+`repo_names` when it differs, and `docs/adoption.md` replaces the push for
+it with one pull request.
+
+If the user says "just defaults", take the defaults and ask only for the
+slug, the title, the description and the owner.
 
 ## 2. Write the answers file
 
@@ -51,8 +59,11 @@ bash scripts/spawn.sh <parent>/<project>.answers.json --out <parent>
 ```
 
 `<parent>` is the directory that holds this repo's clone, unless the user
-named another. The generator installs dependencies, runs every check and
-makes the first commit in each repo. Read its output. If a check fails,
+named another, or unless it already holds a directory named after the
+project (a clone of an adopted repo, say): the workspace is
+`<parent>/<project>` and `--force` replaces it, so pick another parent.
+The generator installs dependencies, runs every check and makes the
+first commit in each repo. Read its output. If a check fails,
 read `<parent>/<project>/spawn.log`, fix the cause in the skeleton (a
 skeleton bug, since the example spawn is green in CI) and re-run with
 `--force`; then that fix is a mainBrain pull request too.
@@ -70,7 +81,8 @@ Ask nothing. In this order:
    it, and continue with step 2 in case the repos were created by hand.
 2. Check with `add_repo` whether `<owner>/<ops repo>` is reachable. If it
    is, attach every repo and run `bash <parent>/<project>/push-all.sh`;
-   open no pull request, the first commit on `main` is the scaffold. If it
+   open no pull request, the first commit on `main` is the scaffold. The
+   script skips an adopted repo; follow `docs/adoption.md` for it. If it
    is not, say so and point at `HANDOFF.md` G1 and G2: without the
    workflow, the repos are created by hand, on a personal account or an
    organization.

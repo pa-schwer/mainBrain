@@ -85,6 +85,10 @@ def load_answers(path: Path) -> dict:
     answers["repos"] = [k for k in KINDS if k in repos]
 
     answers.setdefault("repo_names", {})
+    answers.setdefault("adopted", [])
+    stray = [k for k in answers["adopted"] if k == "ops" or k not in answers["repos"]]
+    if stray:
+        raise SystemExit(f"adopted must name product kinds listed in repos: {', '.join(stray)}")
     REPO_NAMES.clear()
     REPO_NAMES.update(answers["repo_names"])
     answers.setdefault("domain", f"{answers['project']}.example")
@@ -105,7 +109,9 @@ def load_answers(path: Path) -> dict:
 # ------------------------------------------------------------------ values
 # Repos are named <project>-<kind> unless the answers say otherwise. The
 # override exists for a project that predates the generator and cannot be
-# renamed; a new project keeps the convention.
+# renamed; a new project keeps the convention. A repo that predates the
+# generator is also listed under `adopted`: it already has a history, so
+# push-all.sh leaves it alone and docs/adoption.md brings the skeleton in.
 REPO_NAMES: dict[str, str] = {}
 
 
@@ -451,7 +457,13 @@ def write_handoff(ws: Path, a: dict, values: dict[str, str], entries: list[dict]
 
 
 def write_push_script(ws: Path, a: dict) -> None:
-    names = [repo_name(a["project"], k) for k in a["repos"]]
+    adopted = set(a["adopted"])
+    names = [repo_name(a["project"], k) for k in a["repos"] if k not in adopted]
+    adopted_names = [repo_name(a["project"], k) for k in a["repos"] if k in adopted]
+    skipped = "".join(
+        f'echo "== {n}: adopted, not pushed. It has a history of its own; the skeleton reaches it by pull request (docs/adoption.md in mainBrain)."\n'
+        for n in adopted_names
+    )
     script = f"""#!/usr/bin/env bash
 # Push main of every generated repo to its origin. Safe to re-run.
 # The remotes were set by mainBrain at spawn time; the repos themselves
@@ -463,12 +475,13 @@ failed=0
 for repo in {' '.join(names)}; do
   echo "== $repo"
   if ! git -C "$repo" push -u origin main; then
-    echo "   push failed. If the remote is not empty, it was created with a"
-    echo "   README; recreate it empty (HANDOFF.md, G1) and re-run."
+    echo "   push failed. A remote that G1 created with a README: recreate it"
+    echo "   empty and re-run. A remote with a real history predates the spawn:"
+    echo "   never recreate it; list its kind under adopted and re-spawn."
     failed=$((failed + 1))
   fi
 done
-[ "$failed" -eq 0 ] && echo "All repos pushed." || exit 1
+{skipped}[ "$failed" -eq 0 ] && echo "All repos pushed." || exit 1
 """
     path = ws / "push-all.sh"
     path.write_text(script, encoding="utf-8")
