@@ -271,6 +271,13 @@ def cloudflare_section(a: dict) -> str:
     ]
     for k in fronts:
         lines.append(f"| `{repo_name(p, k)}` | `{a['owner']}/{repo_name(p, k)}` | `prod` | `npm run build` | `npx wrangler deploy` | `{front_domain(a, k)}` |")
+    lines += [
+        "",
+        "Sessions reach the Cloudflare API, and the `cloudflare` plugin's MCP server,",
+        "with an API token the Claude Code environment holds as a network secret on",
+        "`api.cloudflare.com` and `mcp.cloudflare.com` (HANDOFF C3). The proxy adds",
+        "it after a request leaves the session, so no session holds the token.",
+    ]
     return "\n".join(lines)
 
 
@@ -321,7 +328,13 @@ def install_harness(ops: Path, entries: list[dict], values: dict[str, str]) -> l
         owned.append(f".claude/{rel}")
 
     settings = json.loads((LIBRARY / "harness/settings.json").read_text(encoding="utf-8"))
-    settings["enabledPlugins"] = {pid: True for pid in skills.plugin_ids(entries)}
+    # A local session installs these on first open. A cloud session never
+    # does; HANDOFF E2 installs them from the environment's setup script.
+    plugins = skills.plugins(entries)
+    settings["extraKnownMarketplaces"] = {
+        skills.marketplace_name(e): {"source": {"source": "github", "repo": e["marketplace"]}} for e in plugins
+    }
+    settings["enabledPlugins"] = {e["plugin_id"]: True for e in plugins}
     (claude / "settings.json").write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
     owned.append(".claude/settings.json")
 
@@ -375,12 +388,13 @@ def write_handoff(ws: Path, a: dict, values: dict[str, str], entries: list[dict]
     if fronts:
         proofs.append(("C1", "a `main` push shows a preview URL that serves the page", "Cloudflare → Workers & Pages"))
         proofs.append(("C2", "the domain serves the production Worker", "the browser"))
+        proofs.append(("C3", "`tokens/verify` answers `active` with no header sent", "a Claude Code session"))
     if a["services"]:
         proofs.append(("S", "identifiers in `docs/environments.md`, deploy green", f"{p}-ops"))
     proofs += [
         ("E1", "the session lists every repo in scope", "a Claude Code session"),
         ("E2", "`npm test` works in a fresh session without install", "a Claude Code session"),
-        ("E3", "plugins reported loaded", f"first session in {p}-ops"),
+        ("E3", "`claude plugin list` shows every plugin enabled", "a Claude Code session"),
     ]
 
     hv = dict(values)
@@ -407,6 +421,11 @@ def write_handoff(ws: Path, a: dict, values: dict[str, str], entries: list[dict]
         "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install -g --silent @playwright/cli@0.1.22   # playwright-cli; browsers are at /opt/pw-browsers"
         if any(e["name"] == "playwright-cli" for e in entries) else "# (no browser testing skill installed)"
     )
+    marketplaces = dict.fromkeys(e["marketplace"] for e in skills.plugins(entries))
+    hv["PLUGIN_SETUP_LINES"] = "\n".join(
+        [f"claude plugin marketplace add {m} || true" for m in marketplaces]
+        + [f"claude plugin install {pid} || true" for pid in skills.plugin_ids(entries)]
+    ) or "# (no plugin selected)"
     hv["PROOFS_TABLE"] = "\n".join(f"| {s} | {pr} | {w} |" for s, pr, w in proofs)
 
     parts = ["00-intro.md", "10-github.md"]

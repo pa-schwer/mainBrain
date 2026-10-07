@@ -15,11 +15,13 @@ Where: the environment's settings → setup script. The container is rebuilt
 every session, so anything not committed has to be reinstalled here.
 
 ```bash
-# runs at container start
+# runs at container start, as root, before Claude Code launches
 for d in {{REPO_DIRS}}; do
   [ -f "$d/package.json" ] && (cd "$d" && npm ci --silent)
 done
 {{PLAYWRIGHT_LINE}}
+# plugins: a cloud session never installs the ones settings.json enables
+{{PLUGIN_SETUP_LINES}}
 ```
 
 Proof: a fresh session runs `npm test` in any repo without installing
@@ -27,8 +29,9 @@ first.
 
 ### E3 — Plugins
 
-Nothing to do. `{{PROJECT}}-ops/.claude/settings.json` enables
-{{PLUGIN_LIST}} from their marketplaces; Claude Code installs them on the
-first session that opens the repo.
+Nothing more once E2 is in. A cloud session does not install the plugins
+a repository's `.claude/settings.json` enables, so E2 installs
+{{PLUGIN_LIST}} at user scope and the environment cache keeps them.
+`settings.json` still names them for a session on a local machine.
 
-Proof: the first session in `{{PROJECT}}-ops` reports the plugins loaded.
+Proof: `claude plugin list` in a fresh session shows each one enabled.
