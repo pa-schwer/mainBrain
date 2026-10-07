@@ -52,3 +52,16 @@ the environment, pasted by a human. The chosen path: configuration as files
 in the functions repo, applied by its `Deploy` workflow. firebase-tools 14 has
 no `auth` deploy target; 15 does, and `--only storage` needs the default
 bucket to exist.
+
+## Secure-by-default organizations [2026-10-07]
+
+A Google Cloud organization created on or after 2024-05-03 enforces, among
+others, `iam.managed.disableServiceAccountKeyCreation`,
+`iam.allowedPolicyMemberDomains`,
+`iam.automaticIamGrantsForDefaultServiceAccounts` and
+`storage.uniformBucketLevelAccess`. The stack needs no key (deploys use
+Workload Identity Federation, one pool per project, trusting the functions
+repo by id on one branch); the `mainbrain-projects` folder overrides the
+other three. `docs/gcp-provisioning.md` step 2 has the commands. Nothing
+here has run against a real organization yet: the first provisioning run
+is the test.

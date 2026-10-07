@@ -161,15 +161,22 @@ to `defineInt` and `defineString` in `src/config.ts`. They are committed and
 carry config only.
 
 `.github/workflows/deploy.yml` runs on every push to `main` or `prod`,
-after the tests, and deploys every target in the table above. It needs `FIREBASE_SERVICE_ACCOUNT_STAGING` and
-`FIREBASE_SERVICE_ACCOUNT_PROD` as repository secrets, each the whole JSON
-of a service account key. The job refuses to run when the secret is absent,
-refuses to deploy when the credential's `project_id` is not the target, and
-verifies after deploying that every export is live.
+after the tests, and deploys every target in the table above. No key
+exists. The job acts as `github-deploy@<project>` through Workload Identity
+Federation: each project trusts this repository's GitHub OIDC token on one
+branch, `main` for staging and `prod` for prod. The repository variables
+`GCP_WIF_PROVIDER_STAGING` and `GCP_WIF_PROVIDER_PROD` name the two
+providers. The job refuses to run when the variable is absent, a provider
+in the wrong variable fails authentication, and the job verifies after
+deploying that every export is live.
 
 The service account needs four roles in Google Cloud IAM on its project:
 **Editor**, **Secret Manager Admin**, **Cloud Functions Admin** and
 **Cloud Run Admin**. `HANDOFF.md` has the why for each.
+
+Never add a service account key to make a deploy pass. A red
+authentication step means the pool, the provider or the variable is wrong,
+and `HANDOFF.md` F4 says how to check each.
 
 `prod` only moves by fast-forward from `main`:
 

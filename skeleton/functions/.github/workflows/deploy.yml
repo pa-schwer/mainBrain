@@ -19,6 +19,9 @@ jobs:
   deploy:
     name: deploy ${{ github.ref_name == 'prod' && 'prod' || 'staging' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # Workload Identity Federation: GitHub mints the OIDC token Google trusts
     env:
       TARGET: ${{ github.ref_name == 'prod' && 'prod' || 'staging' }}
     steps:
@@ -32,49 +35,56 @@ jobs:
       - run: npm ci
       - run: npm test
 
-      - name: Require the deploy credential, and check it matches the target
+      # No key exists. Each project trusts this repository's OIDC token for
+      # one branch: staging for main, prod for prod. A provider put in the
+      # wrong variable cannot reach the other project's deploy account, so a
+      # swap fails red at the deploy's first Google call (the auth step only
+      # writes the credential file) and never deploys to the wrong project.
+      - name: Require the deploy identity
         env:
-          SA_STAGING: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
-          SA_PROD: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
+          WIF_STAGING: ${{ vars.GCP_WIF_PROVIDER_STAGING }}
+          WIF_PROD: ${{ vars.GCP_WIF_PROVIDER_PROD }}
         run: |
           if [ "${TARGET}" = prod ]; then
-            sa="${SA_PROD}"; name=FIREBASE_SERVICE_ACCOUNT_PROD; expected={{FIREBASE_PROD}}
+            provider="${WIF_PROD}"; name=GCP_WIF_PROVIDER_PROD; project={{FIREBASE_PROD}}
           else
-            sa="${SA_STAGING}"; name=FIREBASE_SERVICE_ACCOUNT_STAGING; expected={{FIREBASE_STAGING}}
+            provider="${WIF_STAGING}"; name=GCP_WIF_PROVIDER_STAGING; project={{FIREBASE_STAGING}}
           fi
 
-          if [ -z "${sa}" ]; then
+          if [ -z "${provider}" ]; then
             echo "${name} is not set, so nothing can be deployed to ${TARGET}."
             echo
-            echo "Fix: HANDOFF.md, step F4. Firebase console -> project ${expected}"
-            echo "-> Project settings -> Service accounts -> Generate new private"
-            echo "key, and add the whole JSON file as the ${name} secret on this"
-            echo "repository."
+            echo "Fix: HANDOFF.md, step F4. mainBrain's provisioning run sets this"
+            echo "repository variable. By hand, its value is the Workload Identity"
+            echo "provider of ${project}:"
+            echo "projects/<project number>/locations/global/workloadIdentityPools/github/providers/github"
             echo
             echo "This step fails rather than skips."
             exit 1
           fi
 
-          printf '%s' "${sa}" > "${RUNNER_TEMP}/sa.json"
+          echo "WIF_PROVIDER=${provider}" >> "${GITHUB_ENV}"
+          echo "DEPLOY_SA=github-deploy@${project}.iam.gserviceaccount.com" >> "${GITHUB_ENV}"
 
-          # A swapped secret would deploy staging code to prod with a green
-          # run. The credential names its project; it has to be the target.
-          actual=$(jq -r '.project_id // empty' "${RUNNER_TEMP}/sa.json")
-          if [ "${actual}" != "${expected}" ]; then
-            echo "${name} is a credential for '${actual:-<not a service account JSON>}',"
-            echo "but the target is '${expected}'. Refusing to deploy."
-            exit 1
-          fi
-          echo "credential ok: ${actual}"
+      - name: Authenticate to Google Cloud (no key, OIDC from this run)
+        id: auth
+        # Pinned by commit: this job can mint a deploy token, so a moved tag
+        # must not change the code that runs here.
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOY_SA }}
 
       # firebase.json is the project's Firebase configuration: functions,
       # Firestore rules and indexes, Storage rules, sign-in providers.
-      # firebase-tools 15 is the first major that deploys `auth`.
+      # firebase-tools is pinned: 15 is the first major that deploys `auth`,
+      # and 15.17 to 15.22.2 failed to authenticate through Workload Identity
+      # Federation.
       - name: Deploy functions, rules, indexes and sign-in providers
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
         run: |
-          npx --yes firebase-tools@15 deploy \
+          npx --yes firebase-tools@15.32.1 deploy \
             --only functions,firestore,storage,auth \
             --project "${TARGET}" \
             --non-interactive --force
@@ -86,11 +96,11 @@ jobs:
       # the project and compares.
       - name: Verify every exported function is deployed
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
         run: |
           expected=$(grep -oE '^export \{ [A-Za-z0-9_]+ \}' src/index.ts \
             | sed -E 's/export \{ ([A-Za-z0-9_]+) \}/\1/' | sort)
-          deployed=$(npx --yes firebase-tools@15 functions:list \
+          deployed=$(npx --yes firebase-tools@15.32.1 functions:list \
             --project "${TARGET}" --json \
             | jq -r '.result[].id' | sort)
 
