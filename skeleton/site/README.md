@@ -11,4 +11,4 @@ bash scripts/no-hardcoded-tokens.sh
 ```
 
 Read `CLAUDE.md`. Deploy setup and every other manual step is in
-`../HANDOFF.md`; the launch checklist is `LAUNCH.md`.
+`../{{PROJECT}}-ops/HANDOFF.md`; the launch checklist is `LAUNCH.md`.

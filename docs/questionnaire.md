@@ -32,6 +32,11 @@ and the description is drawn from it.
 | `app` | "Is there a logged-in screen: a dashboard, settings, a workspace?" | a customer signs in and sees their own data |
 | `lib` | "Is there an algorithm worth isolating: a scoring model, a parser, a matcher?" | logic that must be testable in milliseconds with no project id |
 
+A repo that already exists with a history of its own is not recreated.
+Its kind goes in `repos` and in `adopted`, its name in `repo_names` when it
+does not follow `<project>-<kind>`; `docs/adoption.md` says how the
+skeleton reaches it.
+
 Combinations that make sense: `site` alone (a brochure), `site + functions`
 (a form that posts), `functions + app` (a tool), all four (a SaaS), `lib`
 with any of them. `app` without `functions` still uses Firebase for auth
