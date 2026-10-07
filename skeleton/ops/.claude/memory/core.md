@@ -19,6 +19,6 @@ request too, in the same session; `upstream.py` lists what is owed.
 
 ## Human actions
 
-`../HANDOFF.md` lists what a human still has to do. A session that needs
-one of those steps names it and waits.
+`HANDOFF.md` at the root of this repo lists what a human still has to
+do. A session that needs one of those steps names it and waits.
 → HANDOFF.md

@@ -10,13 +10,21 @@ F5 are one run: the session triggers it with the slug, the region and the
 two repo names; you approve the run in mainBrain's Actions (it waits for
 your click, and nothing is created before it); the workflow creates both
 projects in the `mainbrain-projects` folder, links Blaze, sets a budget
-with alerts, enables the APIs, adds Firebase, Firestore Native and
-Email/Password sign-in, creates the deploy account with its four roles and
-stores its key as `FIREBASE_SERVICE_ACCOUNT_STAGING` and `_PROD` on
-`{{PROJECT}}-functions`, creates the web app and commits its public config
-into `{{PROJECT}}-app`. Proof: the `Deploy` workflow of
+with alerts, enables the APIs, adds Firebase, Firestore Native,
+Email/Password sign-in and the default Storage bucket, creates the deploy
+account with its four roles, lets `{{PROJECT}}-functions` act as it
+through Workload Identity Federation with no key, sets
+`GCP_WIF_PROVIDER_STAGING` and `_PROD` on that repo, creates the web app
+and commits its public config into `{{PROJECT}}-app`. Proof: the `Deploy` workflow of
 `{{PROJECT}}-functions` is green on the next push. Read F1 to F5 below as
 what the run did, and as the manual path if it is not armed.
+
+**After provisioning, nothing in Firebase is configured by hand.**
+Sign-in providers, Firestore rules and indexes, and Storage rules live in
+`{{PROJECT}}-functions/firebase.json` and the files it names. A session
+edits them, and the `Deploy` workflow applies them: to staging on every
+push to `main`, to prod at promotion. A Firestore collection needs no
+creation step: it exists from its first document, behind the rules.
 
 **Manual path.** Each step below, by hand.
 
@@ -33,9 +41,13 @@ Then in each project: Build → Firestore Database → Create database →
 **Native mode**, location `{{REGION}}`, start in **production mode** (the
 repo's rules replace the defaults on first deploy).
 
+Then Build → Storage → Get started, location `{{REGION}}`, production
+mode. The deploy stops on Storage until the bucket exists.
+
 Proof: both projects open at
 https://console.firebase.google.com/project/{{FIREBASE_STAGING}} and
-https://console.firebase.google.com/project/{{FIREBASE_PROD}}.
+https://console.firebase.google.com/project/{{FIREBASE_PROD}}, and each
+shows a bucket under Storage.
 
 ### F2 — Billing and the budget alert
 
@@ -64,7 +76,10 @@ stops on them with a link back here.
 
 Proof: each page shows "API enabled".
 
-### F4 — The deploy credential
+### F4 — The deploy identity
+
+No key. The functions repo's `Deploy` workflow proves who it is with a
+GitHub OIDC token, and each project trusts that token on one branch.
 
 Where: https://console.cloud.google.com/iam-admin/serviceaccounts, per
 project.
@@ -78,12 +93,34 @@ project.
      party can call it without a Google identity
    - **Cloud Run Admin**: the same grant on the Cloud Run service behind
      each v2 function
-3. Keys → Add key → JSON. Download once.
+3. In Cloud Shell, once with the first line as is, once with
+   `PROJECT_ID={{FIREBASE_PROD}}; BRANCH=prod`:
+
+   ```bash
+   PROJECT_ID={{FIREBASE_STAGING}}; BRANCH=main
+   REPO={{OWNER}}/{{PROJECT}}-functions
+   NUMBER=$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')
+   gcloud services enable iamcredentials.googleapis.com sts.googleapis.com --project="$PROJECT_ID"
+   gcloud iam workload-identity-pools create github --location=global --project="$PROJECT_ID"
+   gcloud iam workload-identity-pools providers create-oidc github \
+     --workload-identity-pool=github --location=global --project="$PROJECT_ID" \
+     --issuer-uri="https://token.actions.githubusercontent.com" \
+     --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref" \
+     --attribute-condition="assertion.repository == '$REPO' && assertion.ref == 'refs/heads/$BRANCH'"
+   gcloud iam service-accounts add-iam-policy-binding "github-deploy@$PROJECT_ID.iam.gserviceaccount.com" \
+     --project="$PROJECT_ID" --role=roles/iam.workloadIdentityUser \
+     --member="principalSet://iam.googleapis.com/projects/$NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/$REPO"
+   echo "projects/$NUMBER/locations/global/workloadIdentityPools/github/providers/github"
+   ```
+
 4. In `{{OWNER}}/{{PROJECT}}-functions` → Settings → Secrets and variables →
-   Actions → New repository secret. Name `FIREBASE_SERVICE_ACCOUNT_STAGING`
-   for the staging key, `FIREBASE_SERVICE_ACCOUNT_PROD` for the prod key.
-   Value: the whole JSON file, as is.
-5. Delete the downloaded files.
+   Actions → Variables → New repository variable: `GCP_WIF_PROVIDER_STAGING`
+   holds the last line printed for staging, `GCP_WIF_PROVIDER_PROD` the one
+   for prod.
+
+In an organization created since May 2024, a public HTTPS function also
+needs the folder exceptions in `mainBrain/docs/gcp-provisioning.md`,
+step 2.
 
 Proof: the `Deploy` workflow in `{{PROJECT}}-functions` is green on `main`,
 ending with "all exported functions are deployed on staging". A first

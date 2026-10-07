@@ -11,4 +11,4 @@ bash scripts/no-hardcoded-tokens.sh
 ```
 
 Read `CLAUDE.md`. The Firebase web config in `.env.staging` and
-`.env.production` is filled by `../HANDOFF.md`, step F5.
+`.env.production` is filled by `../{{PROJECT}}-ops/HANDOFF.md`, step F5.

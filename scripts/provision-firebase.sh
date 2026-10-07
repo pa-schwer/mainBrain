@@ -10,9 +10,10 @@
 #   2. link it to the billing account, Blaze        (HANDOFF F2)
 #   3. create a budget with alerts                  (HANDOFF F2)
 #   4. enable the APIs Functions v2 needs           (HANDOFF F3)
-#   5. add Firebase, Firestore Native, Email auth   (HANDOFF F1, F5)
-#   6. create the github-deploy account, 4 roles,
-#      one key, stored as a secret of the functions repo   (HANDOFF F4)
+#   5. add Firebase, Firestore Native, Email auth,
+#      the default Storage bucket                   (HANDOFF F1, F5)
+#   6. create the github-deploy account, 4 roles, and let the
+#      functions repo act as it, keyless                    (HANDOFF F4)
 #   7. create the web app and print its public config       (HANDOFF F5)
 #
 # Inputs, as environment variables (the workflow sets them):
@@ -24,10 +25,11 @@
 #   FUNCTIONS_REPO    owner/name of the functions repo, or empty
 #   APP_REPO          owner/name of the app repo, or empty
 #   BUDGET_STAGING, BUDGET_PROD   monthly amounts, in the billing currency
-#   GH_TOKEN          a token that can write Actions secrets and contents
+#   GH_TOKEN          a token that can write Actions variables and contents
 #
-# Never prints a key. The only secret it handles is the deploy key, which
-# goes from a temp file to `gh secret set` and is deleted.
+# No key exists. Each project gets a Workload Identity pool that trusts
+# the functions repo's GitHub OIDC token on one branch, and the repo gets
+# the pool's provider id as a variable, which identifies and grants nothing.
 
 set -euo pipefail
 
@@ -41,11 +43,15 @@ APIS=(
   cloudresourcemanager.googleapis.com
   serviceusage.googleapis.com
   iam.googleapis.com
+  iamcredentials.googleapis.com
+  sts.googleapis.com
   cloudbilling.googleapis.com
   billingbudgets.googleapis.com
   firebase.googleapis.com
   firestore.googleapis.com
   identitytoolkit.googleapis.com
+  firebasestorage.googleapis.com
+  storage.googleapis.com
   cloudfunctions.googleapis.com
   cloudbuild.googleapis.com
   artifactregistry.googleapis.com
@@ -71,7 +77,7 @@ ok()  { printf '  ok      %s\n' "$*"; }
 did() { printf '  created %s\n' "$*"; }
 
 provision() {
-  local id="$1" env="$2" budget="$3" secret_name="$4"
+  local id="$1" env="$2" budget="$3" var_name="$4"
 
   say "$id ($env)"
 
@@ -112,7 +118,7 @@ provision() {
     did "budget $budget with alerts at 50, 90, 100 %"
   fi
 
-  # 5. Firebase, Firestore, Auth
+  # 5. Firebase, Firestore, Auth, Storage
   if firebase projects:list --json 2>/dev/null | jq -e --arg id "$id" '.result[] | select(.projectId == $id)' > /dev/null; then
     ok "firebase added"
   else
@@ -143,7 +149,25 @@ provision() {
     echo "  WARN    auth config returned $code; enable Email/Password by hand in the console (HANDOFF F5)"
   fi
 
-  # 6. deploy account, roles, key -> functions repo secret
+  # The default Storage bucket. `firebase deploy --only storage` stops on a
+  # project without one and points at the console's Get Started button.
+  # Create re-links a bucket that exists, so a re-run is safe.
+  code=$(curl -sS -o /tmp/bucket.json -w '%{http_code}' -X POST \
+    -H "Authorization: Bearer $token" -H "Content-Type: application/json" \
+    -H "X-Goog-User-Project: $id" \
+    "https://firebasestorage.googleapis.com/v1beta/projects/$id/defaultBucket" \
+    -d "{\"location\":\"$REGION\"}")
+  if [ "$code" = "200" ] || [ "$code" = "409" ]; then
+    ok "storage default bucket in $REGION"
+  else
+    echo "  WARN    storage bucket returned $code: $(jq -r '.error.message // empty' /tmp/bucket.json)"
+    echo "          the functions deploy stops on storage until it exists (HANDOFF F1)"
+  fi
+
+  # 6. deploy account and roles; the functions repo acts as it through
+  # Workload Identity Federation. The pool trusts one repository by id (a
+  # name can be registered again after a rename) and one branch: main for
+  # staging, prod for prod.
   local sa="github-deploy@$id.iam.gserviceaccount.com"
   if gcloud iam service-accounts describe "$sa" --project="$id" > /dev/null 2>&1; then
     ok "deploy account exists"
@@ -158,18 +182,43 @@ provision() {
   ok "4 roles on the deploy account"
 
   if [ -n "$FUNCTIONS_REPO" ]; then
-    if gh secret list --repo "$FUNCTIONS_REPO" 2>/dev/null | awk '{print $1}' | grep -qx "$secret_name"; then
-      ok "$secret_name already set on $FUNCTIONS_REPO (not rotated; delete the secret to force a new key)"
+    local repo_id branch pool
+    repo_id=$(gh api "repos/$FUNCTIONS_REPO" --jq .id)
+    branch=$([ "$env" = staging ] && echo main || echo prod)
+    pool="projects/$number/locations/global/workloadIdentityPools/github"
+
+    if gcloud iam workload-identity-pools describe github --location=global --project="$id" > /dev/null 2>&1; then
+      ok "identity pool exists"
     else
-      local keyfile
-      keyfile=$(mktemp)
-      gcloud iam service-accounts keys create "$keyfile" --iam-account="$sa" --project="$id" --quiet
-      gh secret set "$secret_name" --repo "$FUNCTIONS_REPO" < "$keyfile"
-      rm -f "$keyfile"
-      did "$secret_name on $FUNCTIONS_REPO"
+      gcloud iam workload-identity-pools create github --location=global \
+        --display-name="GitHub Actions" --project="$id" --quiet
+      did "identity pool"
     fi
+
+    # update-oidc on a re-run, so a changed repo or branch replaces the old trust.
+    local verb=create-oidc
+    if gcloud iam workload-identity-pools providers describe github --workload-identity-pool=github \
+         --location=global --project="$id" > /dev/null 2>&1; then
+      verb=update-oidc
+    fi
+    gcloud iam workload-identity-pools providers "$verb" github \
+      --workload-identity-pool=github --location=global --project="$id" \
+      --issuer-uri="https://token.actions.githubusercontent.com" \
+      --attribute-mapping="google.subject=assertion.sub,attribute.repository_id=assertion.repository_id,attribute.ref=assertion.ref" \
+      --attribute-condition="assertion.repository_id == '$repo_id' && assertion.ref == 'refs/heads/$branch'" \
+      --quiet > /dev/null
+    ok "provider trusts $FUNCTIONS_REPO on $branch"
+
+    gcloud iam service-accounts add-iam-policy-binding "$sa" --project="$id" \
+      --role=roles/iam.workloadIdentityUser \
+      --member="principalSet://iam.googleapis.com/$pool/attribute.repository_id/$repo_id" \
+      --quiet > /dev/null
+    ok "$FUNCTIONS_REPO may act as the deploy account"
+
+    gh variable set "$var_name" --repo "$FUNCTIONS_REPO" --body "$pool/providers/github"
+    ok "$var_name on $FUNCTIONS_REPO"
   else
-    echo "  skip    no functions repo given; no deploy key created"
+    echo "  skip    no functions repo given; no deploy identity"
   fi
 
   # 7. web app and its public config
@@ -216,8 +265,8 @@ provision() {
   rm -f "$env_file"
 }
 
-provision "$STAGING_ID" staging "$BUDGET_STAGING" FIREBASE_SERVICE_ACCOUNT_STAGING
-provision "$PROD_ID"    prod    "$BUDGET_PROD"    FIREBASE_SERVICE_ACCOUNT_PROD
+provision "$STAGING_ID" staging "$BUDGET_STAGING" GCP_WIF_PROVIDER_STAGING
+provision "$PROD_ID"    prod    "$BUDGET_PROD"    GCP_WIF_PROVIDER_PROD
 
 say "done"
 echo "Proof: push main of the functions repo; its Deploy workflow should end with"

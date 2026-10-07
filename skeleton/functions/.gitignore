@@ -18,3 +18,8 @@ ui-debug.log
 !.env.{{FIREBASE_PROD}}
 *.pem
 service-account*.json
+
+# google-github-actions/auth writes its credential config at the root of the
+# checkout. firebase.json ignores it too, so a deploy never uploads it with
+# the function source.
+gha-creds-*.json

@@ -97,6 +97,10 @@ Paths are built in `src/paths.ts` and nowhere else. The scaffold has one
 top-level collection, `accounts/{accountId}`; add to that file as the
 schema grows.
 
+A collection exists from its first document; there is nothing to create.
+Adding one is three edits in one cycle: its type in the canonical schema,
+its path in `src/paths.ts`, its rule in `firestore.rules`.
+
 `firestore.rules` holds two invariants: an account reads only its own
 subtree, and nothing is client-writable. Identity comes from an
 `accountId` custom claim rather than a document lookup, which would cost a
@@ -107,6 +111,33 @@ it. Firestore rejects a query with no index and prints the link to create
 one, so an empty file fails loudly and an invented index fails silently.
 
 All timestamps are epoch ms `number`, never a Firestore `Timestamp`.
+
+## Firebase configuration is code
+
+`firebase.json` and the files it names configure both projects. The
+`Deploy` workflow applies them, to staging on every push to `main` and to
+prod at promotion. A session changes Firebase by changing these files,
+never in the console: a setting only the console holds is drift, and the
+other project never gets it.
+
+| What | File | Deploy target |
+|---|---|---|
+| Functions | `src/index.ts` | `functions` |
+| Firestore rules, indexes | `firestore.rules`, `firestore.indexes.json` | `firestore` |
+| Storage rules | `storage.rules` | `storage` |
+| Sign-in providers | `auth.providers` in `firebase.json` | `auth` |
+
+`auth.providers` takes `emailPassword`, `anonymous` and `googleSignIn`
+(display name, support email, redirect URIs). The deploy turns a provider
+on and never off; turning one off is a console change in both projects,
+recorded in `{{PROJECT}}-ops/docs/decisions.md`. Any other provider (Apple,
+GitHub, SAML) needs a client secret from that provider's console, so it
+starts as a `HANDOFF.md` step.
+
+`storage.rules` holds the Firestore invariants: an account reads only
+`accounts/{accountId}/`, and nothing is client-writable. The provisioning
+run creates the default bucket (`HANDOFF.md` F1); the deploy stops on
+Storage without it.
 
 ## Commands
 
@@ -130,15 +161,22 @@ to `defineInt` and `defineString` in `src/config.ts`. They are committed and
 carry config only.
 
 `.github/workflows/deploy.yml` runs on every push to `main` or `prod`,
-after the tests. It needs `FIREBASE_SERVICE_ACCOUNT_STAGING` and
-`FIREBASE_SERVICE_ACCOUNT_PROD` as repository secrets, each the whole JSON
-of a service account key. The job refuses to run when the secret is absent,
-refuses to deploy when the credential's `project_id` is not the target, and
-verifies after deploying that every export is live.
+after the tests, and deploys every target in the table above. No key
+exists. The job acts as `github-deploy@<project>` through Workload Identity
+Federation: each project trusts this repository's GitHub OIDC token on one
+branch, `main` for staging and `prod` for prod. The repository variables
+`GCP_WIF_PROVIDER_STAGING` and `GCP_WIF_PROVIDER_PROD` name the two
+providers. The job refuses to run when the variable is absent, a provider
+in the wrong variable fails authentication, and the job verifies after
+deploying that every export is live.
 
 The service account needs four roles in Google Cloud IAM on its project:
 **Editor**, **Secret Manager Admin**, **Cloud Functions Admin** and
 **Cloud Run Admin**. `HANDOFF.md` has the why for each.
+
+Never add a service account key to make a deploy pass. A red
+authentication step means the pool, the provider or the variable is wrong,
+and `HANDOFF.md` F4 says how to check each.
 
 `prod` only moves by fast-forward from `main`:
 

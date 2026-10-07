@@ -90,7 +90,7 @@ the founder is go prod.
 
 Some steps cannot be done by a session: creating a repository on a
 personal GitHub account, creating a cloud project, pasting a secret,
-pointing DNS. `HANDOFF.md` at the workspace root lists them, step by step,
+pointing DNS. `HANDOFF.md` at the root of this repo lists them, step by step,
 each with the check that proves it was done. A session that hits one names
 the step by its number and waits. It never invents a value, never skips
 the check, and never writes a secret anywhere but where the step says.
