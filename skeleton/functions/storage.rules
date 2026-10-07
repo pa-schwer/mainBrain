@@ -1,0 +1,27 @@
+rules_version = '2';
+
+// {{TITLE}} Storage rules. The same two invariants as firestore.rules:
+//   1. An account reads only its own prefix, accounts/{accountId}/.
+//   2. Nothing is client-writable. A Cloud Function writes with the Admin
+//      SDK, which bypasses these rules. A client upload is a decision,
+//      recorded, with a size and content-type check in its rule.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function belongsTo(accountId) {
+      return request.auth != null && request.auth.token.accountId == accountId;
+    }
+
+    match /accounts/{accountId}/{allPaths=**} {
+      allow read: if belongsTo(accountId);
+      allow write: if false;
+    }
+
+    // Anything not matched above is denied, so a new prefix is closed on
+    // the day it is created.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -67,12 +67,15 @@ jobs:
           fi
           echo "credential ok: ${actual}"
 
-      - name: Deploy functions and Firestore rules
+      # firebase.json is the project's Firebase configuration: functions,
+      # Firestore rules and indexes, Storage rules, sign-in providers.
+      # firebase-tools 15 is the first major that deploys `auth`.
+      - name: Deploy functions, rules, indexes and sign-in providers
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
         run: |
-          npx --yes firebase-tools@14 deploy \
-            --only functions,firestore \
+          npx --yes firebase-tools@15 deploy \
+            --only functions,firestore,storage,auth \
             --project "${TARGET}" \
             --non-interactive --force
 
@@ -87,7 +90,7 @@ jobs:
         run: |
           expected=$(grep -oE '^export \{ [A-Za-z0-9_]+ \}' src/index.ts \
             | sed -E 's/export \{ ([A-Za-z0-9_]+) \}/\1/' | sort)
-          deployed=$(npx --yes firebase-tools@14 functions:list \
+          deployed=$(npx --yes firebase-tools@15 functions:list \
             --project "${TARGET}" --json \
             | jq -r '.result[].id' | sort)
 
