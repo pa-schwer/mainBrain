@@ -277,6 +277,8 @@ def cloudflare_section(a: dict) -> str:
         "with an API token the Claude Code environment holds as a network secret on",
         "`api.cloudflare.com` and `mcp.cloudflare.com` (HANDOFF C3). The proxy adds",
         "it after a request leaves the session, so no session holds the token.",
+        "Wrangler runs with any placeholder in `CLOUDFLARE_API_TOKEN` (the proxy",
+        "replaces the header) and the account ID in `CLOUDFLARE_ACCOUNT_ID`.",
     ]
     return "\n".join(lines)
 
