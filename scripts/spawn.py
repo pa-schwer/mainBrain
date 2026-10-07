@@ -454,6 +454,9 @@ def write_handoff(ws: Path, a: dict, values: dict[str, str], entries: list[dict]
     if left:
         raise SystemExit(f"HANDOFF.md: unresolved placeholder(s) {', '.join(left)}")
     (ws / "HANDOFF.md").write_text(text, encoding="utf-8")
+    # The workspace root is a container in a cloud session and goes with it;
+    # the copy in ops is the one the next session finds.
+    (ws / repo_name(p, "ops") / "HANDOFF.md").write_text(text, encoding="utf-8")
 
 
 def write_push_script(ws: Path, a: dict) -> None:

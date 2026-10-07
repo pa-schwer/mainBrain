@@ -9,4 +9,4 @@ bash scripts/check-schema.sh   # schema copies in sync?
 ```
 
 Start with `CLAUDE.md`, then `docs/workflow.md`. What a human still has to
-do is in `../HANDOFF.md`.
+do is in `HANDOFF.md`.

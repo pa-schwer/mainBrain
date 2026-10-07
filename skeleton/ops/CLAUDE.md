@@ -102,10 +102,12 @@ that goal go to `docs/bugs.md` as one line and are left alone.
 
 ## Human actions
 
-`HANDOFF.md` at the root of the workspace lists every step a human still
-has to do for this project, step by step, with the check that proves it
-was done. A session that needs one of them names the step and waits;
-it never works around it.
+`HANDOFF.md` in this repo lists every step a human still has to do for
+this project, step by step, with the check that proves it was done. The
+generator also writes it at the root of the workspace; this copy is the
+one that outlives the session, so a step done gets its box ticked here.
+A session that needs one of them names the step and waits; it never
+works around it.
 
 ## Upstream to mainBrain
 
