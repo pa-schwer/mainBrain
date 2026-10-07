@@ -10,7 +10,8 @@
 #   2. link it to the billing account, Blaze        (HANDOFF F2)
 #   3. create a budget with alerts                  (HANDOFF F2)
 #   4. enable the APIs Functions v2 needs           (HANDOFF F3)
-#   5. add Firebase, Firestore Native, Email auth   (HANDOFF F1, F5)
+#   5. add Firebase, Firestore Native, Email auth,
+#      the default Storage bucket                   (HANDOFF F1, F5)
 #   6. create the github-deploy account, 4 roles,
 #      one key, stored as a secret of the functions repo   (HANDOFF F4)
 #   7. create the web app and print its public config       (HANDOFF F5)
@@ -46,6 +47,8 @@ APIS=(
   firebase.googleapis.com
   firestore.googleapis.com
   identitytoolkit.googleapis.com
+  firebasestorage.googleapis.com
+  storage.googleapis.com
   cloudfunctions.googleapis.com
   cloudbuild.googleapis.com
   artifactregistry.googleapis.com
@@ -112,7 +115,7 @@ provision() {
     did "budget $budget with alerts at 50, 90, 100 %"
   fi
 
-  # 5. Firebase, Firestore, Auth
+  # 5. Firebase, Firestore, Auth, Storage
   if firebase projects:list --json 2>/dev/null | jq -e --arg id "$id" '.result[] | select(.projectId == $id)' > /dev/null; then
     ok "firebase added"
   else
@@ -141,6 +144,21 @@ provision() {
     ok "auth email/password enabled"
   else
     echo "  WARN    auth config returned $code; enable Email/Password by hand in the console (HANDOFF F5)"
+  fi
+
+  # The default Storage bucket. `firebase deploy --only storage` stops on a
+  # project without one and points at the console's Get Started button.
+  # Create re-links a bucket that exists, so a re-run is safe.
+  code=$(curl -sS -o /tmp/bucket.json -w '%{http_code}' -X POST \
+    -H "Authorization: Bearer $token" -H "Content-Type: application/json" \
+    -H "X-Goog-User-Project: $id" \
+    "https://firebasestorage.googleapis.com/v1beta/projects/$id/defaultBucket" \
+    -d "{\"location\":\"$REGION\"}")
+  if [ "$code" = "200" ] || [ "$code" = "409" ]; then
+    ok "storage default bucket in $REGION"
+  else
+    echo "  WARN    storage bucket returned $code: $(jq -r '.error.message // empty' /tmp/bucket.json)"
+    echo "          the functions deploy stops on storage until it exists (HANDOFF F1)"
   fi
 
   # 6. deploy account, roles, key -> functions repo secret

@@ -10,13 +10,21 @@ F5 are one run: the session triggers it with the slug, the region and the
 two repo names; you approve the run in mainBrain's Actions (it waits for
 your click, and nothing is created before it); the workflow creates both
 projects in the `mainbrain-projects` folder, links Blaze, sets a budget
-with alerts, enables the APIs, adds Firebase, Firestore Native and
-Email/Password sign-in, creates the deploy account with its four roles and
-stores its key as `FIREBASE_SERVICE_ACCOUNT_STAGING` and `_PROD` on
+with alerts, enables the APIs, adds Firebase, Firestore Native,
+Email/Password sign-in and the default Storage bucket, creates the deploy
+account with its four roles and stores its key as
+`FIREBASE_SERVICE_ACCOUNT_STAGING` and `_PROD` on
 `{{PROJECT}}-functions`, creates the web app and commits its public config
 into `{{PROJECT}}-app`. Proof: the `Deploy` workflow of
 `{{PROJECT}}-functions` is green on the next push. Read F1 to F5 below as
 what the run did, and as the manual path if it is not armed.
+
+**After provisioning, nothing in Firebase is configured by hand.**
+Sign-in providers, Firestore rules and indexes, and Storage rules live in
+`{{PROJECT}}-functions/firebase.json` and the files it names. A session
+edits them, and the `Deploy` workflow applies them: to staging on every
+push to `main`, to prod at promotion. A Firestore collection needs no
+creation step: it exists from its first document, behind the rules.
 
 **Manual path.** Each step below, by hand.
 
@@ -33,9 +41,13 @@ Then in each project: Build → Firestore Database → Create database →
 **Native mode**, location `{{REGION}}`, start in **production mode** (the
 repo's rules replace the defaults on first deploy).
 
+Then Build → Storage → Get started, location `{{REGION}}`, production
+mode. The deploy stops on Storage until the bucket exists.
+
 Proof: both projects open at
 https://console.firebase.google.com/project/{{FIREBASE_STAGING}} and
-https://console.firebase.google.com/project/{{FIREBASE_PROD}}.
+https://console.firebase.google.com/project/{{FIREBASE_PROD}}, and each
+shows a bucket under Storage.
 
 ### F2 — Billing and the budget alert
 

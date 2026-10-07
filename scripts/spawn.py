@@ -203,6 +203,7 @@ def firebase_section(a: dict) -> str:
         f"| Project ID | `{a['firebase_staging']}` | `{a['firebase_prod']}` |",
         f"| Region | `{a['region']}` | `{a['region']}` |",
         "| Firestore | Native mode | Native mode |",
+        "| Storage | default bucket | default bucket |",
     ]
     if "functions" in a["repos"]:
         lines.append(f"| Deploys from | `main` of `{repo_name(p, 'functions')}` | `prod` of `{repo_name(p, 'functions')}` |")
