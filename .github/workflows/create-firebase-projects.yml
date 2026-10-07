@@ -95,12 +95,14 @@ jobs:
           fi
 
       - name: "Authenticate to Google Cloud (no key, OIDC from this run)"
-        uses: google-github-actions/auth@v2
+        # Pinned by commit, like setup-gcloud below: this job acts with owner
+        # rights on the folder, so a moved tag must not change what runs here.
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
         with:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_PROVISIONER_SA }}
 
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2.2.1
         with:
           install_components: beta
 

@@ -68,7 +68,9 @@ jobs:
 
       - name: Authenticate to Google Cloud (no key, OIDC from this run)
         id: auth
-        uses: google-github-actions/auth@v2
+        # Pinned by commit: this job can mint a deploy token, so a moved tag
+        # must not change the code that runs here.
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
         with:
           workload_identity_provider: ${{ env.WIF_PROVIDER }}
           service_account: ${{ env.DEPLOY_SA }}
