@@ -63,3 +63,9 @@ session.
 Proof: in a new session,
 `curl -s https://api.cloudflare.com/client/v4/user/tokens/verify` answers
 `"status":"active"` with no header sent.
+
+The proxy replaces an `Authorization` header a request already carries,
+so Wrangler runs with any placeholder in `CLOUDFLARE_API_TOKEN`, next to
+the real `CLOUDFLARE_ACCOUNT_ID`. `wrangler whoami` is the exception:
+Cloudflare throttles it (code 971) from the proxy's shared address, so it
+proves nothing; the `curl` above does.
