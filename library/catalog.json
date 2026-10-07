@@ -17,7 +17,8 @@
     "conversion": "audit a page or form that already exists",
     "signup": "self-serve account creation flow",
     "activation": "the path from paid to first value",
-    "experiments": "design an A/B test before a change ships as one"
+    "experiments": "design an A/B test before a change ships as one",
+    "cloudflare": "operate the front ends on Cloudflare: Workers, Wrangler, DNS, domains"
   },
   "entries": [
     {
@@ -54,16 +55,23 @@
     {
       "name": "security-guidance", "kind": "plugin", "mode": "automatic",
       "path": "harness/claude-security-guidance.md", "origin": "anthropics/claude-plugins-official", "license": "Apache 2.0",
-      "plugin_id": "security-guidance@claude-plugins-official",
+      "plugin_id": "security-guidance@claude-plugins-official", "marketplace": "anthropics/claude-plugins-official",
       "summary": "Pattern check on every edit, model review of the diff at the end of every turn, agentic review on every commit and push. Its repo rules are the two harness files.",
       "needs": ["security"], "default_for": ["ops"], "local_change": false
     },
     {
       "name": "ui-ux-pro-max", "kind": "plugin", "mode": "on-demand",
       "path": null, "origin": "nextlevelbuilder/ui-ux-pro-max-skill", "license": "see marketplace",
-      "plugin_id": "ui-ux-pro-max@ui-ux-pro-max-skill",
+      "plugin_id": "ui-ux-pro-max@ui-ux-pro-max-skill", "marketplace": "nextlevelbuilder/ui-ux-pro-max-skill",
       "summary": "The single source of static UI guidance. Do not enable a second one (frontend-design, taste-skill): two advisors on one task produce two aesthetics.",
       "needs": ["ui"], "default_for": ["site", "app"], "local_change": false
+    },
+    {
+      "name": "cloudflare", "kind": "plugin", "mode": "on-demand",
+      "path": null, "origin": "cloudflare/skills", "license": "Apache 2.0",
+      "plugin_id": "cloudflare@cloudflare", "marketplace": "cloudflare/skills",
+      "summary": "Cloudflare's own skills (Workers, Wrangler, web performance, Turnstile) and its MCP server for the whole Cloudflare API. The server takes the API token the environment holds as a network secret (HANDOFF C3); without one it asks for OAuth, which a cloud session cannot complete.",
+      "needs": ["cloudflare"], "default_for": ["site", "app"], "local_change": false
     },
     {
       "name": "web-design-guidelines", "kind": "skill", "mode": "gate",

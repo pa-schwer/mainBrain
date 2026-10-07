@@ -92,8 +92,16 @@ def install(ops_dir: Path, entries: list[dict]) -> list[str]:
     return landed
 
 
+def plugins(entries: list[dict]) -> list[dict]:
+    return [e for e in entries if e["kind"] == "plugin"]
+
+
 def plugin_ids(entries: list[dict]) -> list[str]:
-    return [e["plugin_id"] for e in entries if e["kind"] == "plugin"]
+    return [e["plugin_id"] for e in plugins(entries)]
+
+
+def marketplace_name(entry: dict) -> str:
+    return entry["plugin_id"].split("@", 1)[1]
 
 
 def standing(entries: list[dict]) -> list[dict]:

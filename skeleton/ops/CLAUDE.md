@@ -176,6 +176,11 @@ review on every commit and push Claude makes. Its repo rules are
 `.claude/claude-security-guidance.md` and `.claude/security-patterns.json`.
 It is the single source of security review.
 
+`.claude/settings.json` names the plugins ({{PLUGIN_LIST}}), but a cloud
+session never installs plugins from a repository: the environment's setup
+script does (HANDOFF E2). A session whose skill list lacks them runs in an
+environment without that script.
+
 **On demand.** {{ON_DEMAND_SKILLS_OR_NONE}} trigger on what the work is.
 They stay out of `session-context.md` on purpose: a directive that fires
 every session for a tool used once a month is noise.

@@ -55,8 +55,9 @@ and reads.
 `needs`: a list of the keys below. Ask them as "will this project need
 …". The defaults for the chosen repo kinds are installed without asking
 (the prose, memory, self-improvement, discovery, security and
-simplification directives, plus browser testing, UI guidance and the UI
-review gate for any front end, and the library picker for the app); the
+simplification directives, plus browser testing, UI guidance, the UI
+review gate and the Cloudflare plugin for any front end, and the library
+picker for the app); the
 list below is what is asked.
 
 | Need | Ask it as | Installs |
