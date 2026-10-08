@@ -65,3 +65,16 @@ repo by id on one branch); the `mainbrain-projects` folder overrides the
 other three. `docs/gcp-provisioning.md` step 2 has the commands. Nothing
 here has run against a real organization yet: the first provisioning run
 is the test.
+
+## Arming a Google Cloud organization, as met [2026-10-08]
+
+- The project picker shows "No organization" when the console is signed
+  in with the personal account; the admin account sees the organization.
+  A private window keeps the two apart.
+- Cloud Identity's domain check offers to write the TXT itself on a
+  Cloudflare zone.
+- A billing account owned by the personal account shows, in the admin's
+  billing page, under "No organization" only.
+- The organization admin role cannot create folders or set policies; the
+  script grants itself both. Fixed project ids collide worldwide; the
+  admin project takes the organization id's last six digits.

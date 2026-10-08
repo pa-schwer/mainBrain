@@ -34,127 +34,95 @@ its proof.
 
 The right to create projects (`roles/resourcemanager.projectCreator`) is
 granted at organization or folder level only. A personal Google account
-with no organization cannot delegate it to anyone. So:
+with no organization cannot delegate it to anyone, and a service account
+cannot create a project without a parent. So the workflow needs an
+organization, and an organization needs a domain you own. A domain that
+outlives any one product suits it best: the organization holds every
+product's projects, and its domain never shows to a customer.
 
-- Have a domain you own (the product's domain works).
-- Create a Google Cloud organization with **Cloud Identity Free**:
-  https://cloud.google.com/identity/docs/set-up-cloud-identity-admin
-  → sign up, verify the domain with the DNS record it gives you. Free,
-  no Workspace needed.
-- Sign in to https://console.cloud.google.com with the new admin account;
-  the organization appears in the project picker.
+- Create a Google Cloud organization with **Cloud Identity Free**,
+  in a private browser window so the new admin account stays apart from
+  your personal one:
+  https://workspace.google.com/gcpidentity/signup?sku=identitybasic
+  Sign up with the domain, then verify it with the TXT record Google
+  gives you. On Cloudflare DNS, Google offers to add the record itself.
+- Sign in to https://console.cloud.google.com with the new admin account
+  and accept the terms. The organization appears in the project picker.
+  A picker that shows only "No organization" is signed in with another
+  account.
 
-Proof: `gcloud organizations list` in Cloud Shell shows one line. Note
-its `ID`; the steps below call it `ORG_ID`.
+Proof: the project picker, signed in as the admin, lists the domain as an
+organization.
 
 Projects that already exist under your personal account can be migrated
 into the organization later (IAM & Admin → Settings → Migrate); it is not
 required for new projects.
 
-## 1. A billing account
+## 1. The billing account
 
-Where: https://console.cloud.google.com/billing → Create account, with
-the card. Note its id, `XXXXXX-XXXXXX-XXXXXX`; the steps below call it
-`BILLING_ACCOUNT`.
+Reuse one that your personal account owns, or create one with the card.
+Either way the admin account gets exactly one: signed in with the account
+that owns it, https://console.cloud.google.com/billing → the account →
+Account management → Add principal → the admin account, role **Billing
+Account Administrator**. Rename the account while there, so a budget
+alert says which one it is.
 
-Proof: `gcloud billing accounts list` shows it, `OPEN: True`.
+The admin's billing page lists it under "No organization": the account
+belongs to your personal account, not to the organization, and that is
+fine. The script in step 2 and the workflow both find it because it is
+the only open account they can see, and both stop if they see two.
+
+Proof: `gcloud billing accounts list` in the admin's Cloud Shell shows one
+line, `OPEN: True`.
 
 ## 2. The folder, the identity, the rights
 
-In Cloud Shell (https://shell.cloud.google.com), signed in as the
-organization admin. Replace the three placeholders.
+One script, `scripts/arm-gcp.sh`. In Cloud Shell
+(https://shell.cloud.google.com), signed in as the organization admin,
+with your owner in both places:
 
 ```bash
-ORG_ID=<from step 0>
-BILLING_ACCOUNT=<from step 1>
-GITHUB_REPO=<owner>/mainBrain          # the repository that may assume the identity
-
-# A folder that holds every project mainBrain creates, and nothing else.
-gcloud resource-manager folders create --display-name=mainbrain-projects --organization="$ORG_ID"
-FOLDER_ID=$(gcloud resource-manager folders list --organization="$ORG_ID" \
-  --filter='displayName=mainbrain-projects' --format='value(name)' | sed 's|folders/||')
-
-# A home project for the identity itself (it has to live somewhere).
-gcloud projects create mainbrain-admin --folder="$FOLDER_ID" --name="mainBrain admin"
-gcloud config set project mainbrain-admin
-gcloud services enable iam.googleapis.com iamcredentials.googleapis.com \
-  cloudresourcemanager.googleapis.com sts.googleapis.com
-ADMIN_NUMBER=$(gcloud projects describe mainbrain-admin --format='value(projectNumber)')
-
-# The identity.
-gcloud iam service-accounts create mainbrain-provisioner --display-name="mainBrain provisioner"
-SA="mainbrain-provisioner@mainbrain-admin.iam.gserviceaccount.com"
-
-# Its rights: create projects in the folder and own what it creates;
-# link and budget on the billing account. Nothing at organization level.
-for role in roles/resourcemanager.projectCreator roles/owner roles/serviceusage.serviceUsageAdmin; do
-  gcloud resource-manager folders add-iam-policy-binding "$FOLDER_ID" \
-    --member="serviceAccount:$SA" --role="$role"
-done
-for role in roles/billing.user roles/billing.costsManager; do
-  gcloud billing accounts add-iam-policy-binding "$BILLING_ACCOUNT" \
-    --member="serviceAccount:$SA" --role="$role"
-done
-
-# Workload Identity Federation: GitHub Actions of that one repository may
-# act as the identity. No key exists.
-gcloud iam workload-identity-pools create github --location=global --display-name="GitHub Actions"
-gcloud iam workload-identity-pools providers create-oidc github \
-  --location=global --workload-identity-pool=github --display-name="GitHub" \
-  --issuer-uri="https://token.actions.githubusercontent.com" \
-  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository" \
-  --attribute-condition="assertion.repository == '$GITHUB_REPO'"
-gcloud iam service-accounts add-iam-policy-binding "$SA" \
-  --role=roles/iam.workloadIdentityUser \
-  --member="principalSet://iam.googleapis.com/projects/$ADMIN_NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/$GITHUB_REPO"
-
-echo "GCP_WIF_PROVIDER=projects/$ADMIN_NUMBER/locations/global/workloadIdentityPools/github/providers/github"
-echo "GCP_PROVISIONER_SA=$SA"
-echo "GCP_FOLDER_ID=$FOLDER_ID"
+curl -fsSL https://raw.githubusercontent.com/<owner>/mainBrain/main/scripts/arm-gcp.sh | bash -s -- <owner>/mainBrain
 ```
 
-Proof: the three `echo` lines print values; keep them for step 4.
+It reads the organization and the billing account, and stops unless it
+finds exactly one of each. Then, in order:
+
+1. grants the admin Folder Admin, Project Creator and Organization Policy
+   Administrator on the organization, which the admin role lacks;
+2. creates the folder `mainbrain-projects`, and in it the project
+   `mainbrain-admin-<last six digits of the organization id>`, with the
+   APIs the provisioner calls;
+3. sets the folder's three exceptions, below;
+4. creates the `mainbrain-provisioner` service account: Project Creator,
+   Owner and Service Usage Admin on the folder, Billing User and Billing
+   Costs Manager on the billing account, nothing on the organization;
+5. lets GitHub Actions act as it through Workload Identity Federation:
+   this repository by id, on `main`, in a job of the `provisioning`
+   environment, so only an approved run gets a token;
+6. prints the three repository variables of step 4.
+
+Grants and policies take minutes to apply, a folder policy up to fifteen,
+and the script waits for them. A run that stops anyway can be started
+again as is: it finds what exists and creates the rest.
 
 ### The folder's exceptions to the organization's defaults
 
 An organization created on or after 3 May 2024 enforces Google's
 secure-by-default policies. Three of them break this stack, so the
-folder overrides those three, before the first run. The others stay,
-the ban on service account keys included: nothing here uses a key.
+folder overrides those three. The others stay, the ban on service
+account keys included: nothing here uses a key.
 
 | Constraint | What it breaks | Folder setting |
 |---|---|---|
-| `iam.allowedPolicyMemberDomains` | the `allUsers` invoker grant a public HTTPS function or a webhook needs | allow all |
+| `iam.allowedPolicyMemberDomains` | the `allUsers` invoker grant a public HTTPS function or a webhook needs, and the federated grant of step 5 above | allow all |
 | `iam.automaticIamGrantsForDefaultServiceAccounts` | Editor on the default compute account, which Cloud Functions v2 builds and runs as | not enforced |
 | `storage.uniformBucketLevelAccess` | Firebase's default Storage bucket, which an enforcing organization can refuse | not enforced |
 
-In the same Cloud Shell, with `ORG_ID` and `FOLDER_ID` still set:
+An older organization enforces none of the three, and the script changes
+nothing there.
 
-```bash
-# Setting a policy takes the Organization Policy Administrator role,
-# which the organization admin does not hold by default.
-gcloud organizations add-iam-policy-binding "$ORG_ID" \
-  --member="user:$(gcloud config get-value account)" \
-  --role=roles/orgpolicy.policyAdmin --condition=None
-
-cat > /tmp/policy.yaml <<EOF
-name: folders/$FOLDER_ID/policies/iam.allowedPolicyMemberDomains
-spec:
-  rules:
-  - allowAll: true
-EOF
-gcloud org-policies set-policy /tmp/policy.yaml
-
-for c in iam.automaticIamGrantsForDefaultServiceAccounts storage.uniformBucketLevelAccess; do
-  printf 'name: folders/%s/policies/%s\nspec:\n  rules:\n  - enforce: false\n' "$FOLDER_ID" "$c" > /tmp/policy.yaml
-  gcloud org-policies set-policy /tmp/policy.yaml
-done
-```
-
-Proof: `gcloud org-policies describe iam.allowedPolicyMemberDomains
---folder="$FOLDER_ID" --effective` shows `allowAll: true`, and the same
-command on the other two shows `enforce: false`. An older organization
-enforces none of the three, and the commands change nothing there.
+Proof: the script ends with `done` and three variables.
 
 ## 3. The GitHub token, widened
 
@@ -173,33 +141,24 @@ Repository permissions:
 Keep Administration: Read and write. Regenerate if GitHub asks, and paste
 the new value into the `REPO_ADMIN_TOKEN` secret.
 
-## 4. Variables and secrets on this repository
+## 4. Variables on this repository
 
-Where: this repository → Settings → Secrets and variables → Actions.
-
-Variables (tab **Variables**, not secret: they identify, they do not
-authenticate):
+Where: this repository → Settings → Secrets and variables → Actions →
+tab **Variables**. They identify, they do not authenticate.
 
 | Name | Value |
 |---|---|
-| `GCP_WIF_PROVIDER` | the `projects/…/providers/github` line from step 2 |
-| `GCP_PROVISIONER_SA` | `mainbrain-provisioner@mainbrain-admin.iam.gserviceaccount.com` |
-| `GCP_FOLDER_ID` | the folder number from step 2 |
+| `GCP_WIF_PROVIDER` | the `projects/…/providers/github` line the script printed |
+| `GCP_PROVISIONER_SA` | the `mainbrain-provisioner@…` line |
+| `GCP_FOLDER_ID` | the folder number |
 
-Secret (tab **Secrets**):
+No billing secret: the workflow uses the one billing account the
+provisioner can see. A `GCP_BILLING_ACCOUNT` secret, if set, names it
+instead, for an identity that can see several.
 
-| Name | Value |
-|---|---|
-| `GCP_BILLING_ACCOUNT` | `XXXXXX-XXXXXX-XXXXXX` |
+## 5. The provisioner's own APIs
 
-## 5. Enable the APIs the provisioner itself calls
-
-On `mainbrain-admin`, once, in Cloud Shell:
-
-```bash
-gcloud services enable cloudbilling.googleapis.com billingbudgets.googleapis.com \
-  firebase.googleapis.com serviceusage.googleapis.com --project=mainbrain-admin
-```
+`arm-gcp.sh` enables them on the admin project. Nothing to do.
 
 ## 6. The approval gate
 
@@ -244,8 +203,9 @@ Filled in as failures are met, the way `docs/repo-creation.md` was.
 
 | The log says | It means | Fix |
 |---|---|---|
-| `GCP_WIF_PROVIDER is not set` (or another name) | step 4 not done | add the variable or secret |
+| `GCP_WIF_PROVIDER is not set` (or another name) | step 4 not done | add the variable |
 | `Waiting for review` for a long time | nobody approved | Actions → the run → Review deployments |
-| `permission 'resourcemanager.projects.create' denied` | the identity lacks projectCreator on the folder, or the folder id is wrong | re-run the folder bindings of step 2 |
-| `The caller does not have permission` on `billing projects link` | `roles/billing.user` missing on the billing account | the billing bindings of step 2 |
-| `Unable to acquire impersonated credentials` | the WIF binding names another repository, or the provider condition does not match | check `GITHUB_REPO` in step 2 matches this repository exactly |
+| `permission 'resourcemanager.projects.create' denied` | the identity lacks projectCreator on the folder, or the folder id is wrong | run `arm-gcp.sh` again, then compare `GCP_FOLDER_ID` with what it prints |
+| `The caller does not have permission` on `billing projects link` | `roles/billing.user` missing on the billing account | run `arm-gcp.sh` again |
+| `can use 0 open billing accounts` or `2` | step 1 gave the admin none, or more than one | step 1, then `arm-gcp.sh` again |
+| `Unable to acquire impersonated credentials` | the provider accepts this repository on `main` in the `provisioning` environment only | dispatch the workflow from `main`; a renamed or recreated repository needs `arm-gcp.sh` again |

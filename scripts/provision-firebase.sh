@@ -21,7 +21,8 @@
 #   STAGING_ID, PROD_ID   Google Cloud project ids
 #   REGION            Firestore and Functions region
 #   FOLDER_ID         numeric folder that holds every mainBrain project
-#   BILLING_ACCOUNT   XXXXXX-XXXXXX-XXXXXX
+#   BILLING_ACCOUNT   XXXXXX-XXXXXX-XXXXXX, or empty: the one open account the
+#                     provisioning identity can use (docs/gcp-provisioning.md)
 #   FUNCTIONS_REPO    owner/name of the functions repo, or empty
 #   APP_REPO          owner/name of the app repo, or empty
 #   BUDGET_STAGING, BUDGET_PROD   monthly amounts, in the billing currency
@@ -33,7 +34,18 @@
 
 set -euo pipefail
 
-: "${PROJECT:?}" "${STAGING_ID:?}" "${PROD_ID:?}" "${REGION:?}" "${FOLDER_ID:?}" "${BILLING_ACCOUNT:?}"
+: "${PROJECT:?}" "${STAGING_ID:?}" "${PROD_ID:?}" "${REGION:?}" "${FOLDER_ID:?}"
+if [ -z "${BILLING_ACCOUNT:-}" ]; then
+  # scripts/arm-gcp.sh grants the identity exactly one billing account. Two
+  # would make this a guess about who pays, so it stops instead.
+  mapfile -t bills < <(gcloud billing accounts list --filter='open=true' --format='value(name.basename())')
+  if [ "${#bills[@]}" -ne 1 ]; then
+    echo "The provisioning identity can use ${#bills[@]} open billing accounts; set the"
+    echo "GCP_BILLING_ACCOUNT secret on this repository to name the one that pays."
+    exit 1
+  fi
+  BILLING_ACCOUNT="${bills[0]}"
+fi
 FUNCTIONS_REPO="${FUNCTIONS_REPO:-}"
 APP_REPO="${APP_REPO:-}"
 BUDGET_STAGING="${BUDGET_STAGING:-10}"

@@ -74,11 +74,10 @@ jobs:
           WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
           PROVISIONER_SA: ${{ vars.GCP_PROVISIONER_SA }}
           FOLDER_ID: ${{ vars.GCP_FOLDER_ID }}
-          BILLING_ACCOUNT: ${{ secrets.GCP_BILLING_ACCOUNT }}
           REPO_ADMIN_TOKEN: ${{ secrets.REPO_ADMIN_TOKEN }}
         run: |
           missing=0
-          for v in WIF_PROVIDER PROVISIONER_SA FOLDER_ID BILLING_ACCOUNT REPO_ADMIN_TOKEN; do
+          for v in WIF_PROVIDER PROVISIONER_SA FOLDER_ID REPO_ADMIN_TOKEN; do
             if [ -z "${!v}" ]; then
               echo "$v is not set."
               missing=$((missing + 1))
@@ -87,8 +86,8 @@ jobs:
           if [ "$missing" -gt 0 ]; then
             echo
             echo "Fix: docs/gcp-provisioning.md. Repository variables GCP_WIF_PROVIDER,"
-            echo "GCP_PROVISIONER_SA and GCP_FOLDER_ID; secrets GCP_BILLING_ACCOUNT and"
-            echo "REPO_ADMIN_TOKEN (the latter with Variables and Contents write)."
+            echo "GCP_PROVISIONER_SA and GCP_FOLDER_ID, printed by scripts/arm-gcp.sh;"
+            echo "secret REPO_ADMIN_TOKEN, with Variables and Contents write."
             echo
             echo "This step fails rather than skips."
             exit 1
