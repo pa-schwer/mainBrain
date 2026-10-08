@@ -82,7 +82,7 @@ One script, `scripts/arm-gcp.sh`. In Cloud Shell
 with your owner in both places:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/<owner>/mainBrain/main/scripts/arm-gcp.sh | bash -s -- <owner>/mainBrain
+bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/mainBrain/main/scripts/arm-gcp.sh) <owner>/mainBrain
 ```
 
 It reads the organization and the billing account, and stops unless it
@@ -90,13 +90,16 @@ finds exactly one of each. Then, in order:
 
 1. grants the admin Folder Admin, Project Creator and Organization Policy
    Administrator on the organization, which the admin role lacks;
-2. creates the folder `mainbrain-projects`, and in it the project
-   `mainbrain-admin-<last six digits of the organization id>`, with the
-   APIs the provisioner calls;
-3. sets the folder's three exceptions, below;
-4. creates the `mainbrain-provisioner` service account: Project Creator,
-   Owner and Service Usage Admin on the folder, Billing User and Billing
-   Costs Manager on the billing account, nothing on the organization;
+2. creates the folder `mainbrain-projects`, and outside it, under the
+   organization, the project `mainbrain-admin-<last six digits of the
+   organization id>`, with the APIs the provisioner calls;
+3. sets the exceptions below;
+4. creates the `mainbrain-provisioner` service account in the admin
+   project: Project Creator on the folder, Billing User and Billing Costs
+   Manager on the billing account, nothing on the organization. A
+   project's creator becomes its owner, so the provisioner owns the
+   projects it creates and nothing else; it cannot reach the admin
+   project that holds its own identity;
 5. lets GitHub Actions act as it through Workload Identity Federation:
    this repository by id, on `main`, in a job of the `provisioning`
    environment, so only an approved run gets a token;
@@ -111,16 +114,27 @@ again as is: it finds what exists and creates the rest.
 An organization created on or after 3 May 2024 enforces Google's
 secure-by-default policies. Three of them break this stack, so the
 folder overrides those three. The others stay, the ban on service
-account keys included: nothing here uses a key.
+account keys included: nothing here uses a key. The folder holds product
+projects only, and every one of them serves public HTTPS functions; the
+admin project lives outside it and gets the domain exception alone, for
+the federated grant.
 
 | Constraint | What it breaks | Folder setting |
 |---|---|---|
-| `iam.allowedPolicyMemberDomains` | the `allUsers` invoker grant a public HTTPS function or a webhook needs, and the federated grant of step 5 above | allow all |
+| `iam.allowedPolicyMemberDomains` | the `allUsers` invoker grant a public HTTPS function or a webhook needs; on the admin project, the federated grant of item 5 above | allow all |
 | `iam.automaticIamGrantsForDefaultServiceAccounts` | Editor on the default compute account, which Cloud Functions v2 builds and runs as | not enforced |
 | `storage.uniformBucketLevelAccess` | Firebase's default Storage bucket, which an enforcing organization can refuse | not enforced |
 
 An older organization enforces none of the three, and the script changes
-nothing there.
+nothing there. The overrides name the classic constraints; the script
+lists any "managed" constraint the organization also enforces, the key
+bans aside, so a red provisioning run can be read against it.
+
+Two of the three trade a default away on purpose. Allow-all is the only
+setting that admits `allUsers`, which every webhook needs. Editor on the
+default compute account is what Cloud Functions v2 expects to build and
+run with; the narrower list of roles would have to be proven on a real
+deploy first.
 
 Proof: the script ends with `done` and three variables.
 

@@ -3,7 +3,7 @@
 # organization: docs/gcp-provisioning.md steps 2 and 5 in one run. Run it
 # once, in Cloud Shell, signed in as the organization admin:
 #
-#   bash arm-gcp.sh <owner>/mainBrain
+#   bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/mainBrain/main/scripts/arm-gcp.sh) <owner>/mainBrain
 #
 # It reads the organization and the billing account from what the admin
 # can see, and stops unless there is exactly one of each: a guess here
@@ -22,11 +22,12 @@ ok()  { printf '  ok      %s\n' "$*"; }
 did() { printf '  created %s\n' "$*"; }
 die() { printf '  STOP    %s\n' "$*" >&2; exit 1; }
 
-# A grant, a new resource or an enabled API takes minutes to apply, and a
-# folder policy up to fifteen. Retry until the command succeeds; the last
-# try shows its error. TRIES overrides the default three minutes.
+# A grant, a new resource or an enabled API takes minutes to apply (an
+# organization grant up to seven), and a policy up to fifteen. Retry until
+# the command succeeds; the last try shows its error. TRIES overrides the
+# default eight minutes.
 retry() {
-  local i out tries="${TRIES:-9}"
+  local i out tries="${TRIES:-24}"
   for ((i = 1; i < tries; i++)); do
     if out=$("$@" 2> /dev/null); then
       printf '%s' "$out"
@@ -46,7 +47,8 @@ ORG_ID="${orgs[0]}"
 mapfile -t bills < <(gcloud billing accounts list --filter='open=true' --format='value(name.basename())')
 [ "${#bills[@]}" -eq 1 ] || die "expected one open billing account, found ${#bills[@]}; docs step 1 gives this admin exactly one"
 BILLING_ACCOUNT="${bills[0]}"
-REPO_ID=$(curl -fsS "https://api.github.com/repos/$GITHUB_REPO" | jq -r '.id')
+# A failed request falls through to the check below, so it stops with a reason.
+REPO_ID=$(curl -fsS "https://api.github.com/repos/$GITHUB_REPO" | jq -r '.id') || true
 [[ "$REPO_ID" =~ ^[0-9]+$ ]] || die "cannot read the id of $GITHUB_REPO from GitHub"
 ok "$ME, organization $ORG_ID"
 ok "billing account $(gcloud billing accounts describe "$BILLING_ACCOUNT" --format='value(displayName)')"
@@ -57,7 +59,7 @@ say "your rights on the organization"
 # policies; it grants itself those two, and project creation.
 for role in roles/resourcemanager.folderAdmin roles/resourcemanager.projectCreator roles/orgpolicy.policyAdmin; do
   gcloud organizations add-iam-policy-binding "$ORG_ID" --member="user:$ME" --role="$role" \
-    --condition=None --quiet > /dev/null
+    --condition=None > /dev/null
 done
 ok "folder admin, project creator, organization policy admin"
 
@@ -79,13 +81,15 @@ fi
 ok "folder $FOLDER_ID"
 
 say "the admin project"
-# Project ids are global; the organization's id keeps this one unique
-# and the same on every re-run.
+# Outside the folder: the provisioner owns what it creates in the folder,
+# and must not reach the project that holds its own identity. Project ids
+# are global; the organization's id keeps this one unique and the same on
+# every re-run.
 ADMIN_PROJECT="mainbrain-admin-${ORG_ID: -6}"
 if gcloud projects describe "$ADMIN_PROJECT" > /dev/null 2>&1; then
   ok "$ADMIN_PROJECT exists"
 else
-  retry gcloud projects create "$ADMIN_PROJECT" --folder="$FOLDER_ID" --name="mainBrain admin" > /dev/null
+  retry gcloud projects create "$ADMIN_PROJECT" --organization="$ORG_ID" --name="mainBrain admin" > /dev/null
   did "$ADMIN_PROJECT"
 fi
 ADMIN_NUMBER=$(retry gcloud projects describe "$ADMIN_PROJECT" --format='value(projectNumber)')
@@ -95,19 +99,28 @@ retry gcloud services enable iam.googleapis.com iamcredentials.googleapis.com st
   --project="$ADMIN_PROJECT" > /dev/null
 ok "APIs enabled"
 
-say "the folder's exceptions to the organization's defaults"
-# docs/gcp-provisioning.md step 2 says what each one unblocks. Set before
-# any grant below: the domain restriction can refuse the federated one.
+say "the exceptions to the organization's defaults"
+# docs/gcp-provisioning.md step 2 says what each one unblocks. The folder
+# holds product projects only; the admin project gets the domain exception
+# alone, for the federated grant below. Set before any grant.
 policy=$(mktemp)
-printf 'name: folders/%s/policies/iam.allowedPolicyMemberDomains\nspec:\n  rules:\n  - allowAll: true\n' \
-  "$FOLDER_ID" > "$policy"
-retry gcloud org-policies set-policy "$policy" --billing-project="$ADMIN_PROJECT" > /dev/null
+for parent in "folders/$FOLDER_ID" "projects/$ADMIN_PROJECT"; do
+  printf 'name: %s/policies/iam.allowedPolicyMemberDomains\nspec:\n  rules:\n  - allowAll: true\n' \
+    "$parent" > "$policy"
+  retry gcloud org-policies set-policy "$policy" --billing-project="$ADMIN_PROJECT" > /dev/null
+done
 for c in iam.automaticIamGrantsForDefaultServiceAccounts storage.uniformBucketLevelAccess; do
   printf 'name: folders/%s/policies/%s\nspec:\n  rules:\n  - enforce: false\n' "$FOLDER_ID" "$c" > "$policy"
   retry gcloud org-policies set-policy "$policy" --billing-project="$ADMIN_PROJECT" > /dev/null
 done
 rm -f "$policy"
 ok "public invoker, default account grants, bucket access: allowed in the folder"
+# These overrides name the classic constraints. An organization can also
+# enforce "managed" ones the script does not know; say which, so a red
+# provisioning run is read against them. The key bans are expected.
+managed=$(gcloud org-policies list --organization="$ORG_ID" --billing-project="$ADMIN_PROJECT" \
+  --format='value(name.basename())' 2> /dev/null | grep '\.managed\.' | grep -v 'ServiceAccountKey' || true)
+[ -z "$managed" ] || printf '  note    the organization also enforces: %s\n' "$(echo $managed)"
 
 say "the provisioning identity"
 SA="mainbrain-provisioner@$ADMIN_PROJECT.iam.gserviceaccount.com"
@@ -118,13 +131,12 @@ else
     --project="$ADMIN_PROJECT" > /dev/null
   did "service account"
 fi
-# Create projects in the folder and own them; link and budget on the one
-# billing account. Nothing at organization level. The folder grants wait
-# for the folder's policy, up to fifteen minutes.
-for role in roles/resourcemanager.projectCreator roles/owner roles/serviceusage.serviceUsageAdmin; do
-  TRIES=45 retry gcloud resource-manager folders add-iam-policy-binding "$FOLDER_ID" \
-    --member="serviceAccount:$SA" --role="$role" --condition=None > /dev/null
-done
+# Create projects in the folder: a project's creator becomes its owner,
+# so the provisioner owns what it creates and nothing else. Link and
+# budget on the one billing account. Nothing at organization level. The
+# folder grant waits for the folder's policy, up to fifteen minutes.
+TRIES=45 retry gcloud resource-manager folders add-iam-policy-binding "$FOLDER_ID" \
+  --member="serviceAccount:$SA" --role=roles/resourcemanager.projectCreator --condition=None > /dev/null
 for role in roles/billing.user roles/billing.costsManager; do
   retry gcloud billing accounts add-iam-policy-binding "$BILLING_ACCOUNT" \
     --member="serviceAccount:$SA" --role="$role" > /dev/null

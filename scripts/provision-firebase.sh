@@ -93,8 +93,14 @@ provision() {
 
   say "$id ($env)"
 
-  # 1. project
+  # 1. project. One that exists has to be one this workflow created: the
+  # identity creates in the folder only, and never touches a project
+  # elsewhere, its own admin project least of all.
   if gcloud projects describe "$id" --format='value(projectId)' > /dev/null 2>&1; then
+    if [ "$(gcloud projects describe "$id" --format='value(parent.id)')" != "$FOLDER_ID" ]; then
+      echo "  STOP    $id exists outside the mainbrain-projects folder; choose another project id"
+      exit 1
+    fi
     ok "project exists"
   else
     gcloud projects create "$id" --name="$PROJECT $env" --folder="$FOLDER_ID" --quiet
