@@ -3,8 +3,11 @@
 # organization: docs/gcp-provisioning.md steps 2 and 5 in one run. Run it
 # once, in Cloud Shell, signed in as the organization admin:
 #
-#   bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/mainBrain/main/scripts/arm-gcp.sh) <owner>/mainBrain
+#   bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/mainBrain/<commit>/scripts/arm-gcp.sh) <owner>/mainBrain
 #
+# <commit> is the full id of a commit whose copy of this file you have
+# read: an organization admin runs it, so a branch that can move is not
+# a source.
 # It reads the organization and the billing account from what the admin
 # can see, and stops unless there is exactly one of each: a guess here
 # would hand the wrong account to the workflow. Idempotent: a re-run finds

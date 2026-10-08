@@ -79,11 +79,16 @@ line, `OPEN: True`.
 
 One script, `scripts/arm-gcp.sh`. In Cloud Shell
 (https://shell.cloud.google.com), signed in as the organization admin,
-with your owner in both places:
+with your owner in both places and, for `<commit>`, the full id of a
+commit whose copy of the script you have read (a session guiding you
+gives it):
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/mainBrain/main/scripts/arm-gcp.sh) <owner>/mainBrain
+bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/mainBrain/<commit>/scripts/arm-gcp.sh) <owner>/mainBrain
 ```
+
+The organization admin runs it, so its source is a fixed commit, never a
+branch that can move between your reading and your running.
 
 It reads the organization and the billing account, and stops unless it
 finds exactly one of each. Then, in order:
