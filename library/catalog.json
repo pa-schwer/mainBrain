@@ -58,7 +58,7 @@
       "path": "skills/unlazy", "origin": "Leonxlnx/unlazy", "license": "MIT",
       "summary": "Completion discipline for substantial work: GATES.md before the work, runnable CHECK/EXPECT gates, the Depth Tree, independent leaves as parallel background subagents, no done report until the ledger is met. Node scripts, no dependency. The Stop hook is opt-in and never installed by the generator.",
       "needs": ["completion"], "default_for": ["ops"],
-      "local_change": true, "local_change_note": "Addendum: the ledger stays out of git and goes in the pull request body, the card's Test section and the repo's checks become gates, approvals live in the container and are redone each session, parallel subagents are authorized in every repo."
+      "local_change": true, "local_change_note": "Addendum: the ledger stays out of git and goes in the pull request body, the card's Test section and the repo's checks become gates, a session approves only checks it wrote, any other waits for the founder's yes, parallel subagents are authorized in every repo."
     },
     {
       "name": "write-spec", "kind": "skill", "mode": "on-demand",
