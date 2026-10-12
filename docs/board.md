@@ -36,6 +36,11 @@ Product Dev                 hub page: the stage table, the global board
 | Live | promoted to prod, Shipped set | nobody; a change to a live feature is a new card |
 | Dropped | abandoned, kept for the record | nobody; only the founder drops a card |
 
+A feature with several screens is one global card and one sub-card per
+screen, linked by Parent spec. Sessions build the sub-cards; the global
+card's Stage follows them (the skill, "Global cards and sub-cards").
+`library/skills/write-spec/SKILL.md` writes a spec that way.
+
 The stages map onto `skeleton/ops/docs/workflow.md`, "A feature, start to
 finish": Ready is step 1, Questions step 2, Building step 3, Staging
 steps 4 and 5, Live step 6.
@@ -67,12 +72,19 @@ when the search finds no "Product Dev" page.
      "Last update" RICH_TEXT, "Shipped" DATE, "Updated" LAST_EDITED_TIME)
    ```
 
+   Then the link between a global card and its sub-cards, a relation of
+   Specs to itself:
+
+   ```sql
+   ADD COLUMN "Parent spec" RELATION('<specs data source id>', DUAL 'Sub-specs' 'sub_specs')
+   ```
+
 4. Views on Specs, in the view language of the Notion connector:
 
    | View | Type | Configuration |
    |---|---|---|
    | All specs | table | `SORT BY "ID" DESC` |
-   | Board | board | `GROUP BY "Stage"; FILTER "Stage" != "Dropped"; SORT BY "Priority" ASC; QUICK FILTER "Project", "Priority"` |
+   | Board | board | `GROUP BY "Stage"; FILTER "Stage" != "Dropped"; SORT BY "Priority" ASC; QUICK FILTER "Project", "Priority"; SHOW "Name", "ID", "Project", "Parent spec", "Priority", "Type", "Last update"` |
    | Founder queue | table | `FILTER "Stage" IN ("Idea", "Questions", "Staging"); SORT BY "Priority" ASC` |
    | Dev queue | table | `FILTER "Stage" IN ("Ready", "Building"); SORT BY "Priority" ASC` |
    | By project | table | `GROUP BY "Project"; FILTER "Stage" != "Dropped"; SORT BY "Stage" ASC` |
@@ -80,9 +92,13 @@ when the search finds no "Product Dev" page.
 
 5. The hub page: the stage table above, a one-line note per view, and the
    Board view again as an inline board at the bottom.
-6. The founder adds the App spec template to Specs (New ▾, New template,
-   then Set as default). Sessions that create a card use the default
-   template, so every card starts from the founder's structure.
+6. The founder adds the App Spec template to Specs (New ▾, New
+   template, then Set as default). It holds the user story (I'm / I need
+   / To), Description, User flow, Mockup with its Action list, and a Test
+   table of the founder's checks. Sessions create cards from it by id and
+   read each section as the skill's table says; the Test rows become the
+   acceptance journal's checks. The template is the founder's: a session
+   reads it and never edits it.
 
 ## A project on the board
 
@@ -102,7 +118,7 @@ board" for a project spawned earlier:
 
 Claude Design has no Notion connector. It hands a design to Claude Code
 as a bundle or a link, and the session that receives it writes the spec
-onto the card from the handoff, following the default template (the
+onto the card from the handoff, in the sections of the App Spec template (the
 skill, "A Claude Design handoff"). A founder working in Claude Design can
 also paste the spec into the card and set Design to the project link.
 

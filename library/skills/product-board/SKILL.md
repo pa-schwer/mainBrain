@@ -37,25 +37,64 @@ Properties, all of them on the Specs data source:
 | Pull requests | session | one line per repo: the pull request URL |
 | Staging URL, Journal | session | where to test, and the acceptance journal on `main` in ops |
 | Shipped | session | the date of the go-prod promotion |
+| Parent spec, Sub-specs | write-spec, founder | the global card a sub-card belongs to, and a global card's sub-cards |
 | Last update | session | one line in product terms: what is true now and who acts next |
 
-The page holds the spec, written from the App spec template, then a last
-section `## Dev notes`. Dev notes belong to the dev sessions: questions
-and answers, decisions, what shipped and when. A session adds to Dev
-notes and leaves the spec above it alone. A spec that proves wrong gets a
-question under Dev notes; the founder or Claude Design changes the spec.
+The page holds the spec, written from the App Spec template: the
+template the Specs data source lists under `<templates>` when you fetch
+it (with several, the one named App Spec). Its sections:
+
+| Section | Holds | The session reads it as |
+|---|---|---|
+| I'm / I need / To | the user story, three lines | who the feature serves and the outcome that proves it works |
+| Description | the need, the pain, how this story answers it | the why behind every trade-off |
+| User flow | the path through the feature | the order of screens and states to build |
+| Mockup, Action list | the screen, and what the user can do on it ("I can ...") | the behaviours to build, one per line |
+| Test | a table of the founder's checks | the acceptance criteria: done means every row passes |
+
+Below the template, the page ends with `## Dev notes`, which belongs to
+the dev sessions: questions and answers, decisions, what shipped and
+when. The template carries no such section, so the first session that
+writes to a card appends it at the end of the page. A session adds to
+Dev notes and leaves the spec above it alone. A spec that proves wrong
+gets a question under Dev notes; the founder or Claude Design changes the
+spec.
+
+A card is complete, and may sit at Ready, when the user story, the
+Description, the User flow and the Action list are filled and the
+Mockup or the Design link shows the screen. A card at Ready that misses
+one of them gets a question naming the empty section.
 
 ## Stages, and what a session does at each
 
 | Stage | The session |
 |---|---|
 | Idea, Spec | does nothing; the founder and Claude Design own these. A card here is not ready to build, whatever the chat says: ask the founder whether the spec is done. |
-| Ready | picks it up. Reads the whole page and opens the Design link. If any answer would change the build, writes every question in one batch under Dev notes as `### Questions, <date>`, sets Stage to Questions and Last update to "N questions, waiting on the founder", and stops work on that card. With no question, sets Stage to Building. |
+| Ready | picks it up. Reads the whole page, the Test table included, and opens the Design link. If any answer would change the build, writes every question in one batch under Dev notes as `### Questions, <date>`, sets Stage to Questions and Last update to "N questions, waiting on the founder", and stops work on that card. With no question, sets Stage to Building. |
 | Questions | waits. The founder answers under each question and moves the card back to Ready. If the founder answers in the chat instead, copy each answer under its question, then set Stage to Building. |
 | Building | adds each pull request to Pull requests when it opens, with `SPEC-n` in the title so the pull request points back. Updates Last update when a pull request merges. |
-| Staging | arrives here from Building when the staging deploy is green and the journal from `docs/acceptance/TEMPLATE.md` is on `main`: set Staging URL, Journal, Stage, and Last update to "On staging, journal ready to walk". Then tell the founder. A blocking ko sends the card back to Building, with the ko under Dev notes. A ko that does not block goes to `docs/bugs.md`, and to a new card of Type Fix at Idea if the founder wants it tracked. |
+| Staging | arrives here from Building when the staging deploy is green and the journal from `docs/acceptance/TEMPLATE.md` is on `main`, with a check for every row of the card's Test table: set Staging URL, Journal, Stage, and Last update to "On staging, journal ready to walk". Then tell the founder. A blocking ko sends the card back to Building, with the ko under Dev notes. A ko that does not block goes to `docs/bugs.md`, and to a new card of Type Fix at Idea if the founder wants it tracked. |
 | Live | on go prod, after the promotion in `docs/workflow.md`: set Stage, Shipped, Last update to "Live, `<prod commit>`", and a Dev notes line saying what shipped. |
 | Dropped | nothing. Only the founder drops a card. |
+
+## Global cards and sub-cards
+
+A card with Sub-specs is a global card: the feature end to end. Each
+sub-card is one screen or one slice of it, and the sub-cards are what
+sessions build, one per session goal, in the order of the global card's
+User flow. Questions on a sub-card stay on that sub-card.
+
+The global card's Stage follows its sub-cards, and the session that moves
+a sub-card moves the global card when the rule says so:
+
+| Global card goes to | When |
+|---|---|
+| Building | the first sub-card goes to Building |
+| Staging | every sub-card is at Staging or Live |
+| Live | every sub-card is Live; Shipped is the date of the last one |
+
+The global card's Test table holds the end-to-end checks. The journal of
+the release that brings the last sub-card to staging covers them too.
 
 ## A Claude Design handoff
 
@@ -65,11 +104,11 @@ one arrives:
 - With a card named or findable (its Design link, its name), put the
   handoff link in Design if empty.
 - If the card's page holds no spec yet, write the spec from the handoff
-  into it, above Dev notes, following the App spec template the Specs
-  data source holds as its default. Then go on from Ready.
-- With no card at all, create one in Specs with the default template,
-  Project set to this project's page, Stage Ready, and the spec from the
-  handoff, then go on from Ready.
+  into the sections of the App Spec template, above Dev notes. Then go
+  on from Ready.
+- With no card at all, follow `.claude/skills/write-spec/SKILL.md` to
+  create the global card and its sub-cards, then go on from Ready with
+  the first sub-card.
 
 ## Every session that builds
 
@@ -91,6 +130,10 @@ one arrives:
   sits outside every gate this stack runs.
 - Read a card before writing it. Change one property or append one Dev
   notes block at a time; never replace the page.
+- A new card takes the App Spec template by its id, read from the
+  `<templates>` list when you fetch the Specs data source. Notion fills
+  the template in after the page exists: fetch the page until the
+  sections appear, then write into them.
 - Leave the board's structure alone: properties, stage names, views. It
   belongs to mainBrain's `docs/board.md`, and a change there is a
   structural change, made there first.
