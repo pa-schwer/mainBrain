@@ -36,3 +36,18 @@ density dial, a shadcn stack), and animate targets product components
 (drawers, toasts, dropdowns). Upstream `emilkowalski/skills` also ships
 `pick-ui-library`, vendored for the app [2026-09-30]: each pick is a
 decision line in the project before the install.
+
+## unlazy and parallel subagents [2026-10-12]
+
+`Leonxlnx/unlazy` 2.1.0 vendored with its run-time files (scripts, lib,
+references, templates, SECURITY, research). Node only, no network, nothing
+runs on load; `gate-check --approve` is the one door to running a
+`CHECK:`. Registry mirrors (aiskillstore) carry 2.0.0: take upstream. `references/gates.md` writes `node scripts/gate-lint.mjs`
+relative to cwd; the addendum says it means the skill dir.
+
+The Agent tool needs no permission in Claude Code; `Agent` in
+`permissions.allow` only states it. A multi-repo cloud session reads
+nothing from a repo's `settings.json` but `enabledPlugins` and
+`extraKnownMarketplaces`, so the written convention in each `CLAUDE.md` is
+what carries the authorization there. `Workflow` is a separate tool that
+does need a rule or a prompt; not pre-approved.

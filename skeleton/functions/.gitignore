@@ -23,3 +23,11 @@ service-account*.json
 # checkout. firebase.json ignores it too, so a deploy never uploads it with
 # the function source.
 gha-creds-*.json
+
+# unlazy: the ledger and hook state of one session. They carry absolute
+# paths, so they never reach a commit; the count goes in the PR body.
+/GATES.md
+.unlazy/
+.unlazy-hook-state.json
+*.unlazy.bak
+.claude/settings.local.json

@@ -90,6 +90,13 @@ or pasted into an issue. `scripts/bootstrap.sh` does not touch them.
   `docs/decisions.md` if an architectural choice was made.
 - No unbounded loop over data, ever. A bound is a constant a test can
   assert.
+- Subagents run in parallel. A session launches several at once, without
+  asking, whenever the work splits into independent parts: a search across
+  repos, one review per dimension, the leaves of an `unlazy` tree. Every
+  launch goes out in one message, in the background, before the first
+  result is read. Each brief names the files that subagent may write, and
+  the session re-runs a subagent's checks before trusting its report.
+  `.claude/settings.json` allows `Agent`.
 
 ## Workflow
 

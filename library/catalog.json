@@ -19,7 +19,8 @@
     "activation": "the path from paid to first value",
     "experiments": "design an A/B test before a change ships as one",
     "cloudflare": "operate the front ends on Cloudflare: Workers, Wrangler, DNS, domains",
-    "board": "specs as cards on the Notion product board, read and moved by every session that builds"
+    "board": "specs as cards on the Notion product board, read and moved by every session that builds",
+    "completion": "substantial work finished against written, runnable gates and proven before the done report"
   },
   "entries": [
     {
@@ -51,6 +52,13 @@
       "path": "skills/product-board", "origin": "mainBrain", "license": "MIT",
       "summary": "The Notion product board protocol: read the spec on the card, move the card from Ready to Live as pull requests open, staging turns green and the founder says go. The board's structure is docs/board.md in mainBrain; the project's links are in the ops CLAUDE.md.",
       "needs": ["board"], "default_for": ["ops"], "local_change": false
+    },
+    {
+      "name": "unlazy", "kind": "skill", "mode": "standing",
+      "path": "skills/unlazy", "origin": "Leonxlnx/unlazy", "license": "MIT",
+      "summary": "Completion discipline for substantial work: GATES.md before the work, runnable CHECK/EXPECT gates, the Depth Tree, independent leaves as parallel background subagents, no done report until the ledger is met. Node scripts, no dependency. The Stop hook is opt-in and never installed by the generator.",
+      "needs": ["completion"], "default_for": ["ops"],
+      "local_change": true, "local_change_note": "Addendum: the ledger stays out of git and goes in the pull request body, the card's Test section and the repo's checks become gates, approvals live in the container and are redone each session, parallel subagents are authorized in every repo."
     },
     {
       "name": "write-spec", "kind": "skill", "mode": "on-demand",

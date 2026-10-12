@@ -45,6 +45,17 @@ commit: run the code-simplifier agent from `library/agents/code-simplifier.md`
 on the files you changed, then run `bash scripts/check-library.sh`. One
 pass per diff.
 
+## unlazy — substantial work is finished against written gates
+
+Read `library/skills/unlazy/SKILL.md`, addendum first, before the first
+change of any task with several outcomes: a skeleton change across kinds,
+a new library bundle, an upstream pull-down, a sweep of the library. A
+one-line fix does not need it. `GATES.md` and `.unlazy/` stay out of git:
+this repo is public and the evidence carries absolute paths. The gates
+include `bash scripts/check-library.sh` and the example spawn; the pull
+request body carries the count, N of N met. Independent leaves run as
+parallel subagents, every launch in one message.
+
 ## spawn-project — the one skill of this repo
 
 `.claude/skills/spawn-project/SKILL.md` runs when a new project is asked

@@ -97,6 +97,10 @@ of the Vite types make `astro check` fail on the Tailwind plugin.
   that Claude merges when CI is green.
 - The working agreement in `{{PROJECT}}-ops/docs/workflow.md` applies here
   in full.
+- Substantial work runs under `unlazy`, read by path from
+  `{{PROJECT}}-ops/.claude/skills/unlazy/SKILL.md`, and independent parts
+  run as parallel subagents, as `{{PROJECT}}-ops/CLAUDE.md` says under
+  "Conventions".
 - A feature starts from its card on the product board, and the session
   moves the card as it goes: `{{PROJECT}}-ops/.claude/skills/product-board/SKILL.md`,
   with the links in `{{PROJECT}}-ops/CLAUDE.md`, "Product board".
