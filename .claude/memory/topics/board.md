@@ -14,3 +14,13 @@ each project's ops `CLAUDE.md` holds its two links.
   board shows no column until a card exists.
 - The founder owns the App spec template, set as the default template of
   Specs; sessions creating a card use the default.
+
+## Pulled down into every project spawned so far [2026-10-12]
+
+The board reached the three earlier projects by one pull request in each
+ops repo: the skill, the session directive, the links, the workflow
+steps. Manifest commits stayed put, so `upstream.py` still lists what
+each project has not taken. Product repos (site, functions, app, lib)
+did not get their one-line pointer; they take it with their next
+pull-down. One project's board starts with two cards at Staging, seeded
+from its open acceptance journals.

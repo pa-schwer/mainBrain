@@ -51,6 +51,10 @@ saying so in the project's `decisions.md` is enough.
 A project that wants a mainBrain improvement runs the same tools in the
 other direction: `upstream.py` names the file, the session applies the
 skeleton's version by hand or with `skills.py install --only <name>` for
-a library entry, and the project's manifest is updated to the new
-mainBrain commit in that pull request. Nothing forces a project to take
-every update; the manifest records where it stands.
+a library entry. When that pull request takes everything `upstream.py`
+lists, it also moves the manifest to the new mainBrain commit. When it
+takes one change and leaves the rest, the manifest keeps its commit,
+because `upstream.py` measures what is left from it; the project's
+`decisions.md` line names the mainBrain commit the change came from.
+Nothing forces a project to take every update; the manifest records
+where it stands.
