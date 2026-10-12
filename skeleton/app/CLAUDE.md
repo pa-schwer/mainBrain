@@ -111,6 +111,9 @@ bash scripts/no-hardcoded-tokens.sh
   that Claude merges when CI is green.
 - The working agreement in `{{PROJECT}}-ops/docs/workflow.md` applies here
   in full.
+- A feature starts from its card on the product board, and the session
+  moves the card as it goes: `{{PROJECT}}-ops/.claude/skills/product-board/SKILL.md`,
+  with the links in `{{PROJECT}}-ops/CLAUDE.md`, "Product board".
 - All copy in {{COPY_LANGUAGE}}, by the rules in `{{PROJECT}}-ops/BRAND.md`.
   Read that file in full before writing anything a user will read.
 - Design tokens are never hardcoded.

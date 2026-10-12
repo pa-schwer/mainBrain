@@ -30,3 +30,9 @@ One source per domain. Candidates already weighed (web-design-guidelines,
 playwright-cli, taste-skill, awesome-design-md) and the container config
 playwright-cli needs.
 → topics/library.md
+
+## Product board
+
+Specs live on a Notion board shared by every project; the product-board
+skill is the protocol, `docs/board.md` the structure. No board id here.
+→ topics/board.md

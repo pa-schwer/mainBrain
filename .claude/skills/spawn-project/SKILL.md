@@ -52,6 +52,27 @@ document verbatim in `<project>-ops/BRAND.md` (it replaces the
 placeholder) in a second commit on `main`, with `docs/product.md` filled
 from it in English. Sessions in every repo read it there by path.
 
+## 2b. Put the project on the product board
+
+Ask nothing. With the Notion connector, before the generator runs, so
+the first commit already carries the links:
+
+1. Search Notion for the page titled "Product Dev" and fetch it; its
+   child databases are Projects and Specs. If the search finds no such
+   page, build it once from `docs/board.md`, "The recipe".
+2. In Projects, create the row (Name = `title`, Slug = `project`, Phase
+   Scaffolding, Description, Ops repo URL) unless a row with that Slug
+   exists, and add the project's board on its page, as `docs/board.md`,
+   "A project on the board", says.
+3. Write the page URL and the Specs data source URL into the answers file
+   under `board`: `{"project": "<page url>", "specs": "collection://<id>"}`.
+
+Without the Notion connector, leave `board` out, say so in one line, and
+name HANDOFF E4: the ops `CLAUDE.md` then says the project is not linked,
+and the first session with Notion links it through the product-board
+skill. These links go into the answers file and the project's repos,
+never into this repo.
+
 ## 3. Run the generator
 
 ```bash
@@ -107,6 +128,8 @@ F1 to F5 to the manual path.
 Tell the user, in their language:
 
 - where the workspace is and what it contains (one line per repo);
+- the link to the project's board, and that the founder's first spec is
+  a card there;
 - that every check a session can run is green;
 - what remains, as the list of HANDOFF.md steps by number and title, with
   the first one to do;

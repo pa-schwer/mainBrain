@@ -100,6 +100,23 @@ acceptance journal in `docs/acceptance/`, written from the template there.
 Prod waits for a filled journal. One goal per session. Findings outside
 that goal go to `docs/bugs.md` as one line and are left alone.
 
+## Product board
+
+Specs live on the founder's product board in Notion, one board for every
+project. Claude Design writes a spec as a card; the session that builds
+it reads the card and moves it from Ready to Live as the work goes. The
+founder reads the board, not the repos.
+
+| | |
+|---|---|
+| This project's board | {{BOARD_PROJECT}} |
+| Specs data source | {{BOARD_SPECS}} |
+
+The protocol is `.claude/skills/product-board/SKILL.md`, loaded at
+session start. The board's structure (properties, stages, views) belongs
+to mainBrain's `docs/board.md`; a session here never changes it.
+`docs/roadmap.md` keeps the milestones; the features are cards.
+
 ## Human actions
 
 `HANDOFF.md` in this repo lists every step a human still has to do for

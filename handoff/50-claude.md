@@ -35,3 +35,15 @@ a repository's `.claude/settings.json` enables, so E2 installs
 `settings.json` still names them for a session on a local machine.
 
 Proof: `claude plugin list` in a fresh session shows each one enabled.
+
+### E4 — Notion, for the product board
+
+Where: https://claude.ai/customize/connectors → Notion → connect, and give
+it access to the "Product Dev" page. Sessions read the connectors when
+they start, so a session opened before the connection does not see it.
+
+The board itself is created by a session (mainBrain `docs/board.md`); this
+step only lets sessions reach it.
+
+Proof: a fresh session in `{{PROJECT}}-ops` opens the project's board
+from the link in `CLAUDE.md`, "Product board", and lists its cards.

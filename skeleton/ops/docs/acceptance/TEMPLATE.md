@@ -13,6 +13,7 @@ wrong, not the founder.
 | | |
 |---|---|
 | Feature | <name, one line> |
+| Card | <SPEC-n, link to the card on the product board> |
 | Commit on `main` | `<sha>` |
 | Staging deploy | <link to the green run> |
 | Written on | <date> |

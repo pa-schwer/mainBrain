@@ -196,6 +196,9 @@ git push origin origin/main:prod
   in full: one goal per session, side findings to
   `{{PROJECT}}-ops/docs/bugs.md`, an acceptance journal for every release
   to staging, and no promotion to prod until the founder has filled it.
+- A feature starts from its card on the product board, and the session
+  moves the card as it goes: `{{PROJECT}}-ops/.claude/skills/product-board/SKILL.md`,
+  with the links in `{{PROJECT}}-ops/CLAUDE.md`, "Product board".
 - All copy in {{COPY_LANGUAGE}}, by the rules in `{{PROJECT}}-ops/BRAND.md`.
   Read that file in full before writing anything a user will read.
 - Every feature lands with a happy-path test, error logging, and a line in
