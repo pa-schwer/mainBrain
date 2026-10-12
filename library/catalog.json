@@ -55,7 +55,7 @@
     {
       "name": "write-spec", "kind": "skill", "mode": "on-demand",
       "path": "skills/write-spec", "origin": "mainBrain", "license": "MIT",
-      "summary": "Writes a spec onto the product board: a global card and one sub-card per screen, Project, Stage Ready, the App Spec template, every action, state and rule, a capture per screen. Triggers on a request for a spec or a Claude Design mockup to turn into cards.",
+      "summary": "Writes a spec onto the product board: a global card and one sub-card per screen, Project, Stage Ready, the App Spec template, every action, state and rule, a capture per screen. Triggers on a request for a spec or a Claude Design mockup to turn into cards. Self-contained, so the same folder uploads to claude.ai as a ZIP; without Notion (Claude Design) it hands over paste-ready cards.",
       "needs": ["board"], "default_for": ["ops"], "local_change": false
     },
     {

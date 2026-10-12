@@ -34,3 +34,10 @@ inline table's schema, so `write-spec` falls back to a to-do list when
 it cannot write rows. The template's name changes as the founder edits
 it; skills pick it from the `<templates>` list, not by name. Features
 with several screens are a global card plus sub-cards (`Parent spec`).
+
+## write-spec outside the repos [2026-10-12]
+
+The skill folder zips as is for claude.ai (Customize, Skills). It names
+three contexts: a project repo, a chat with the Notion connector, and no
+Notion at all, where it delivers paste-ready blocks in the template's
+order. Whether Claude Design reads account skills was not confirmed.
