@@ -10,3 +10,11 @@ dist/
 # to authenticate with; an .env here means something is in the wrong repo.
 .env
 .env.*
+
+# unlazy: the ledger and hook state of one session. They carry absolute
+# paths, so they never reach a commit; the count goes in the PR body.
+/GATES.md
+.unlazy/
+.unlazy-hook-state.json
+*.unlazy.bak
+.claude/settings.local.json

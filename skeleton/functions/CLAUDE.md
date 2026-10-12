@@ -196,6 +196,10 @@ git push origin origin/main:prod
   in full: one goal per session, side findings to
   `{{PROJECT}}-ops/docs/bugs.md`, an acceptance journal for every release
   to staging, and no promotion to prod until the founder has filled it.
+- Substantial work runs under `unlazy`, read by path from
+  `{{PROJECT}}-ops/.claude/skills/unlazy/SKILL.md`, and independent parts
+  run as parallel subagents, as `{{PROJECT}}-ops/CLAUDE.md` says under
+  "Conventions".
 - A feature starts from its card on the product board, and the session
   moves the card as it goes: `{{PROJECT}}-ops/.claude/skills/product-board/SKILL.md`,
   with the links in `{{PROJECT}}-ops/CLAUDE.md`, "Product board".

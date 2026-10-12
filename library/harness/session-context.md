@@ -69,3 +69,22 @@ date on go prod. Last update says, in one line of product terms, what is
 true now and who acts next. Never write a secret into a card. A request
 for a spec ("fais la spec de ...", a Claude Design mockup to turn into
 cards) goes through `.claude/skills/write-spec/SKILL.md`.
+
+## unlazy — substantial work is finished against written gates
+
+Read `.claude/skills/unlazy/SKILL.md`, addendum first, before the first
+change of any task with several outcomes: a card, a build, an audit, a
+sweep over many files, or work that came back half done. A one-line fix
+or a factual answer does not need it.
+
+In short: write `GATES.md` before the work, one observable outcome per
+gate, with a `CHECK:` and an `EXPECT:` wherever a command can decide it.
+The card's Test section, the repo's tests, lint, typecheck and build
+become gates. Run `gate-check.mjs` before reporting. No done report while
+a gate is unmet; a gate that cannot be met gets an `ABANDON:` line and is
+said out loud. The ledger stays out of git; its count, N of N met, goes in
+the pull request body.
+
+Independent leaves run as subagents in parallel: every launch in one
+message, in the background, before the first result is read. `CLAUDE.md`
+authorizes it, section "Conventions".

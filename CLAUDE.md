@@ -141,12 +141,19 @@ green does not merge.
   two-environment workflow) is a decision recorded in `docs/decisions.md`.
   Adding a kind of repo is a new `skeleton/<kind>/` plus a `PURPOSE` and
   `FORBIDDEN` line in `spawn.py`, and its own CI template.
+- Subagents run in parallel, here and in every spawned repo. A session
+  launches several at once, without asking, whenever the work splits into
+  independent parts: one review per skeleton kind, a sweep of the library,
+  the leaves of an `unlazy` tree. Every launch goes out in one message, in
+  the background, before the first result is read. `.claude/settings.json`
+  allows `Agent`, and `library/harness/settings.json` carries the same rule
+  into every ops repo.
 
 ## Memory and skills for this repo
 
 `.claude/memory/` holds what sessions here learn; it is committed and
 public, so it holds nothing private. The standing directives (stop-slop,
-task-observer, mem, code-simplifier) load from `.claude/session-context.md`
+task-observer, mem, code-simplifier, unlazy) load from `.claude/session-context.md`
 through the SessionStart hook and point at the library copies, so this
 repo does not carry a second copy of its own skills. `spawn-project` is the
 one skill that lives in `.claude/skills/` here, because only this repo
