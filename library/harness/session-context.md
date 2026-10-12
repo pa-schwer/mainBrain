@@ -55,3 +55,15 @@ agent on the files you changed, then re-run the project's tests, lint and
 typecheck. One pass per diff. Do not chain it with the built-in /simplify
 command. If the simplification breaks a test, revert the simplification
 rather than adapting the test.
+
+## product-board — specs live on the Notion board; every session keeps its card true
+
+Read `.claude/skills/product-board/SKILL.md` before the first change of
+any session that builds something the founder will test. The links to
+this project's board are in `CLAUDE.md`, section "Product board".
+
+In short: start from the card (Ready), ask questions on the card in one
+batch (Questions), list pull requests on it (Building), set the staging
+link and the journal when staging is green (Staging), set Live and the
+date on go prod. Last update says, in one line of product terms, what is
+true now and who acts next. Never write a secret into a card.

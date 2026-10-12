@@ -21,5 +21,6 @@
   ],
   "services": [
     { "name": "Stripe", "staging": "test mode", "prod": "live mode", "secrets": ["STRIPE_SECRET", "STRIPE_WEBHOOK_SECRET"], "where": "dashboard.stripe.com → Developers" }
-  ]
+  ],
+  "board": { "project": "https://www.notion.so/acme-00000000000000000000000000000000", "specs": "collection://00000000-0000-0000-0000-000000000000" }
 }

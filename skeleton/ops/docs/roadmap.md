@@ -12,5 +12,6 @@ Structure, config and conventions. No feature code.
 
 ## Next — first feature cycle
 
-<!-- The first thing a user can do end to end. Spec from the founder,
-     questions in one batch, proto on staging, journal, go prod. -->
+<!-- The first thing a user can do end to end, as a card on the product
+     board (CLAUDE.md, "Product board"). Features live there; this file
+     keeps the milestones. -->

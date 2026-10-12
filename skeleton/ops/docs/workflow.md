@@ -7,28 +7,40 @@ prod.
 
 ## A feature, start to finish
 
-1. **Spec.** The founder hands over a mockup and a description of what the
-   feature does for the user. A link to the design project or an exported
-   page both work.
+Every feature is a card on the product board (`CLAUDE.md`, "Product
+board"). The card's Stage says where the feature is; each step below
+names the move the session makes.
+
+1. **Spec.** The founder and Claude Design write the spec on the card:
+   what the feature does for the user, and the mockup, linked in Design.
+   A Claude Design handoff that reaches a session with no spec on the
+   card gets written onto it first. The card goes to Ready when the spec
+   is complete.
 2. **Questions.** Before any code, the session asks what would change the
-   build and nothing else, in one batch. A spec with no open question gets
-   no questions.
+   build and nothing else, in one batch, on the card under Dev notes, and
+   moves it to Questions. The founder answers there and moves it back to
+   Ready. A spec with no open question gets no questions and goes straight
+   to Building.
 3. **Proto on staging.** The first deliverable is something the founder can
    click. It may be plain on the surface. It is prod-grade on four things
    from the first commit, because those are the costliest to redo: the data
    model, the security rules, the secrets, the invariants that state a
-   promise.
+   promise. The card is at Building, with every pull request listed and
+   its `SPEC-n` id in each pull request title.
 4. **Journal.** When the staging deploy is green, the session writes an
    acceptance journal from `docs/acceptance/TEMPLATE.md` into
    `docs/acceptance/<date>-<feature>.md`: what to check, step by step in
    product terms, and the crash scenarios to provoke on purpose. Every
-   crash family in the template gets an answer.
+   crash family in the template gets an answer. The card goes to Staging
+   with the staging link and the journal link.
 5. **Test.** The founder walks the journal on staging and fills the Results
-   column. What is `ko` and blocks goes back to the session; what is `ko`
-   and does not block goes to `docs/bugs.md`. No code is discussed.
+   column. What is `ko` and blocks goes back to the session, and the card
+   back to Building; what is `ko` and does not block goes to
+   `docs/bugs.md`. No code is discussed.
 6. **Go prod.** The founder says go on a journal with every line filled.
-   Claude promotes the staging commit to prod and says what shipped. A
-   release with an unfilled journal does not go to prod.
+   Claude promotes the staging commit to prod, says what shipped, and
+   moves the card to Live with the date. A release with an unfilled
+   journal does not go to prod.
 
 ## Environments
 
@@ -113,7 +125,8 @@ Anything found along the way that does not block that goal goes in
 fixed, and the fix is part of the session's goal.
 
 A session ends with three lines: what shipped, what is on staging with its
-journal, what is blocked and on whom.
+journal, what is blocked and on whom. The Last update of each card the
+session touched says the same.
 
 ## The bar for code
 

@@ -60,5 +60,8 @@ npm run build       # tsc
 - Conventional commits.
 - The working agreement in `{{PROJECT}}-ops/docs/workflow.md` applies here
   in full.
+- A feature starts from its card on the product board, and the session
+  moves the card as it goes: `{{PROJECT}}-ops/.claude/skills/product-board/SKILL.md`,
+  with the links in `{{PROJECT}}-ops/CLAUDE.md`, "Product board".
 - A label, level or message this code returns ends up in front of a user.
   Read `{{PROJECT}}-ops/BRAND.md` in full before adding or changing one.

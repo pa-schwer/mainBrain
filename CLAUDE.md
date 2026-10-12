@@ -35,7 +35,7 @@ mainBrain/
 ├── handoff/        the human steps, one section per service, rendered per stack
 ├── scripts/        spawn, skills, upstream, check-library, check-drift
 ├── examples/       an answers file that spawns every kind
-└── docs/           questionnaire, workflow, decisions, upstream rule, adoption
+└── docs/           questionnaire, workflow, decisions, upstream rule, adoption, board
 ```
 
 ## Spawning a project
@@ -68,6 +68,16 @@ workflow, and `docs/gcp-provisioning.md` arms "Create Firebase projects",
 which does `HANDOFF.md` F1 to F5 (projects, billing, budgets, APIs,
 Firestore, Auth, deploy account and key, web config) through Workload
 Identity Federation, with no key stored anywhere.
+
+## The product board
+
+Specs live in Notion, on one board shared by every project: Claude Design
+writes a spec as a card, the session that builds it moves the card from
+Ready to Live. `docs/board.md` is the board's structure and the recipe to
+build it once per founder; `spawn-project` step 2b puts each new project
+on it; the `product-board` skill, standing in every ops repo, is the
+protocol a session follows. The links to a project's board live in that
+project's ops repo, never here.
 
 ## The library
 

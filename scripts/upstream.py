@@ -167,6 +167,11 @@ def main(argv: list[str]) -> int:
         "FIREBASE_PROD": answers["firebase_prod"],
         "DATE": manifest["spawned_on"],
     }
+    # Older answers files predate the board; an absent link has nothing to reverse.
+    board = answers.get("board", {})
+    for placeholder, key in (("BOARD_PROJECT", "project"), ("BOARD_SPECS", "specs")):
+        if board.get(key):
+            values[placeholder] = board[key]
 
     with tempfile.TemporaryDirectory() as tmp:
         respawn(ROOT / "scripts/spawn.py", answers_file, Path(tmp))

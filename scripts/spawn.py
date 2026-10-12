@@ -65,6 +65,10 @@ FORBIDDEN = {
 FRONTEND = {"site", "app"}
 FIREBASE = {"functions", "app"}
 
+# The answers carry the board links when spawn-project put the project on
+# the Notion board before the generator ran (docs/board.md).
+NOT_ON_BOARD = 'not linked yet: `.claude/skills/product-board/SKILL.md`, "Putting a project on the board"'
+
 
 # ----------------------------------------------------------------- answers
 def load_answers(path: Path) -> dict:
@@ -103,6 +107,7 @@ def load_answers(path: Path) -> dict:
     answers.setdefault("skills_exclude", [])
     answers.setdefault("secrets", [])
     answers.setdefault("services", [])
+    answers.setdefault("board", {})
     return answers
 
 
@@ -171,6 +176,8 @@ def build_values(a: dict, entries: list[dict], today: str) -> dict[str, str]:
             f"| {s['name']} | {s.get('staging', 'test mode')} | {s.get('prod', 'live mode')} | {service_secrets(s)} |"
             for s in a["services"]
         ) or "| (none yet) | | | |",
+        "BOARD_PROJECT": a["board"].get("project") or NOT_ON_BOARD,
+        "BOARD_SPECS": a["board"].get("specs") or NOT_ON_BOARD,
         "SCHEMA_JOB": "",  # per repo, set in render_repo
         "REPO_NAME": "",
     }
@@ -404,6 +411,7 @@ def write_handoff(ws: Path, a: dict, values: dict[str, str], entries: list[dict]
         ("E1", "the session lists every repo in scope", "a Claude Code session"),
         ("E2", "`npm test` works in a fresh session without install", "a Claude Code session"),
         ("E3", "`claude plugin list` shows every plugin enabled", "a Claude Code session"),
+        ("E4", "the project's board lists its cards from the `CLAUDE.md` link", "a Claude Code session"),
     ]
 
     hv = dict(values)

@@ -26,7 +26,8 @@ projects with two clicks: Approve, Approve.
 
 Read `CLAUDE.md` for the model, `docs/repo-creation.md` to let a session
 create the repositories itself, `docs/questionnaire.md` for the questions,
-`docs/upstream.md` for how improvements in a project come back here.
+`docs/upstream.md` for how improvements in a project come back here,
+`docs/board.md` for the Notion board where specs live as cards.
 
 This repo is public and holds nothing private: no customer, no account, no
 project id, no secret. Spawned projects live elsewhere.

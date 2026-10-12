@@ -18,7 +18,8 @@
     "signup": "self-serve account creation flow",
     "activation": "the path from paid to first value",
     "experiments": "design an A/B test before a change ships as one",
-    "cloudflare": "operate the front ends on Cloudflare: Workers, Wrangler, DNS, domains"
+    "cloudflare": "operate the front ends on Cloudflare: Workers, Wrangler, DNS, domains",
+    "board": "specs as cards on the Notion product board, read and moved by every session that builds"
   },
   "entries": [
     {
@@ -44,6 +45,12 @@
       "path": "commands/mem.md", "origin": "vendored", "license": "commands/LICENSE-mem",
       "summary": "Hierarchical memory at .claude/memory/, committed to git.",
       "needs": ["memory"], "default_for": ["ops"], "local_change": false
+    },
+    {
+      "name": "product-board", "kind": "skill", "mode": "standing",
+      "path": "skills/product-board", "origin": "mainBrain", "license": "MIT",
+      "summary": "The Notion product board protocol: read the spec on the card, move the card from Ready to Live as pull requests open, staging turns green and the founder says go. The board's structure is docs/board.md in mainBrain; the project's links are in the ops CLAUDE.md.",
+      "needs": ["board"], "default_for": ["ops"], "local_change": false
     },
     {
       "name": "code-simplifier", "kind": "agent", "mode": "standing",

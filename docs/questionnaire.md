@@ -102,3 +102,16 @@ and where it is configured. Each one becomes a row in `HANDOFF.md` group S.
 
 A product that has not chosen its services yet leaves both lists empty;
 the first cycle that needs one adds the rows and names the HANDOFF step.
+
+## 6. Filled by the session, not asked
+
+`board`: the project's place on the Notion product board, written by
+`spawn-project` step 2b after it creates the project's row
+(`docs/board.md`). Two links: the project's page and the Specs data
+source. They land in the ops `CLAUDE.md`, "Product board". Left out when
+the session has no Notion connector; the ops repo then says the project
+is not linked yet.
+
+```json
+{ "project": "https://www.notion.so/<project page>", "specs": "collection://<specs data source id>" }
+```
