@@ -53,6 +53,12 @@
       "needs": ["board"], "default_for": ["ops"], "local_change": false
     },
     {
+      "name": "write-spec", "kind": "skill", "mode": "on-demand",
+      "path": "skills/write-spec", "origin": "mainBrain", "license": "MIT",
+      "summary": "Writes a spec onto the product board: a global card and one sub-card per screen, Project, Stage Ready, the App Spec template, every action, state and rule, a capture per screen. Triggers on a request for a spec or a Claude Design mockup to turn into cards.",
+      "needs": ["board"], "default_for": ["ops"], "local_change": false
+    },
+    {
       "name": "code-simplifier", "kind": "agent", "mode": "standing",
       "path": "agents/code-simplifier.md", "origin": "anthropics/claude-plugins-official", "license": "Apache 2.0",
       "summary": "Simplification pass on every code change before commit. Invoked as an agent, never loaded as a skill.",

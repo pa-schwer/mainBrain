@@ -66,4 +66,6 @@ In short: start from the card (Ready), ask questions on the card in one
 batch (Questions), list pull requests on it (Building), set the staging
 link and the journal when staging is green (Staging), set Live and the
 date on go prod. Last update says, in one line of product terms, what is
-true now and who acts next. Never write a secret into a card.
+true now and who acts next. Never write a secret into a card. A request
+for a spec ("fais la spec de ...", a Claude Design mockup to turn into
+cards) goes through `.claude/skills/write-spec/SKILL.md`.
