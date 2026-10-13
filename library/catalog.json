@@ -18,6 +18,7 @@
     "signup": "self-serve account creation flow",
     "activation": "the path from paid to first value",
     "experiments": "design an A/B test before a change ships as one",
+    "outbound": "cold outreach: a qualified prospect list, cold email that gets replies, replies scored and routed",
     "cloudflare": "operate the front ends on Cloudflare: Workers, Wrangler, DNS, domains",
     "board": "specs as cards on the Notion product board, read and moved by every session that builds",
     "completion": "substantial work finished against written, runnable gates and proven before the done report"
@@ -146,6 +147,24 @@
       "path": "skills/cro", "origin": "coreyhaines31/marketingskills", "license": "MIT",
       "summary": "Audits a page or form that already exists. Form CRO is a reference inside it.",
       "needs": ["conversion"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "prospecting", "kind": "skill", "mode": "on-demand",
+      "path": "skills/prospecting", "origin": "coreyhaines31/marketingskills", "license": "MIT",
+      "summary": "Turns an ICP into a verified, scored lead sheet: sources, enrichment, email verification, account research, and the compliance posture of each source. Its compliance reference is the line on scraping: a business's own site yes, bulk extraction from Maps, Yelp or LinkedIn no.",
+      "needs": ["outbound"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "cold-email", "kind": "skill", "mode": "on-demand",
+      "path": "skills/cold-email", "origin": "coreyhaines31/marketingskills", "license": "MIT",
+      "summary": "Cold email and its follow-ups: frameworks, personalization, subject lines, cadence, deliverability, reply handling. The one advisor on outbound sending; no second sequencer joins it.",
+      "needs": ["outbound"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "revops", "kind": "skill", "mode": "on-demand",
+      "path": "skills/revops", "origin": "coreyhaines31/marketingskills", "license": "MIT",
+      "summary": "Lead lifecycle stages with entry and exit rules, fit-plus-engagement scoring, routing and handoff. Qualifies what outbound brings in.",
+      "needs": ["outbound"], "default_for": [], "local_change": false
     },
     {
       "name": "signup", "kind": "skill", "mode": "on-demand",
