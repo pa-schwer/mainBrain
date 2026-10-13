@@ -127,13 +127,14 @@ workflow prints GitHub's message as is; this table is the translation.
 | `does not have the correct permissions to execute CreateRepository` | an older version of the workflow used `gh repo create`, which goes through GraphQL | update mainBrain; the workflow creates through REST now |
 | `You need admin access to the organization before adding a repository to it` | the token's Resource owner is your user, not the organization | generate a new token with the organization as Resource owner (step 0 first if it is not in the list), paste it into the secret |
 | `401` | the token expired or was revoked | generate a new one, paste it |
+| `Resource not accessible by personal access token (HTTP 403)` after `owner: <your user>` | the `owner` input was left empty, so the workflow aimed at the token's user while the token belongs to an organization | run again with `owner` set to the organization |
 | `exists <owner>/<name>` | not an error: the repo was already there, nothing was touched | none |
 
 ## How a session uses it
 
 `spawn-project` step 4: after the generator has made the first commit in
-every repo, the session triggers the workflow with the repo names from the
-answers file, waits for the run, then attaches each repo and runs
+every repo, the session triggers the workflow with the repo names and the
+`owner` from the answers file, waits for the run, then attaches each repo and runs
 `push-all.sh`. If the workflow is red with "REPO_ADMIN_TOKEN is not set",
 the session says so, points here, and falls back to `HANDOFF.md` G1.
 
