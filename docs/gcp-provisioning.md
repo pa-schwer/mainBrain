@@ -227,4 +227,5 @@ Filled in as failures are met, the way `docs/repo-creation.md` was.
 | `permission 'resourcemanager.projects.create' denied` | the identity lacks projectCreator on the folder, or the folder id is wrong | run `arm-gcp.sh` again, then compare `GCP_FOLDER_ID` with what it prints |
 | `The caller does not have permission` on `billing projects link` | `roles/billing.user` missing on the billing account | run `arm-gcp.sh` again |
 | `can use 0 open billing accounts` or `2` | step 1 gave the admin none, or more than one | step 1, then `arm-gcp.sh` again |
+| `PERMISSION_DENIED` on `iam.workloadIdentityPools.create`, or a 403 on the auth config or the Storage bucket, a minute after `created firebase` | the project is new and the owner grant has not reached that service yet; the script waits up to eight minutes for each | run the workflow again; it skips what exists |
 | `Unable to acquire impersonated credentials` | the provider accepts this repository on `main` in the `provisioning` environment only | dispatch the workflow from `main`; a renamed or recreated repository needs `arm-gcp.sh` again |
