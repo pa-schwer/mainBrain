@@ -88,6 +88,43 @@ say() { printf '\n== %s\n' "$*"; }
 ok()  { printf '  ok      %s\n' "$*"; }
 did() { printf '  created %s\n' "$*"; }
 
+# A project this run has just created answers 403 for a few minutes: the
+# creator's owner grant and the APIs just enabled reach each Google service
+# at its own pace, so Identity Toolkit, Firebase Storage and IAM refuse what
+# Resource Manager already allows. Retry until the command succeeds; the
+# last try shows its error. TRIES overrides the default eight minutes.
+retry() {
+  local i tries="${TRIES:-24}"
+  for ((i = 1; i < tries; i++)); do
+    if "$@" > /dev/null 2>&1; then
+      return 0
+    fi
+    printf '  wait    not applied yet, retry %s/%s in 20 s\n' "$i" "$tries" >&2
+    sleep 20
+  done
+  "$@" > /dev/null
+}
+
+# The same wait for a REST call: retry while it answers 403 or 404, the
+# codes of a grant or an API still on its way. Prints the last HTTP code;
+# the body is in the file named first.
+http_retry() {
+  local out="$1" i code tries="${TRIES:-24}"
+  shift
+  for ((i = 1; i <= tries; i++)); do
+    code=$(curl -sS -o "$out" -w '%{http_code}' "$@") || true
+    case "$code" in
+      403 | 404) ;;
+      *) break ;;
+    esac
+    if [ "$i" -lt "$tries" ]; then
+      printf '  wait    %s, retry %s/%s in 20 s\n' "$code" "$i" "$tries" >&2
+      sleep 20
+    fi
+  done
+  printf '%s' "$code"
+}
+
 provision() {
   local id="$1" env="$2" budget="$3" var_name="$4"
 
@@ -157,7 +194,7 @@ provision() {
   local token
   token=$(gcloud auth print-access-token)
   local code
-  code=$(curl -sS -o /tmp/auth.json -w '%{http_code}' -X PATCH \
+  code=$(http_retry /tmp/auth.json -X PATCH \
     -H "Authorization: Bearer $token" -H "Content-Type: application/json" \
     "https://identitytoolkit.googleapis.com/admin/v2/projects/$id/config?updateMask=signIn.email" \
     -d '{"signIn":{"email":{"enabled":true,"passwordRequired":true}}}')
@@ -170,7 +207,7 @@ provision() {
   # The default Storage bucket. `firebase deploy --only storage` stops on a
   # project without one and points at the console's Get Started button.
   # Create re-links a bucket that exists, so a re-run is safe.
-  code=$(curl -sS -o /tmp/bucket.json -w '%{http_code}' -X POST \
+  code=$(http_retry /tmp/bucket.json -X POST \
     -H "Authorization: Bearer $token" -H "Content-Type: application/json" \
     -H "X-Goog-User-Project: $id" \
     "https://firebasestorage.googleapis.com/v1beta/projects/$id/defaultBucket" \
@@ -208,7 +245,7 @@ provision() {
     if gcloud iam workload-identity-pools describe github --location=global --project="$id" > /dev/null 2>&1; then
       ok "identity pool exists"
     else
-      gcloud iam workload-identity-pools create github --location=global \
+      retry gcloud iam workload-identity-pools create github --location=global \
         --display-name="GitHub Actions" --project="$id" --quiet
       did "identity pool"
     fi
@@ -219,18 +256,18 @@ provision() {
          --location=global --project="$id" > /dev/null 2>&1; then
       verb=update-oidc
     fi
-    gcloud iam workload-identity-pools providers "$verb" github \
+    retry gcloud iam workload-identity-pools providers "$verb" github \
       --workload-identity-pool=github --location=global --project="$id" \
       --issuer-uri="https://token.actions.githubusercontent.com" \
       --attribute-mapping="google.subject=assertion.sub,attribute.repository_id=assertion.repository_id,attribute.ref=assertion.ref" \
       --attribute-condition="assertion.repository_id == '$repo_id' && assertion.ref == 'refs/heads/$branch'" \
-      --quiet > /dev/null
+      --quiet
     ok "provider trusts $FUNCTIONS_REPO on $branch"
 
-    gcloud iam service-accounts add-iam-policy-binding "$sa" --project="$id" \
+    retry gcloud iam service-accounts add-iam-policy-binding "$sa" --project="$id" \
       --role=roles/iam.workloadIdentityUser \
       --member="principalSet://iam.googleapis.com/$pool/attribute.repository_id/$repo_id" \
-      --quiet > /dev/null
+      --quiet
     ok "$FUNCTIONS_REPO may act as the deploy account"
 
     gh variable set "$var_name" --repo "$FUNCTIONS_REPO" --body "$pool/providers/github"
