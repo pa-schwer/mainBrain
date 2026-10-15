@@ -14,6 +14,9 @@
     "typecheck": "tsc --noEmit",
     "test": "npm run build && node --test dist/test/*.test.js"
   },
+  "files": [
+    "dist/src"
+  ],
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.7.3"
