@@ -196,12 +196,14 @@ provision() {
   local code
   code=$(http_retry /tmp/auth.json -X PATCH \
     -H "Authorization: Bearer $token" -H "Content-Type: application/json" \
+    -H "X-Goog-User-Project: $id" \
     "https://identitytoolkit.googleapis.com/admin/v2/projects/$id/config?updateMask=signIn.email" \
     -d '{"signIn":{"email":{"enabled":true,"passwordRequired":true}}}')
   if [ "$code" = "200" ]; then
     ok "auth email/password enabled"
   else
-    echo "  WARN    auth config returned $code; enable Email/Password by hand in the console (HANDOFF F5)"
+    echo "  WARN    auth config returned $code: $(jq -r '.error.message // empty' /tmp/auth.json)"
+    echo "          enable Email/Password by hand in the console (HANDOFF F5)"
   fi
 
   # The default Storage bucket. `firebase deploy --only storage` stops on a
@@ -270,8 +272,15 @@ provision() {
       --quiet
     ok "$FUNCTIONS_REPO may act as the deploy account"
 
-    gh variable set "$var_name" --repo "$FUNCTIONS_REPO" --body "$pool/providers/github"
-    ok "$var_name on $FUNCTIONS_REPO"
+    # A refusal here must not cost the web config and the other project:
+    # the run goes on and prints the value.
+    if gh variable set "$var_name" --repo "$FUNCTIONS_REPO" --body "$pool/providers/github"; then
+      ok "$var_name on $FUNCTIONS_REPO"
+    else
+      echo "  WARN    could not set $var_name on $FUNCTIONS_REPO; REPO_ADMIN_TOKEN needs"
+      echo "          Variables: Read and write (docs/gcp-provisioning.md, step 3). Its value:"
+      echo "          $pool/providers/github"
+    fi
   else
     echo "  skip    no functions repo given; no deploy identity"
   fi
