@@ -143,9 +143,9 @@ Storage without it.
 
 ```bash
 npm run typecheck   # tsc --noEmit
-npm test            # build, then node --test on the compiled tests
+npm test            # build, then node --test inside the Firestore and Auth emulators
 npm run build       # tsc
-npm run serve       # emulators, functions and firestore
+npm run serve       # emulators: functions, firestore and auth
 ```
 
 ## Environments and deploy
