@@ -11,8 +11,10 @@ Copy `apiKey` and `appId` from the SDK snippet into the app repo:
 These are public identifiers that ship in the browser bundle; the security
 boundary is `firestore.rules` in the functions repo. Commit them.
 
-Then Build → Authentication → Get started → Sign-in method →
-Email/Password → Enable, in both projects.
+Email/Password needs no click: the functions `Deploy` turns it on from
+`auth.providers` in `firebase.json` (its log says `Auth providers enabled:
+email/password`). By hand: Build → Authentication → Get started → Sign-in
+method → Email/Password → Enable, in both projects.
 
 Proof: `npm run dev` in the app boots without "Firebase config incomplete"
 once a screen imports `src/lib/firebase.ts`. Until then, the two files

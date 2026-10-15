@@ -10,8 +10,8 @@ F5 are one run: the session triggers it with the slug, the region and the
 two repo names; you approve the run in mainBrain's Actions (it waits for
 your click, and nothing is created before it); the workflow creates both
 projects in the `mainbrain-projects` folder, links Blaze, sets a budget
-with alerts, enables the APIs, adds Firebase, Firestore Native,
-Email/Password sign-in and the default Storage bucket, creates the deploy
+with alerts, enables the APIs, adds Firebase, Firestore Native and the
+default Storage bucket, creates the deploy
 account with its four roles, lets `{{PROJECT}}-functions` act as it
 through Workload Identity Federation with no key, sets
 `GCP_WIF_PROVIDER_STAGING` and `_PROD` on that repo, creates the web app

@@ -189,8 +189,9 @@ provision() {
     did "firestore native in $REGION"
   fi
 
-  # Email/Password sign-in. The config resource appears once Firebase is
-  # added; PATCH is idempotent.
+  # Email/Password sign-in. A project whose Auth is not initialized yet
+  # answers 404 CONFIGURATION_NOT_FOUND; the functions Deploy turns the
+  # provider on from `auth.providers` in firebase.json. PATCH is idempotent.
   local token
   token=$(gcloud auth print-access-token)
   local code
@@ -203,7 +204,7 @@ provision() {
     ok "auth email/password enabled"
   else
     echo "  WARN    auth config returned $code: $(jq -r '.error.message // empty' /tmp/auth.json)"
-    echo "          enable Email/Password by hand in the console (HANDOFF F5)"
+    echo "          the functions Deploy turns Email/Password on (auth.providers in firebase.json)"
   fi
 
   # The default Storage bucket. `firebase deploy --only storage` stops on a
