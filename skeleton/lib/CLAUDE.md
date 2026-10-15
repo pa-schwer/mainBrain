@@ -36,14 +36,25 @@ byte-identical to `{{PROJECT}}-ops/docs/schema/types.ts`, never edited here.
 
 ## How it is consumed
 
-The functions repo installs it from git:
+This repo is private, and none of GitHub Actions, Workers Builds or the
+Cloud Build step of a Functions deploy can install a private git
+dependency without a credential. So a release is a tarball, committed in
+the `vendor/` folder of each repo that imports it:
+
+```bash
+npm pack                     # {{PROJECT}}-lib-<version>.tgz, dist/src only
+cp {{PROJECT}}-lib-<version>.tgz ../{{PROJECT}}-functions/vendor/
+```
 
 ```
-"{{PROJECT}}-lib": "github:{{OWNER}}/{{PROJECT}}-lib#<tag>"
+"{{PROJECT}}-lib": "file:vendor/{{PROJECT}}-lib-<version>.tgz"
 ```
 
-A tag, never a branch, so a deploy is reproducible. `npm run build` emits
-`dist/` with declarations; `prepare` runs it on install.
+A release bumps `version` in `package.json`, is tagged `v<version>` on
+`main`, and lands in every consumer in the same work cycle, the way the
+schema copy does. `npm pack` runs `prepare`, so the tarball carries the
+built `dist/src` with its declarations. It installs offline, so a deploy
+is as reproducible as a tag.
 
 ## Commands
 
