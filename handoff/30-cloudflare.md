@@ -20,6 +20,13 @@ For each repo below, the same settings:
   preview deployment, which is staging.
 - No environment variables{{CF_ENV_NOTE}}
 
+If Settings → Build then shows only the production branch, a session with
+the C3 token adds the other build itself; ask it. It reads the Worker's
+build triggers and creates the second one through the API (`POST
+/accounts/<account>/builds/triggers`, same repo connection and build
+token, every branch but `prod`, deploy command `npx wrangler versions
+upload`).
+
 Proof: a push to `main` shows a preview deployment with a URL, and the
 URL serves the scaffold page.
 

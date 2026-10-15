@@ -228,4 +228,5 @@ Filled in as failures are met, the way `docs/repo-creation.md` was.
 | `The caller does not have permission` on `billing projects link` | `roles/billing.user` missing on the billing account | run `arm-gcp.sh` again |
 | `can use 0 open billing accounts` or `2` | step 1 gave the admin none, or more than one | step 1, then `arm-gcp.sh` again |
 | `PERMISSION_DENIED` on `iam.workloadIdentityPools.create`, or a 403 on the auth config or the Storage bucket, a minute after `created firebase` | the project is new and the owner grant has not reached that service yet; the script waits up to eight minutes for each | run the workflow again; it skips what exists |
+| `could not set GCP_WIF_PROVIDER_…` or `could not write .env.…`, with `Resource not accessible by personal access token` | step 3 not done: `REPO_ADMIN_TOKEN` lacks Variables or Contents on that repository | widen the token, then run the workflow again; it skips what exists |
 | `Unable to acquire impersonated credentials` | the provider accepts this repository on `main` in the `provisioning` environment only | dispatch the workflow from `main`; a renamed or recreated repository needs `arm-gcp.sh` again |
