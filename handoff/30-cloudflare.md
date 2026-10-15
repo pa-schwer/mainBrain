@@ -16,19 +16,25 @@ For each repo below, the same settings:
 - Build command: `npm run build`
 - Deploy command: `npx wrangler deploy`
 - Production branch: `prod`
-- Builds for non-production branches: **on**. That is what makes `main` a
-  preview deployment, which is staging.
+- Builds for non-production branches: **on**, Preview command
+  `npx wrangler preview`. That is what makes `main` a Preview, which is
+  staging, at `main-<worker>.<subdomain>.workers.dev`.
+- Preview URLs: **on** (the Worker → Settings → Domains & Routes).
 - No environment variables{{CF_ENV_NOTE}}
 
-If Settings → Build then shows only the production branch, a session with
-the C3 token adds the other build itself; ask it. It reads the Worker's
-build triggers and creates the second one through the API (`POST
+If Settings → Build then shows only the production branch, or Preview
+URLs are off, a session with the C3 token sets both itself; ask it. It
+creates the second build trigger through the API (`POST
 /accounts/<account>/builds/triggers`, same repo connection and build
-token, every branch but `prod`, deploy command `npx wrangler versions
-upload`).
+token, every branch but `prod`, command `npx wrangler preview`) and turns
+the Worker's previews on (`POST
+/accounts/<account>/workers/scripts/<worker>/subdomain` with
+`previews_enabled: true`). Not `npx wrangler versions upload`: that makes
+a Version URL, which serves nothing while the Worker's previews are off.
 
-Proof: a push to `main` shows a preview deployment with a URL, and the
-URL serves the scaffold page.
+Proof: the build of a push to `main` ends with `Preview URL:
+https://main-<worker>.<subdomain>.workers.dev`, and that URL serves the
+scaffold page.
 
 ### C2 — Custom domains (launch)
 
