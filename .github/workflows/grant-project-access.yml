@@ -24,10 +24,14 @@ on:
         required: true
         type: string
       role:
-        description: "Role to grant. roles/owner cannot be granted to an outside account this way; roles/firebase.admin opens every Firebase product, Firestore data included"
+        description: "Role to grant: firebase.admin opens every Firebase product (Firestore data, Auth settings); the two viewers read only. No role that can change IAM is offered"
         required: true
         default: roles/firebase.admin
-        type: string
+        type: choice
+        options:
+          - roles/firebase.admin
+          - roles/firebase.viewer
+          - roles/datastore.viewer
 
 permissions:
   contents: read
@@ -56,8 +60,11 @@ jobs:
           FOLDER_ID: ${{ vars.GCP_FOLDER_ID }}
         run: |
           [ -n "$FOLDER_ID" ] || { echo "GCP_FOLDER_ID is not set (docs/gcp-provisioning.md, step 4)"; exit 1; }
-          printf '%s' "$ROLE" | grep -Eq '^roles/[A-Za-z0-9_.]+$' || { echo "role must look like roles/<name>"; exit 1; }
-          [ "$ROLE" != "roles/owner" ] || { echo "roles/owner is granted by console invitation only; use roles/firebase.admin"; exit 1; }
+          # An allowlist, checked again here because an API dispatch can bypass the form's choice list.
+          case "$ROLE" in
+            roles/firebase.admin|roles/firebase.viewer|roles/datastore.viewer) ;;
+            *) echo "role not allowed: $ROLE"; exit 1 ;;
+          esac
           # At most four ids: a staging and a prod, and room for one more pair.
           [ "$(printf '%s\n' $PROJECT_IDS | grep -c .)" -le 4 ] || { echo "at most 4 project ids per run"; exit 1; }
           for id in $PROJECT_IDS; do
