@@ -216,6 +216,25 @@ repo's `Deploy` workflow goes green on its next push, and `HANDOFF.md`
 F1 to F5 are done. What remains human is F6: the values of third-party
 secrets.
 
+## Giving a person access
+
+A project's only owner is the provisioner, so the founder's own Google
+account cannot open it in the console: no Firestore data, no Auth email
+templates (`HANDOFF.md` F7), no Google sign-in setup (F8). The
+"Grant project access" workflow fixes that, behind the same approval:
+a session triggers it with the project ids and the founder's address,
+the founder approves, and the run grants `roles/firebase.admin` (every
+Firebase product, Firestore data included) on each project, after
+checking that the project sits in the folder.
+
+`roles/owner` is not on offer: Google grants it to an account outside
+the organization only through a console invitation. The address is
+masked in the log, since this repository's run logs are public.
+
+Proof: the run ends with `granted roles/firebase.admin on <id>` for each
+id, and https://console.firebase.google.com/project/<id>/firestore opens
+for that account.
+
 ## Reading a red run
 
 Filled in as failures are met, the way `docs/repo-creation.md` was.

@@ -1,0 +1,99 @@
+name: Grant project access
+
+# Gives a person a role on the Firebase projects the provisioner created.
+# Those projects have one owner, the provisioner's service account, so the
+# founder's own Google account cannot open them in the console: no data
+# view, no Auth templates (HANDOFF.md F7), no Google sign-in setup (F8).
+# This run grants the role the session cannot. Same identity, same gate as
+# "Create Firebase projects": a human approves every run.
+#
+# This repository is public and so are its run logs. The member's address
+# is read from the event file and masked before any step prints anything;
+# it is never written into the workflow's script or env, which the log
+# would echo.
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_ids:
+        description: "Google Cloud project ids, space separated (each must sit in the mainbrain-projects folder)"
+        required: true
+        type: string
+      member:
+        description: "Google account to grant (an email address); masked in the log"
+        required: true
+        type: string
+      role:
+        description: "Role to grant. roles/owner cannot be granted to an outside account this way; roles/firebase.admin opens every Firebase product, Firestore data included"
+        required: true
+        default: roles/firebase.admin
+        type: string
+
+permissions:
+  contents: read
+  id-token: write   # Workload Identity Federation
+
+jobs:
+  grant:
+    name: grant access
+    runs-on: ubuntu-latest
+    environment: provisioning
+    steps:
+      - name: Read and mask the member
+        run: |
+          member=$(jq -r '.inputs.member // empty' "$GITHUB_EVENT_PATH" | tr -d '[:space:]')
+          echo "::add-mask::$member"
+          if ! printf '%s' "$member" | grep -Eq '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'; then
+            echo "member is not an email address"
+            exit 1
+          fi
+          echo "MEMBER=$member" >> "$GITHUB_ENV"
+
+      - name: Check the inputs
+        env:
+          PROJECT_IDS: ${{ inputs.project_ids }}
+          ROLE: ${{ inputs.role }}
+          FOLDER_ID: ${{ vars.GCP_FOLDER_ID }}
+        run: |
+          [ -n "$FOLDER_ID" ] || { echo "GCP_FOLDER_ID is not set (docs/gcp-provisioning.md, step 4)"; exit 1; }
+          printf '%s' "$ROLE" | grep -Eq '^roles/[A-Za-z0-9_.]+$' || { echo "role must look like roles/<name>"; exit 1; }
+          [ "$ROLE" != "roles/owner" ] || { echo "roles/owner is granted by console invitation only; use roles/firebase.admin"; exit 1; }
+          # At most four ids: a staging and a prod, and room for one more pair.
+          [ "$(printf '%s\n' $PROJECT_IDS | grep -c .)" -le 4 ] || { echo "at most 4 project ids per run"; exit 1; }
+          for id in $PROJECT_IDS; do
+            printf '%s' "$id" | grep -Eq '^[a-z][a-z0-9-]{4,28}[a-z0-9]$' || { echo "not a project id: $id"; exit 1; }
+          done
+
+      - name: "Authenticate to Google Cloud (no key, OIDC from this run)"
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_PROVISIONER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2.2.1
+
+      - name: Grant the role on each project of the folder
+        env:
+          PROJECT_IDS: ${{ inputs.project_ids }}
+          ROLE: ${{ inputs.role }}
+          FOLDER_ID: ${{ vars.GCP_FOLDER_ID }}
+        run: |
+          set -euo pipefail
+          for id in $PROJECT_IDS; do
+            # Only the folder's projects: the provisioner owns nothing else,
+            # and this run must not try to reach anything else.
+            parent_type=$(gcloud projects describe "$id" --format='value(parent.type)')
+            parent_id=$(gcloud projects describe "$id" --format='value(parent.id)')
+            if [ "$parent_type" != "folder" ] || [ "$parent_id" != "$FOLDER_ID" ]; then
+              echo "$id is not in the mainbrain-projects folder; nothing granted there"
+              exit 1
+            fi
+            gcloud projects add-iam-policy-binding "$id" \
+              --member="user:$MEMBER" --role="$ROLE" --condition=None --format=none
+            if gcloud projects get-iam-policy "$id" --flatten='bindings[].members' \
+                 --filter="bindings.role=$ROLE AND bindings.members=user:$MEMBER" --format='value(bindings.role)' | grep -q .; then
+              echo "granted $ROLE on $id"
+            else
+              echo "the binding is missing on $id after the grant"; exit 1
+            fi
+          done
