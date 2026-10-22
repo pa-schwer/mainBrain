@@ -72,13 +72,19 @@
 
       # A plain clone rather than actions/checkout, which resolves the
       # default branch through a REST call before fetching anything and
-      # reports a failure there as "Not Found" after three tries.
+      # reports a failure there as "Not Found" after three tries. The token
+      # goes in a header, not in the URL: since 2026-10-19 the runners' git
+      # (2.55) fails a clone with the token in the URL ("could not read
+      # Username") while the same token reads the repo through the API.
       - name: Clone {{PROJECT}}-ops
         env:
           OPS_TOKEN: ${{ secrets.OPS_READ_TOKEN }}
         run: |
-          git clone --depth 1 --quiet \
-            "https://${OPS_TOKEN}@github.com/${OPS_REPO}.git" \
+          basic=$(printf 'x-access-token:%s' "${OPS_TOKEN}" | base64 -w0)
+          echo "::add-mask::${basic}"
+          git -c http.extraHeader="Authorization: Basic ${basic}" \
+            clone --depth 1 --quiet \
+            "https://github.com/${OPS_REPO}.git" \
             {{PROJECT}}-ops
 
       - run: bash {{PROJECT}}-ops/scripts/check-schema.sh
