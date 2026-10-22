@@ -112,6 +112,4 @@ of the Vite types make `astro check` fail on the Tailwind plugin.
 - A pull request that touches markup, styles or components passes
   `web-design-guidelines` before merge, read by path from
   `{{PROJECT}}-ops/.claude/skills/`.
-- `ui-ux-pro-max` answers static questions only. Leave its `--motion` dial
-  unset: it attaches GSAP snippets, and an animation library lands only
-  after its line in `{{PROJECT}}-ops/docs/decisions.md`.
+{{STATIC_UI_RULE}}

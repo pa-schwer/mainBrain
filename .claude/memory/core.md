@@ -27,8 +27,9 @@ One line per spawn, kinds and needs only.
 ## Library
 
 One source per domain. Candidates already weighed (web-design-guidelines,
-playwright-cli, taste-skill, awesome-design-md) and the container config
-playwright-cli needs. unlazy is standing; parallel subagents are a
+playwright-cli, taste-skill, awesome-design-md, impeccable) and the
+container config playwright-cli needs. The `design` need swaps
+ui-ux-pro-max for impeccable and gives ops a `design/` mockup folder. unlazy is standing; parallel subagents are a
 convention, since the Agent tool needs no permission.
 → topics/library.md
 

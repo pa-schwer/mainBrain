@@ -51,11 +51,15 @@ def select(repos: list[str], needs: list[str], exclude: list[str], only: list[st
         return [by_name[n] for n in only]
 
     repo_set, need_set = set(repos), set(needs)
-    return [
+    picked = [
         entry for entry in catalog["entries"]
         if entry["name"] not in exclude
         and (repo_set & set(entry["default_for"]) or need_set & set(entry["needs"]))
     ]
+    # One source per domain: an entry that takes a domain over removes the
+    # one it replaces.
+    superseded = {name for entry in picked for name in entry.get("supersedes", [])}
+    return [entry for entry in picked if entry["name"] not in superseded]
 
 
 def _copy_into(src: Path, dst_dir: Path, name: str | None = None) -> None:

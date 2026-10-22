@@ -109,5 +109,5 @@ library.
 
 **Owners.** `animate` owns motion. The motion, NumberFlow and torph rows go
 through its ladder, and an animation package needs its decision line
-first. `ui-ux-pro-max` picks the chart type; this list picks the chart
-library.
+first. The static UI source (`ui-ux-pro-max`, or `impeccable` where ops
+installed it) picks the chart type; this list picks the chart library.

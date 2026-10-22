@@ -107,7 +107,7 @@ acceptance journal in `docs/acceptance/`, written from the template there.
 Prod waits for a filled journal. One goal per session. Findings outside
 that goal go to `docs/bugs.md` as one line and are left alone.
 
-## Product board
+{{DESIGN_SECTION}}## Product board
 
 Specs live on the founder's product board in Notion, one board for every
 project. Claude Design writes a spec as a card; the session that builds

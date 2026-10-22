@@ -20,6 +20,7 @@ for d in {{REPO_DIRS}}; do
   [ -f "$d/package.json" ] && (cd "$d" && npm ci --silent)
 done
 {{PLAYWRIGHT_LINE}}
+{{IMPECCABLE_LINE}}
 # plugins: a cloud session never installs the ones settings.json enables
 {{PLUGIN_SETUP_LINES}}
 ```

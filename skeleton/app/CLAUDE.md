@@ -129,8 +129,6 @@ bash scripts/no-hardcoded-tokens.sh
 - A component, toast, chart or state library comes from `pick-ui-library`,
   read by path from the same folder, and lands after its line in
   `{{PROJECT}}-ops/docs/decisions.md`.
-- `ui-ux-pro-max` answers static questions only. Leave its `--motion` dial
-  unset: it attaches GSAP snippets, and an animation library lands only
-  after its line in `{{PROJECT}}-ops/docs/decisions.md`.
+{{STATIC_UI_RULE}}
 - Every feature lands with a happy-path test, error logging, and a line in
   `{{PROJECT}}-ops/docs/decisions.md` if an architectural choice was made.
