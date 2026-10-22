@@ -129,14 +129,14 @@ jobs:
             lookup "$id"
             if [ "$ACCESS" = grant ]; then
               # A project without email verification lets anyone sign up
-              # with an address first. The approver checks that the account
-              # is theirs: created when they created it, last signed in when
-              # they last signed in. Dates only, no address, no uid.
-              utc() { [ -n "$1" ] && date -u -d "@$(( $1 / 1000 ))" '+%Y-%m-%d %H:%M UTC' || echo "never"; }
-              created=$(utc "$(jq -r '.users[0].createdAt // empty' "$work/found.json")")
-              last=$(utc "$(jq -r '.users[0].lastLoginAt // empty' "$work/found.json")")
-              verified=$(jq -r 'if .users[0].emailVerified == true then "yes" else "no" end' "$work/found.json")
-              echo "the account on $id: created $created, last sign-in $last, address verified: $verified"
+              # with an address first, and the grant binds to whichever
+              # account holds it: the person signs in with their own
+              # password before the run (docs/gcp-provisioning.md). The log
+              # is public, so it says only whether the address is verified,
+              # never when the account was created or used.
+              if [ "$(jq -r '.users[0].emailVerified // false' "$work/found.json")" != "true" ]; then
+                echo "the address is not verified on $id: the grant goes to the account that holds it; its owner must have signed in with their own password"
+              fi
               jq -c '. + {team: true}' "$work/claims.json" > "$work/next.json"
             else
               jq -c 'del(.team)' "$work/claims.json" > "$work/next.json"

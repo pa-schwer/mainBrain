@@ -256,9 +256,10 @@ them back. `revoke` removes the claim and ends the account's sessions.
 The address is masked in the log, and no uid is printed.
 
 A project whose app does not verify addresses lets anyone sign up with
-an address first. So the run prints, before granting, when the account
-was created and last signed in, and whether its address is verified;
-the approver checks those dates are theirs, and revokes at once if not.
+an address first, and the grant goes to whichever account holds it.
+Step 1 is the binding: an account the person opens with their own
+password is theirs. The run says when the address is unverified, and
+nothing more, since its log is public.
 
 Proof: the run ends with `team access granted on <id>` for each id, and
 the project's admin space opens for that account.
