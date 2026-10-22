@@ -51,9 +51,13 @@ gate, and `detect` runs alongside it on the changed files; a finding
 blocks the merge like an accessibility finding there.
 
 **Engine and privacy.** On first use the launcher downloads the engine
-for its pinned version from the GitHub releases of `pbakaus/impeccable`,
-checks it against its sha256, and caches it in `~/.impeccable`; HANDOFF
-E2 fetches it at container start. `.impeccable/config.json` in the ops
+for its pinned version from the GitHub releases of `pbakaus/impeccable`
+and caches it in `~/.impeccable`; HANDOFF E2 fetches it at container
+start. The download must match `scripts/engine.sha256`, committed here,
+not the digest the release serves beside it: that check and that file
+are the other local change, marked in the launcher. A new VERSION lands
+with its digests in the same pull request. `impeccable.cmd` (Windows) is
+upstream as is; projects run the shell launcher. `.impeccable/config.json` in the ops
 repo turns telemetry off, and every launcher call from site or app runs
 with `IMPECCABLE_NO_TELEMETRY=1`. Leave the hook off (`hooks`), and never
 `pin`: both write outside the files this repo owns.

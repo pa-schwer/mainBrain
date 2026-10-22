@@ -94,7 +94,7 @@
       "path": "skills/impeccable", "origin": "pbakaus/impeccable", "license": "Apache 2.0",
       "summary": "Design director for mockups and screens: a mode per surface (Operate, Persuade, Read), a craft floor of absolute bans, critique and audit, 24 commands, and an engine whose detector fails on design anti-patterns (exit 2). Drives the ops design/ folder and its check.sh.",
       "needs": ["design"], "default_for": [], "supersedes": ["ui-ux-pro-max"],
-      "local_change": true, "local_change_note": "Addendum: context files are docs/product.md and docs/design-system.md, never a root PRODUCT.md or DESIGN.md; static UI is its own, motion goes through animate, copy through BRAND.md; telemetry off, no hook, no pin; variants as sibling mockups."
+      "local_change": true, "local_change_note": "Addendum: context files are docs/product.md and docs/design-system.md, never a root PRODUCT.md or DESIGN.md; static UI is its own, motion goes through animate, copy through BRAND.md; telemetry off, no hook, no pin; variants as sibling mockups. The launcher checks the engine download against scripts/engine.sha256, pinned here."
     },
     {
       "name": "cloudflare", "kind": "plugin", "mode": "on-demand",

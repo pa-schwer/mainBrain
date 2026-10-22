@@ -166,6 +166,13 @@ if [ -n "$version" ] && [ "$os" != unknown ] && [ "$arch" != unknown ]; then
     check_download
     expected=""
     [ "$sidecar_ok" = 1 ] && expected=$(cut -d' ' -f1 < "$tmp.sha256")
+    # LOCAL CHANGE (mainBrain): a sidecar from the same release proves the
+    # transfer, not the release. engine.sha256 is committed and reviewed
+    # with this launcher; when it exists it is the only accepted digest,
+    # and an asset it does not list is refused.
+    if [ -f "$dir/engine.sha256" ]; then
+      expected=$(awk -v a="${url##*/}" '$2 == a { print $1 }' "$dir/engine.sha256")
+    fi
     actual=""
     if command -v shasum >/dev/null 2>&1; then
       if digest=$(shasum -a 256 "$tmp" 2>/dev/null); then actual=${digest%% *}; fi
