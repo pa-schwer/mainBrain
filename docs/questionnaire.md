@@ -75,6 +75,7 @@ list below is what is asked.
 | `activation` | "Is there a path from paid to first value that must not leak?" | onboarding |
 | `experiments` | "Will changes be A/B tested?" | ab-testing |
 | `outbound` | "Will the project prospect by cold email: build lists, write the emails, qualify the replies?" | prospecting + cold-email + revops |
+| `validation` | "Will a session test the business itself: competitors, simulated buyers, price, unit economics, a launch plan, the business plan?" | the Founder skill pack: the eleven `founder-*` skills, writing to `founder/` in the ops repo |
 | `skill-authoring` | "Will this project write skills of its own?" | skill-creator |
 
 `skills_exclude`: names to leave out even if a default would install them.

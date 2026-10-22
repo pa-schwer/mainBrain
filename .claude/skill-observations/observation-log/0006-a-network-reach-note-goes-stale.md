@@ -1,5 +1,5 @@
 ---
-id: 5
+id: 6
 title: "A note that a host is blocked goes stale; probe it before routing around it"
 status: actioned
 type: open-source

@@ -52,6 +52,24 @@ nothing from a repo's `settings.json` but `enabledPlugins` and
 what carries the authorization there. `Workflow` is a separate tool that
 does need a rule or a prompt; not pre-approved.
 
+## Founder skill pack [2026-10-22]
+
+"Founder skill" names `Jakeschincariol/founder-skill` (MIT, `fd9385b`),
+whose README is titled "The Founder skill": eleven `founder-*` skills,
+vendored under the `validation` need, addenda in brand, marketing and
+launch. Other repos share the name and are other bundles, not weighed:
+`djanmagno/founder-skills` (42 skills, SaaS idea to revenue),
+`gvkhosla/founder-skills` (an npx CLI), `shawnpang/startup-founder-skills`
+(50 skills), `lool-ventures/founder-skills` (a Cowork plugin),
+`wulaosiji/founder-skills` (pitch decks). If one is asked for, weigh it
+against the founder-* domain first: two advisors on one domain.
+
+Upstream's `tests/` run against the vendored copies when copied next to a
+`skills/` folder holding them (`_load.py` resolves `SKILLS_DIR` from its
+own path); `test_repo` also reads the README and the plugin manifests, so
+copy those with it. The tools take paths through `${CLAUDE_SKILL_DIR}`,
+and the pack writes `founder/` in the cwd: the ops repo root.
+
 ## Design need: impeccable [2026-10-22]
 
 `npx skills find` reached skills.sh from the web container (the earlier
@@ -62,7 +80,9 @@ impeccable 4.7.0 at `69c34b7`, as the `design` need, superseding
 ui-ux-pro-max (catalog key `supersedes`). Facts that shaped the fit:
 
 - Its engine is a Rust binary the launcher fetches from the repo's GitHub
-  releases (sha256-checked) into `~/.impeccable`; it ran in the container.
+  releases into `~/.impeccable`, checked against digests pinned in
+  `scripts/engine.sha256` (the release's own sidecar proves only the
+  transfer); it ran in the container.
 - `detect <dir>` scans static HTML and CSS, exit 2 on findings, 0 clean.
 - Context lookup: PRODUCT.md / DESIGN.md (any case) in the project root,
   `.agents/context/` or `docs/`. So `docs/product.md` is found;

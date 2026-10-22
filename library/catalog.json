@@ -22,7 +22,8 @@
     "outbound": "cold outreach: a qualified prospect list, cold email that gets replies, replies scored and routed",
     "cloudflare": "operate the front ends on Cloudflare: Workers, Wrangler, DNS, domains",
     "board": "specs as cards on the Notion product board, read and moved by every session that builds",
-    "completion": "substantial work finished against written, runnable gates and proven before the done report"
+    "completion": "substantial work finished against written, runnable gates and proven before the done report",
+    "validation": "test the business before money goes in: a board, competitors, simulated buyers, price, offer, unit economics, marketing, brand, operations, launch, the business plan"
   },
   "entries": [
     {
@@ -191,6 +192,75 @@
       "path": "skills/ab-testing", "origin": "coreyhaines31/marketingskills", "license": "MIT",
       "summary": "Designs an experiment before a change ships as a test.",
       "needs": ["experiments"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "founder-board", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-board", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "Entry point of the Founder skill pack: writes founder/idea.md, then three board subagents score the idea through three published frameworks, name what would kill it and vote. The eleven founder-* skills share founder/ at the ops repo root and run board, competitors, consumer, pricing, offer, cfo, marketing, brand, ops, launch, plan.",
+      "needs": ["validation"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "founder-competitors", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-competitors", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "Direct and indirect competitors and substitutes from public sources, every fact linked: prices, positioning, review complaints, the gap to own. Reads pages, never scrapes.",
+      "needs": ["validation"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "founder-consumer", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-consumer", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "A panel of simulated buyers (100, or 20 with --quick), one subagent each in waves of ten, dealt by panel.py from the target customer; who buys, who passes and why. The buy rate is an upper bound, panel quotes are never testimonials.",
+      "needs": ["validation"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "founder-pricing", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-pricing", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "Van Westendorp range from the panel's price answers or a real survey (van_westendorp.py), set against competitors and the margin: a price, a ladder, an opening offer to test.",
+      "needs": ["validation"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "founder-offer", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-offer", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "The offer stack that answers the panel's objections (bonuses, an affordable guarantee, real urgency, a name), scored on the value equation and re-tested on a quick panel.",
+      "needs": ["validation"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "founder-cfo", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-cfo", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "Unit economics from one JSON (unit_economics.py): contribution, margin, break-even, year 1 by month, cash needed, payback, what-ifs. A missing input is an error, never a guess.",
+      "needs": ["validation"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "founder-marketing", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-marketing", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "Positioning, channels, a dated 30-day launch campaign, ten hooks, the budget and the most a customer may cost, each message answering a buyer objection.",
+      "needs": ["validation"], "default_for": [],
+      "local_change": true, "local_change_note": "Addendum: it plans, copywriting writes the pages under BRAND.md; hooks follow BRAND.md once it exists, drafts until then."
+    },
+    {
+      "name": "founder-brand", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-brand", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "Name candidates with the trademark, domain and handle checks to run, a promise, a voice and a brief for the look.",
+      "needs": ["validation"], "default_for": [],
+      "local_change": true, "local_change_note": "Addendum: founder/brand.md is a proposal, BRAND.md stays the founder's; the look is a brief for the design source, never a token; ui-ux-pro-max keeps static UI."
+    },
+    {
+      "name": "founder-ops", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-ops", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "How the business runs on day one: suppliers and costs, staffing, routines, tools, permits to check, a risk register; real costs go back to the CFO.",
+      "needs": ["validation"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "founder-launch", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-launch", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "A cheap real-world test first, then a dated countdown, the launch-day run sheet and the first 30 days.",
+      "needs": ["validation"], "default_for": [],
+      "local_change": true, "local_change_note": "Addendum: a test page is a card on the board built through the workflow; product work stays on the board; prod stays the founder's go."
+    },
+    {
+      "name": "founder-plan", "kind": "skill", "mode": "on-demand",
+      "path": "skills/founder-plan", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
+      "summary": "Compiles founder/ into one business plan (compile.py) with a verdict computed from the numbers: Profitable, Not yet or Incomplete. Plus a summary and a one-pager.",
+      "needs": ["validation"], "default_for": [], "local_change": false
     }
   ]
 }
