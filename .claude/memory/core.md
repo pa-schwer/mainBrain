@@ -28,8 +28,9 @@ One line per spawn, kinds and needs only.
 
 One source per domain. Candidates already weighed (web-design-guidelines,
 playwright-cli, taste-skill, awesome-design-md) and the container config
-playwright-cli needs. unlazy is standing; parallel subagents are a
-convention, since the Agent tool needs no permission.
+playwright-cli needs. The Founder skill pack sits under `validation`; its
+namesakes on GitHub are other bundles. unlazy is standing; parallel
+subagents are a convention, since the Agent tool needs no permission.
 → topics/library.md
 
 ## Product board

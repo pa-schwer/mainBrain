@@ -21,7 +21,7 @@ section:
    when" line;
 3. names that end in config: only the ones the user is likely to know
    (a domain if it exists); state the defaults for the rest;
-4. needs: the seven skill questions, as yes/no;
+4. needs: every skill question, as yes/no;
 5. secrets and services: "which third-party services, and what secret
    names will the back end read?" with the reminder that a value never
    enters the chat.
