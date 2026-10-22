@@ -44,7 +44,8 @@ scan() {
 }
 scan "hex color" '#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?([0-9a-fA-F]{2})?\b'
 scan "color function" '\b(rgba?|hsla?|oklch|oklab|lab|lch|color-mix)\('
-scan "font stack" 'font-family[[:space:]]*:'
+# A face named through var(--...) comes from tokens.css; any other value is a stack.
+scan "font stack" 'font-family[[:space:]]*:[[:space:]]*([^v[:space:]]|v[^a]|va[^r]|var[^(])'
 [ "$fails" -eq "$before" ] && echo "  ok    every value comes from tokens.css"
 
 echo "== detector =="
