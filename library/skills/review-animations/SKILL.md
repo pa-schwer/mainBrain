@@ -143,4 +143,5 @@ hover. In the After column, propose a Tailwind utility or a token, never a
 raw `cubic-bezier`.
 
 **Scope.** Motion only. A finding about color, type or layout belongs to
-`ui-ux-pro-max`, not to this review.
+the static UI source (`ui-ux-pro-max`, or `impeccable` where ops installed
+it), not to this review.

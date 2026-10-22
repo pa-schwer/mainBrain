@@ -42,9 +42,10 @@ this review drops the finding.
 - Content & Copy, and the Typography rules on quotes and ellipses: the ops
   repo's `BRAND.md`, which sets the language. Title Case and English quotes
   do not apply to a product written in another language.
-- Style, color, type and layout choices: `ui-ux-pro-max` and the ops repo's
-  `docs/design-system.md`. This review checks correctness and leaves taste
-  to them.
+- Style, color, type and layout choices: the static UI source
+  (`ui-ux-pro-max`, or `impeccable` where ops installed it) and the ops
+  repo's `docs/design-system.md`. This review checks correctness and leaves
+  taste to them.
 - Hydration Safety and the React rules apply to the app. The site is static
   Astro.
 

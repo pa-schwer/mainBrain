@@ -37,6 +37,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SHARED_SOURCES = {
     "scripts/no-hardcoded-tokens.sh": "skeleton/_shared/no-hardcoded-tokens.sh",
     "src/styles/tokens.css": "skeleton/_shared/tokens.css",
+    "design/tokens.css": "skeleton/_shared/tokens.css",
 }
 
 # Generated, not templated: compared, never patched back.

@@ -65,6 +65,9 @@ FORBIDDEN = {
 FRONTEND = {"site", "app"}
 FIREBASE = {"functions", "app"}
 
+# Skeleton paths a kind carries only when the project answered the need.
+NEED_PATHS = {"ops": {"design": ("design/", ".impeccable/")}}
+
 # The answers carry the board links when spawn-project put the project on
 # the Notion board before the generator ran (docs/board.md).
 NOT_ON_BOARD = 'not linked yet: `.claude/skills/product-board/SKILL.md`, "Putting a project on the board"'
@@ -178,10 +181,53 @@ def build_values(a: dict, entries: list[dict], today: str) -> dict[str, str]:
         ) or "| (none yet) | | | |",
         "BOARD_PROJECT": a["board"].get("project") or NOT_ON_BOARD,
         "BOARD_SPECS": a["board"].get("specs") or NOT_ON_BOARD,
+        "DESIGN_SECTION": design_section(a),
+        "STATIC_UI_RULE": static_ui_rule(a),
         "SCHEMA_JOB": "",  # per repo, set in render_repo
         "REPO_NAME": "",
     }
     return values
+
+
+def design_section(a: dict) -> str:
+    if "design" not in a["needs"]:
+        return ""
+    p = a["project"]
+    fronts = [repo_name(p, k) for k in ("app", "site") if k in a["repos"]]
+    builder = f"`{fronts[0]}`" if fronts else "a front end"
+    return f"""## Mockups
+
+Screens are mocked up here, in `design/`, before {builder} builds them. A
+mockup is a static HTML page drawn with `design/tokens.css`: no product
+repo imports it and nothing deploys it, so it is not product code.
+`design/README.md` is the protocol; read it before the first mockup of a
+session.
+
+`impeccable` is the design director, read from
+`.claude/skills/impeccable/SKILL.md`, addendum first, and the one source
+of static design in this project: style, color, type, layout, spacing.
+Its context is `docs/product.md`, `BRAND.md` and `docs/design-system.md`.
+
+A mockup reaches the founder, or a card's Design link, once
+`bash design/check.sh` is green and impeccable's `critique` and `audit`
+have run on it. The screen built from it matches it: the design system
+wins over the mockup, and the mockup wins over taste.
+
+"""
+
+
+def static_ui_rule(a: dict) -> str:
+    ops = repo_name(a["project"], "ops")
+    if "design" not in a["needs"]:
+        return f"""- `ui-ux-pro-max` answers static questions only. Leave its `--motion` dial
+  unset: it attaches GSAP snippets, and an animation library lands only
+  after its line in `{ops}/docs/decisions.md`."""
+    return f"""- Static design (style, color, type, layout, spacing) follows `impeccable`,
+  read by path from `{ops}/.claude/skills/impeccable/SKILL.md`,
+  addendum first. A screen with a mockup in `{ops}/design/mockups/` is
+  built to match it. Before merge its detector runs on the changed files,
+  next to `web-design-guidelines`, and a finding blocks:
+  `IMPECCABLE_NO_TELEMETRY=1 ../{ops}/.claude/skills/impeccable/scripts/impeccable detect <files>`."""
 
 
 def service_secrets(service: dict) -> str:
@@ -311,7 +357,7 @@ def copy_rendered(src: Path, dst: Path, values: dict[str, str]) -> None:
     dst.chmod(src.stat().st_mode)
 
 
-def render_repo(kind: str, out: Path, values: dict[str, str]) -> list[str]:
+def render_repo(kind: str, out: Path, values: dict[str, str], needs: list[str]) -> list[str]:
     """Render skeleton/<kind> into out. Returns the repo-relative paths the
     skeleton owns, so upstream.py can tell structure from feature code."""
     src_root = SKELETON / kind
@@ -320,10 +366,18 @@ def render_repo(kind: str, out: Path, values: dict[str, str]) -> list[str]:
     if kind != "ops":
         per_repo["SCHEMA_JOB"] = render((SHARED / "schema-job.yml").read_text(encoding="utf-8"), per_repo, "schema-job.yml")
 
+    skipped = tuple(
+        path
+        for need, paths in NEED_PATHS.get(kind, {}).items()
+        if need not in needs
+        for path in paths
+    )
     for src in sorted(src_root.rglob("*")):
         if src.is_dir():
             continue
         rel = src.relative_to(src_root)
+        if rel.as_posix().startswith(skipped):
+            continue
         rel_rendered = Path(render(str(rel), per_repo, str(src)))
         copy_rendered(src, out / rel_rendered, per_repo)
         owned.append(str(rel_rendered))
@@ -332,6 +386,10 @@ def render_repo(kind: str, out: Path, values: dict[str, str]) -> list[str]:
         copy_rendered(SHARED / "no-hardcoded-tokens.sh", out / "scripts/no-hardcoded-tokens.sh", per_repo)
         copy_rendered(SHARED / "tokens.css", out / "src/styles/tokens.css", per_repo)
         owned += ["scripts/no-hardcoded-tokens.sh", "src/styles/tokens.css"]
+    if kind == "ops" and "design" in needs:
+        # Mockups draw with the same file the front ends build with.
+        copy_rendered(SHARED / "tokens.css", out / "design/tokens.css", per_repo)
+        owned.append("design/tokens.css")
     return owned
 
 
@@ -438,6 +496,10 @@ def write_handoff(ws: Path, a: dict, values: dict[str, str], entries: list[dict]
         "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install -g --silent @playwright/cli@0.1.22   # playwright-cli; browsers are at /opt/pw-browsers"
         if any(e["name"] == "playwright-cli" for e in entries) else "# (no browser testing skill installed)"
     )
+    hv["IMPECCABLE_LINE"] = (
+        f'"{repo_name(p, "ops")}/.claude/skills/impeccable/scripts/impeccable" engine-probe > /dev/null || true   # impeccable: fetch its engine into ~/.impeccable'
+        if any(e["name"] == "impeccable" for e in entries) else "# (no design director installed)"
+    )
     marketplaces = dict.fromkeys(e["marketplace"] for e in skills.plugins(entries))
     hv["PLUGIN_SETUP_LINES"] = "\n".join(
         [f"claude plugin marketplace add {m} || true" for m in marketplaces]
@@ -522,6 +584,8 @@ def install_and_check(ws: Path, a: dict, log: Path) -> list[tuple[str, str, bool
 
         if kind == "ops":
             check("check-schema.sh", ["bash", "scripts/check-schema.sh"])
+            if (repo / "design/check.sh").exists():
+                check("design/check.sh", ["bash", "design/check.sh"])
             continue
         if not check("npm install", ["npm", "install", "--silent", "--no-audit", "--no-fund"]):
             continue
@@ -585,7 +649,7 @@ def main(argv: list[str]) -> int:
     owned: dict[str, list[str]] = {}
     for kind in a["repos"]:
         out = ws / repo_name(a["project"], kind)
-        owned[out.name] = render_repo(kind, out, values)
+        owned[out.name] = render_repo(kind, out, values, a["needs"])
         print(f"rendered  {out.name}")
 
     ops = ws / repo_name(a["project"], "ops")

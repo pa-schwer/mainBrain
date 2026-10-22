@@ -48,6 +48,12 @@ while IFS= read -r need; do
   jq -e --arg n "$need" '.needs[$n]' "$ROOT/library/catalog.json" > /dev/null || fail "need '$need' is used but not declared"
 done < <(jq -r '.entries[].needs[]' "$ROOT/library/catalog.json" | sort -u)
 
+# Every name an entry supersedes is in the catalog.
+while IFS= read -r name; do
+  jq -e --arg n "$name" '.entries[] | select(.name == $n)' "$ROOT/library/catalog.json" > /dev/null \
+    || fail "supersedes '$name', which the catalog does not list"
+done < <(jq -r '.entries[] | (.supersedes // [])[]' "$ROOT/library/catalog.json" | sort -u)
+
 echo
 echo "== templates =="
 # Every placeholder in skeleton/, handoff/ and library/harness/ is one

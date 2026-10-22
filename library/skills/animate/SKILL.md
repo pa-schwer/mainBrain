@@ -213,9 +213,10 @@ Opinionated and brief. When the honest answer is "this shouldn't animate," give 
 Vendored from `emilkowalski/skills` at commit `d16ebe6`. This section is the
 only local change, and it overrides the rules above where they conflict.
 
-**Scope.** This skill owns motion and interaction. `ui-ux-pro-max` owns
-everything static: style, color, type, layout, spacing. When the two
-disagree on a static choice, `ui-ux-pro-max` wins.
+**Scope.** This skill owns motion and interaction. The static UI source
+(`ui-ux-pro-max`, or `impeccable` where ops installed it) owns everything
+static: style, color, type, layout, spacing. When the two disagree on a
+static choice, the static source wins.
 
 **Values.** Hard Rule 3 governs: durations and easings come from the
 Motion section of the ops repo's `docs/design-system.md`. While that file is a

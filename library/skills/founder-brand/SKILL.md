@@ -83,10 +83,11 @@ founder reads the proposal and supplies `BRAND.md`, or names in the chat
 the parts to copy into it verbatim.
 
 **The look is a brief, not tokens.** Step 4's colours and faces go to the
-design source (a Claude Design project) as a brief. No value from it
-enters `docs/design-system.md` or a `tokens.css` until that source settles
-the tokens; site and app keep Tailwind's defaults until then, and
-`ui-ux-pro-max` stays the one advisor on static UI there.
+design source (a Claude Design project, or impeccable's new-work where
+ops installed it) as a brief. No value from it enters
+`docs/design-system.md` or a `tokens.css` until that source settles the
+tokens; site and app keep Tailwind's defaults until then, and the static
+UI source (`ui-ux-pro-max`, or `impeccable`) stays the one advisor there.
 
 **Logo concepts stay in `founder/`**, marked as concepts. None ships in a
 product repo.

@@ -68,6 +68,7 @@ list below is what is asked.
 | Need | Ask it as | Installs |
 |---|---|---|
 | `motion` | "Will the site or app have animations, transitions, gestures worth getting right?" | animate + review-animations (a merge gate) |
+| `design` | "Will the founder mock up screens in the ops repo before they are built?" | impeccable, in place of ui-ux-pro-max, and the ops `design/` folder with its gate |
 | `marketing-copy` | "Will a session write the words that sell it?" | copywriting |
 | `conversion` | "Is there a page or form to optimize once it has traffic?" | cro |
 | `signup` | "Is there a self-serve account creation flow?" | signup |

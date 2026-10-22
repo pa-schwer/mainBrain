@@ -69,3 +69,27 @@ Upstream's `tests/` run against the vendored copies when copied next to a
 own path); `test_repo` also reads the README and the plugin manifests, so
 copy those with it. The tools take paths through `${CLAUDE_SKILL_DIR}`,
 and the pack writes `founder/` in the cwd: the ops repo root.
+
+## Design need: impeccable [2026-10-22]
+
+`npx skills find` reached skills.sh from the web container (the earlier
+"blocked" note was stale). Design search, by installs: anthropics
+frontend-design 1M, taste-skill 657K (out since 2026-09-30),
+pbakaus/impeccable 351K, emilkowalski apple-design 234K. Taken:
+impeccable 4.7.0 at `69c34b7`, as the `design` need, superseding
+ui-ux-pro-max (catalog key `supersedes`). Facts that shaped the fit:
+
+- Its engine is a Rust binary the launcher fetches from the repo's GitHub
+  releases into `~/.impeccable`, checked against digests pinned in
+  `scripts/engine.sha256` (the release's own sidecar proves only the
+  transfer); it ran in the container.
+- `detect <dir>` scans static HTML and CSS, exit 2 on findings, 0 clean.
+- Context lookup: PRODUCT.md / DESIGN.md (any case) in the project root,
+  `.agents/context/` or `docs/`. So `docs/product.md` is found;
+  `docs/design-system.md` is not, and the addendum points at it.
+- Telemetry (the "roll" API pings) is off with `"telemetry": false` in
+  `.impeccable/config.json` or `IMPECCABLE_NO_TELEMETRY=1`.
+- Its hook installs into `.claude/settings.local.json`; `pin` writes
+  skill shortcuts. Both stay off.
+- emilkowalski's newer `prototype` and `break-ui` overlap impeccable's
+  `generate` and `harden`; not taken.

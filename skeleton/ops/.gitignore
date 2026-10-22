@@ -9,3 +9,8 @@ __pycache__/
 .unlazy-hook-state.json
 *.unlazy.bak
 .claude/settings.local.json
+
+# impeccable, when the design need installed it: per-developer overrides
+# and live-mode state. The shared config is .impeccable/config.json.
+.impeccable/config.local.json
+.impeccable/live/

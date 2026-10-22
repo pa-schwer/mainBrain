@@ -1,5 +1,5 @@
 {
-  "$comment": "The skills library index. scripts/check-library.sh verifies every entry against the files on disk, and scripts/spawn.sh reads `needs` and `default_for` to pick what a new project gets. `needs` are the answers of the questionnaire in docs/questionnaire.md. `default_for` names repo kinds whose presence installs the entry without being asked.",
+  "$comment": "The skills library index. scripts/check-library.sh verifies every entry against the files on disk, and scripts/spawn.sh reads `needs` and `default_for` to pick what a new project gets. `needs` are the answers of the questionnaire in docs/questionnaire.md. `default_for` names repo kinds whose presence installs the entry without being asked. `supersedes` names entries a selected entry removes, so a domain keeps one source.",
   "needs": {
     "prose": "every session writes prose: commit messages, docs, replies",
     "memory": "context that survives a session",
@@ -13,6 +13,7 @@
     "ui-review": "a merge gate on UI code: accessibility, focus, forms, performance",
     "components": "one library per UI task, each pick a recorded decision",
     "motion": "animation and interaction, plus a merge gate for it",
+    "design": "screens mocked up in the ops repo before they are built, under a design director with deterministic rules; replaces the default static UI source",
     "marketing-copy": "conversion copy for public pages",
     "conversion": "audit a page or form that already exists",
     "signup": "self-serve account creation flow",
@@ -40,7 +41,7 @@
     {
       "name": "find-skills", "kind": "skill", "mode": "standing",
       "path": "skills/find-skills", "origin": "vercel-labs/skills", "license": "MIT",
-      "summary": "Finds installable skills for a need nothing here covers. skills.sh is blocked from the web container; search GitHub instead.",
+      "summary": "Finds installable skills for a need nothing here covers. `npx skills find <query>` reached skills.sh from the web container on 2026-10-22, with install counts; when a network policy blocks it, search GitHub instead.",
       "needs": ["discovery"], "default_for": ["ops"], "local_change": false
     },
     {
@@ -86,8 +87,15 @@
       "name": "ui-ux-pro-max", "kind": "plugin", "mode": "on-demand",
       "path": null, "origin": "nextlevelbuilder/ui-ux-pro-max-skill", "license": "see marketplace",
       "plugin_id": "ui-ux-pro-max@ui-ux-pro-max-skill", "marketplace": "nextlevelbuilder/ui-ux-pro-max-skill",
-      "summary": "The single source of static UI guidance. Do not enable a second one (frontend-design, taste-skill): two advisors on one task produce two aesthetics.",
+      "summary": "The single source of static UI guidance. Do not enable a second one (frontend-design, taste-skill): two advisors on one task produce two aesthetics. impeccable replaces it in a project that takes the design need.",
       "needs": ["ui"], "default_for": ["site", "app"], "local_change": false
+    },
+    {
+      "name": "impeccable", "kind": "skill", "mode": "on-demand",
+      "path": "skills/impeccable", "origin": "pbakaus/impeccable", "license": "Apache 2.0",
+      "summary": "Design director for mockups and screens: a mode per surface (Operate, Persuade, Read), a craft floor of absolute bans, critique and audit, 24 commands, and an engine whose detector fails on design anti-patterns (exit 2). Drives the ops design/ folder and its check.sh.",
+      "needs": ["design"], "default_for": [], "supersedes": ["ui-ux-pro-max"],
+      "local_change": true, "local_change_note": "Addendum: context files are docs/product.md and docs/design-system.md, never a root PRODUCT.md or DESIGN.md; static UI is its own, motion goes through animate, copy through BRAND.md; telemetry off, no hook, no pin; variants as sibling mockups. The launcher checks the engine download against scripts/engine.sha256, pinned here."
     },
     {
       "name": "cloudflare", "kind": "plugin", "mode": "on-demand",
@@ -101,7 +109,7 @@
       "path": "skills/web-design-guidelines", "origin": "vercel-labs/agent-skills + vercel-labs/web-interface-guidelines", "license": "MIT",
       "summary": "Merge gate on any site or app pull request that touches UI: about 100 rules on accessibility, focus, forms, performance and i18n, checked in code, findings as file:line. Rules vendored in command.md, never fetched.",
       "needs": ["ui-review"], "default_for": ["site", "app"],
-      "local_change": true, "local_change_note": "Addendum: read command.md instead of fetching; accessibility, focus, forms and anti-pattern findings block; review-animations, BRAND.md and ui-ux-pro-max keep their domains."
+      "local_change": true, "local_change_note": "Addendum: read command.md instead of fetching; accessibility, focus, forms and anti-pattern findings block; review-animations, BRAND.md and the static UI source (ui-ux-pro-max, or impeccable) keep their domains."
     },
     {
       "name": "pick-ui-library", "kind": "skill", "mode": "on-demand",
@@ -128,7 +136,7 @@
       "path": "skills/animate", "origin": "emilkowalski/skills", "license": "MIT",
       "summary": "Builds motion and interaction. Pairs with review-animations.",
       "needs": ["motion"], "default_for": [],
-      "local_change": true, "local_change_note": "Addendum: ui-ux-pro-max owns static UI; sample curves are examples, not tokens; an animation library is a recorded decision."
+      "local_change": true, "local_change_note": "Addendum: the static UI source (ui-ux-pro-max, or impeccable) owns static UI; sample curves are examples, not tokens; an animation library is a recorded decision."
     },
     {
       "name": "review-animations", "kind": "skill", "mode": "gate",

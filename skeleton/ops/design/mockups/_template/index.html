@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="{{HTML_LANG}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mockup template · {{TITLE}}</title>
+  <link rel="stylesheet" href="/tokens.css">
+  <style>
+    /* Layout only. Color, type, size, radius, shadow and duration come
+       from tokens.css through var(); design/check.sh fails on a raw value. */
+    body { margin: 0; }
+    main { max-width: 72rem; margin-inline: auto; padding: 1.5rem; }
+    [data-state] { display: none; }
+    [data-state].is-shown { display: block; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>The screen's name, as the card says it</h1>
+    <section data-state="ready" class="is-shown">
+      <p>The screen with real data, worst case included.</p>
+    </section>
+    <section data-state="empty">
+      <p>What a first visit shows, and the one action that fills it.</p>
+    </section>
+    <section data-state="loading">
+      <p>The shape of the content while it loads.</p>
+    </section>
+    <section data-state="error">
+      <p>What went wrong, in the user's words, and what to do next.</p>
+    </section>
+  </main>
+  <script>
+    // ?state=empty shows one state; no parameter shows ready.
+    const state = new URLSearchParams(location.search).get("state") ?? "ready";
+    for (const el of document.querySelectorAll("[data-state]")) {
+      el.classList.toggle("is-shown", el.dataset.state === state);
+    }
+  </script>
+</body>
+</html>
