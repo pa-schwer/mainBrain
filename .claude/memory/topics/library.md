@@ -51,3 +51,21 @@ nothing from a repo's `settings.json` but `enabledPlugins` and
 `extraKnownMarketplaces`, so the written convention in each `CLAUDE.md` is
 what carries the authorization there. `Workflow` is a separate tool that
 does need a rule or a prompt; not pre-approved.
+
+## Founder skill pack [2026-10-22]
+
+"Founder skill" names `Jakeschincariol/founder-skill` (MIT, `fd9385b`),
+whose README is titled "The Founder skill": eleven `founder-*` skills,
+vendored under the `validation` need, addenda in brand, marketing and
+launch. Other repos share the name and are other bundles, not weighed:
+`djanmagno/founder-skills` (42 skills, SaaS idea to revenue),
+`gvkhosla/founder-skills` (an npx CLI), `shawnpang/startup-founder-skills`
+(50 skills), `lool-ventures/founder-skills` (a Cowork plugin),
+`wulaosiji/founder-skills` (pitch decks). If one is asked for, weigh it
+against the founder-* domain first: two advisors on one domain.
+
+Upstream's `tests/` run against the vendored copies when copied next to a
+`skills/` folder holding them (`_load.py` resolves `SKILLS_DIR` from its
+own path); `test_repo` also reads the README and the plugin manifests, so
+copy those with it. The tools take paths through `${CLAUDE_SKILL_DIR}`,
+and the pack writes `founder/` in the cwd: the ops repo root.
