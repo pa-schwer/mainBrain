@@ -1,0 +1,161 @@
+name: Grant team access
+
+# Marks a project's sign-in account as part of the product team: the
+# Firebase Auth custom claim `team: true`, which a project's admin space
+# and its server functions read. The app can never set it; this run is
+# the one way in, behind the same identity and the same gate as "Create
+# Firebase projects": a human approves every run. `revoke` takes the claim
+# away and ends the account's sessions.
+#
+# The account has to exist first: the person creates it in the app with
+# this address. Its other claims (`accountId`) are kept.
+#
+# This repository is public and so are its run logs. The address is read
+# from the event file and masked before any step prints anything; it is
+# never written into the workflow's script or env, which the log would
+# echo. No uid is printed either.
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_ids:
+        description: "Google Cloud project ids, space separated (each must sit in the mainbrain-projects folder)"
+        required: true
+        type: string
+      email:
+        description: "The account's sign-in address in the app; masked in the log"
+        required: true
+        type: string
+      access:
+        description: "grant sets team: true; revoke removes it and signs the account out everywhere"
+        required: true
+        default: grant
+        type: choice
+        options:
+          - grant
+          - revoke
+
+permissions:
+  contents: read
+  id-token: write   # Workload Identity Federation
+
+jobs:
+  team:
+    name: ${{ inputs.access }} team access
+    runs-on: ubuntu-latest
+    environment: provisioning
+    steps:
+      - name: Read and mask the address
+        run: |
+          email=$(jq -r '.inputs.email // empty' "$GITHUB_EVENT_PATH" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+          echo "::add-mask::$email"
+          if ! printf '%s' "$email" | grep -Eq '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'; then
+            echo "email is not an email address"
+            exit 1
+          fi
+          echo "EMAIL=$email" >> "$GITHUB_ENV"
+
+      - name: Check the inputs
+        env:
+          PROJECT_IDS: ${{ inputs.project_ids }}
+          ACCESS: ${{ inputs.access }}
+          FOLDER_ID: ${{ vars.GCP_FOLDER_ID }}
+        run: |
+          [ -n "$FOLDER_ID" ] || { echo "GCP_FOLDER_ID is not set (docs/gcp-provisioning.md, step 4)"; exit 1; }
+          # Checked again here because an API dispatch can bypass the form's choice list.
+          case "$ACCESS" in
+            grant|revoke) ;;
+            *) echo "access must be grant or revoke"; exit 1 ;;
+          esac
+          [ "$(printf '%s\n' $PROJECT_IDS | grep -c .)" -le 4 ] || { echo "at most 4 project ids per run"; exit 1; }
+          for id in $PROJECT_IDS; do
+            printf '%s' "$id" | grep -Eq '^[a-z][a-z0-9-]{4,28}[a-z0-9]$' || { echo "not a project id: $id"; exit 1; }
+          done
+
+      - name: "Authenticate to Google Cloud (no key, OIDC from this run)"
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_PROVISIONER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2.2.1
+
+      - name: Set or remove the claim on each project of the folder
+        env:
+          PROJECT_IDS: ${{ inputs.project_ids }}
+          ACCESS: ${{ inputs.access }}
+          FOLDER_ID: ${{ vars.GCP_FOLDER_ID }}
+        run: |
+          set -euo pipefail
+          token=$(gcloud auth print-access-token)
+          echo "::add-mask::$token"
+          work=$(mktemp -d)
+
+          # One Identity Toolkit admin call; the body is a file, so nothing personal reaches the command line.
+          call() {
+            local id=$1 method=$2 body=$3 out=$4
+            curl -sS -o "$out" -w '%{http_code}' -X POST \
+              -H "Authorization: Bearer $token" -H "Content-Type: application/json" \
+              -H "X-Goog-User-Project: $id" \
+              "https://identitytoolkit.googleapis.com/v1/projects/$id/accounts:$method" \
+              --data-binary "@$body"
+          }
+
+          # The account's claims, as a JSON object, into $work/claims.json; fails unless exactly one account has the address.
+          lookup() {
+            local id=$1
+            jq -n --arg email "$EMAIL" '{email: [$email]}' > "$work/lookup.json"
+            code=$(call "$id" lookup "$work/lookup.json" "$work/found.json")
+            [ "$code" = "200" ] || { echo "lookup on $id answered $code: $(jq -r '.error.message // empty' "$work/found.json")"; exit 1; }
+            count=$(jq '.users // [] | length' "$work/found.json")
+            if [ "$count" = "0" ]; then
+              echo "no account with this address on $id: the person creates it in the app first (Criar conta), then this run again"
+              exit 1
+            fi
+            [ "$count" = "1" ] || { echo "$count accounts share this address on $id; nothing changed"; exit 1; }
+            jq -r '.users[0].customAttributes // "{}"' "$work/found.json" | jq -c '.' > "$work/claims.json"
+          }
+
+          for id in $PROJECT_IDS; do
+            # Only the folder's projects: the provisioner owns nothing else,
+            # and this run must not try to reach anything else.
+            parent_type=$(gcloud projects describe "$id" --format='value(parent.type)')
+            parent_id=$(gcloud projects describe "$id" --format='value(parent.id)')
+            if [ "$parent_type" != "folder" ] || [ "$parent_id" != "$FOLDER_ID" ]; then
+              echo "$id is not in the mainbrain-projects folder; nothing changed there"
+              exit 1
+            fi
+
+            lookup "$id"
+            if [ "$ACCESS" = grant ]; then
+              jq -c '. + {team: true}' "$work/claims.json" > "$work/next.json"
+            else
+              jq -c 'del(.team)' "$work/claims.json" > "$work/next.json"
+            fi
+            # Firebase caps the claims at 1000 characters.
+            [ "$(wc -c < "$work/next.json")" -le 1000 ] || { echo "the claims would pass 1000 characters on $id; nothing changed"; exit 1; }
+
+            uid=$(jq -r '.users[0].localId' "$work/found.json")
+            echo "::add-mask::$uid"
+            if [ "$ACCESS" = grant ]; then
+              jq -n --arg uid "$uid" --arg claims "$(cat "$work/next.json")" \
+                '{localId: $uid, customAttributes: $claims}' > "$work/update.json"
+            else
+              # validSince now ends every session: the claim leaves the
+              # account's next token, and no refresh outlives the removal.
+              jq -n --arg uid "$uid" --arg claims "$(cat "$work/next.json")" --arg since "$(date +%s)" \
+                '{localId: $uid, customAttributes: $claims, validSince: $since}' > "$work/update.json"
+            fi
+            code=$(call "$id" update "$work/update.json" "$work/updated.json")
+            [ "$code" = "200" ] || { echo "update on $id answered $code: $(jq -r '.error.message // empty' "$work/updated.json")"; exit 1; }
+
+            # Read back: green means the claim is what the run says.
+            lookup "$id"
+            if [ "$ACCESS" = grant ]; then
+              [ "$(jq -r '.team' "$work/claims.json")" = "true" ] || { echo "the claim is missing on $id after the grant"; exit 1; }
+              echo "team access granted on $id"
+            else
+              [ "$(jq -r 'has("team")' "$work/claims.json")" = "false" ] || { echo "the claim is still there on $id after the revoke"; exit 1; }
+              echo "team access revoked on $id"
+            fi
+          done

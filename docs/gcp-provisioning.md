@@ -235,6 +235,27 @@ Proof: the run ends with `granted roles/firebase.admin on <id>` for each
 id, and https://console.firebase.google.com/project/<id>/firestore opens
 for that account.
 
+## Giving a person team access
+
+A project with an admin space lets in the accounts that carry the
+Firebase Auth custom claim `team: true`, and its server functions check
+that claim on every call. The app never sets it. The "Grant team access"
+workflow does, behind the same approval:
+
+1. The person creates an account in the project's app with their
+   address, on each project they need (staging, prod).
+2. A session, or the founder, runs Actions → "Grant team access" with
+   the project ids, that address and `grant`.
+3. The founder approves the run (Review deployments → Approve).
+
+The run finds the one account with that address in each project, adds
+`team: true` to the claims it already has (`accountId` stays), and reads
+them back. `revoke` removes the claim and ends the account's sessions.
+The address is masked in the log, and no uid is printed.
+
+Proof: the run ends with `team access granted on <id>` for each id, and
+the project's admin space opens for that account.
+
 ## Reading a red run
 
 Filled in as failures are met, the way `docs/repo-creation.md` was.
