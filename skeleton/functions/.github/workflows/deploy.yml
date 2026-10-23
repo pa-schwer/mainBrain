@@ -65,6 +65,7 @@ jobs:
 
           echo "WIF_PROVIDER=${provider}" >> "${GITHUB_ENV}"
           echo "DEPLOY_SA=github-deploy@${project}.iam.gserviceaccount.com" >> "${GITHUB_ENV}"
+          echo "PROJECT_ID=${project}" >> "${GITHUB_ENV}"
 
       - name: Authenticate to Google Cloud (no key, OIDC from this run)
         id: auth
@@ -88,6 +89,31 @@ jobs:
             --only functions,firestore,storage,auth \
             --project "${TARGET}" \
             --non-interactive --force
+
+      # A callable answers every caller and checks who it is in its own
+      # code. Firebase grants that public invoker when it creates the
+      # service, and never again: a create that fails half-way leaves the
+      # service answering 403 to everyone, and the deploys after it, which
+      # are updates, never open it (the SDK carries no invoker for a
+      # callable). So every deploy grants it again, to the callables only.
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2.2.1
+
+      - name: Keep every callable open to its callers
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+        run: |
+          set -euo pipefail
+          callables=$(node -e '
+            const exported = require("./dist/src/index.js");
+            for (const [name, fn] of Object.entries(exported)) {
+              if (fn && fn.__endpoint && fn.__endpoint.callableTrigger) console.log(name.toLowerCase());
+            }')
+          for service in ${callables}; do
+            gcloud run services add-iam-policy-binding "${service}" \
+              --region={{REGION}} --project="${PROJECT_ID}" \
+              --member=allUsers --role=roles/run.invoker --quiet --format=none
+            echo "public invoker on ${service}"
+          done
 
       # A first deploy on a fresh project can exit 0 with one function never
       # created: parallel creates race to make the sources bucket, one loses
