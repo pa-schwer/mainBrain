@@ -11,7 +11,10 @@ export const health = onRequest(
   {
     region: "{{REGION}}",
     timeoutSeconds: 10,
-    memory: "128MiB",
+    // Every function loads the whole index.js, so health carries what the
+    // project's code grows to: a project's took about 100 MB before a
+    // request, and at 128 MiB its cold starts failed.
+    memory: "256MiB",
     // Public on purpose: it carries no data. A function that a third party
     // must call gets the same invoker grant through the deploy account's
     // Cloud Functions Admin and Cloud Run Admin roles.
