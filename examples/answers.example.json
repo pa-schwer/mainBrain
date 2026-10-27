@@ -13,7 +13,7 @@
   "firebase_staging": "acme-staging",
   "firebase_prod": "acme-prod",
   "repos": ["site", "functions", "app", "lib"],
-  "needs": ["motion", "design", "marketing-copy", "conversion", "experiments"],
+  "needs": ["motion", "design", "logo", "marketing-copy", "conversion", "experiments"],
   "skills_exclude": [],
   "secrets": [
     { "name": "STRIPE_SECRET", "service": "Stripe", "used_by": "functions", "needed_from": "the billing cycle" },

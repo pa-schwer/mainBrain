@@ -78,3 +78,14 @@ is the test.
 - The organization admin role cannot create folders or set policies; the
   script grants itself both. Fixed project ids collide worldwide; the
   admin project takes the organization id's last six digits.
+
+## Chromium in the web container renders as root only with --no-sandbox [2026-10-27]
+
+Sessions run as root. `/opt/pw-browsers/chromium` exits at once without
+`--no-sandbox` ("Running as root without --no-sandbox is not
+supported"). With it, the full build in `--headless=new --screenshot`
+mode hung for 60 s without writing a file. The headless shell,
+`/opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell`,
+with `--no-sandbox` and the same flags wrote the PNG. A tool that looks
+for `chromium` on PATH needs a wrapper over the headless shell; the
+logo-design `setup.sh` writes one.

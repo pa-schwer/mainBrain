@@ -93,3 +93,28 @@ ui-ux-pro-max (catalog key `supersedes`). Facts that shaped the fit:
   skill shortcuts. Both stay off.
 - emilkowalski's newer `prototype` and `break-ui` overlap impeccable's
   `generate` and `harden`; not taken.
+
+## Logo need: logo-design [2026-10-27]
+
+"Logo design skill" names `kaankiziltug/logo-design-skill` (MIT, 1.4.5 at
+`7340903`), whose README is titled "Logo Design Skill". Taken under a new
+`logo` need, opt-in. skills.sh search for "logo", by installs:
+ui-ux-pro-max `design` 41.8K (a raster generator that needs a Gemini,
+Atlas Cloud or MuAPI key), rknall SVG Logo Designer 8.2K ("as-is", no
+license granted), op7418 logo-generator 3.9K (MIT in the README, no
+LICENSE file), resciencelab logo-creator 3.2K (three API keys),
+kaankiziltug 1.2K. The last is the only one with a full method, tools
+and tests, and no key.
+
+- Upstream ships 1,432 reference SVGs of real brands, outside its MIT
+  license (TRADEMARKS.md). The bundle leaves them and `gallery.html` out,
+  as upstream's lite zip does; `scripts/setup.sh` fetches them at the
+  vendored commit into `~/.cache/logo-design/` (sparse, blobless: under
+  two seconds), and a marked fallback in `svglib.py` reads them there.
+  Nothing lands in a repo, so `check-drift.sh` sees no drift either.
+- `render_png.py` finds no renderer in the web container: no cairosvg,
+  rsvg-convert or Inkscape, and `/opt/pw-browsers` is not on PATH.
+  topics/environment.md has the Chromium details; setup.sh writes the
+  wrapper.
+- The founder-brand addendum hands the logo brief to logo-design where
+  both are installed. impeccable has no logo work.
