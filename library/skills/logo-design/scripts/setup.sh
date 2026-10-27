@@ -7,7 +7,9 @@
 # into the cache, where scripts/svglib.py looks when the bundle has no
 # svg/ of its own. Then, when no renderer is on PATH, writes a `chromium`
 # wrapper over Playwright's headless shell: Chromium refuses to start as
-# root without --no-sandbox, and render_png.py does not pass it.
+# root without --no-sandbox, and render_png.py does not pass it. The
+# wrapper adds the flag only when it runs as root, and lives in a folder
+# of its own that goes on PATH for this skill's commands alone.
 set -euo pipefail
 
 COMMIT=734090317a2155c5bf1ae8bd4cc85c6848a0128f   # upstream 1.4.5, the vendored commit
@@ -40,6 +42,11 @@ if [ -z "$shell" ]; then
   exit 0
 fi
 mkdir -p "$CACHE/bin"
-printf '#!/bin/sh\nexec "%s" --no-sandbox "$@"\n' "$shell" > "$CACHE/bin/chromium"
+cat > "$CACHE/bin/chromium" <<EOF
+#!/bin/sh
+# Chromium will not start as root with its sandbox; any other user keeps it.
+[ "\$(id -u)" = 0 ] && set -- --no-sandbox "\$@"
+exec "$shell" "\$@"
+EOF
 chmod +x "$CACHE/bin/chromium"
 echo "renderer: run the scripts with PATH=\"$CACHE/bin:\$PATH\""

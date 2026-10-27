@@ -103,7 +103,7 @@
       "path": "skills/logo-design", "origin": "kaankiziltug/logo-design-skill", "license": "MIT",
       "summary": "Identity designer for the mark: brief, word map, concepts across mark types, geometric SVG construction, optical corrections, tests at 16 px, one colour and reversed, a concept sheet at a founder checkpoint, then lockups, colour, the favicon and app-icon set and a usage guide. Standard-library Python, no API key; renders through Chromium. Works in the ops brand/logo/ folder.",
       "needs": ["logo"], "default_for": [],
-      "local_change": true, "local_change_note": "Addendum: setup.sh fetches the 1,432 trademarked reference logos into ~/.cache, never into a repo, and wraps Playwright's headless shell with --no-sandbox; work lives in ops brand/logo/; the brief comes from founder/brand.md when present; the pick is the founder's; icons reach site and app by pull request; colours wait for the design source. A marked fallback in svglib.py reads the cache when the bundle has no svg/."
+      "local_change": true, "local_change_note": "Addendum: setup.sh fetches the 1,432 trademarked reference logos into ~/.cache, never into a repo, and wraps Playwright's headless shell, adding --no-sandbox as root only; work lives in ops brand/logo/; the brief comes from founder/brand.md when present; the pick is the founder's; icons reach site and app by pull request; colours wait for the design source. A marked fallback in svglib.py reads the cache when the bundle has no svg/."
     },
     {
       "name": "cloudflare", "kind": "plugin", "mode": "on-demand",

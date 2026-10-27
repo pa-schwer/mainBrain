@@ -23,9 +23,11 @@ reference logos and the gallery from upstream at the vendored commit
 into `~/.cache/logo-design/`, where `svglib.py` looks for them. They stay
 out of every repo: their owners hold the trademarks, the MIT license
 does not cover them, and this library is public. In the web container
-it also writes a `chromium` wrapper with `--no-sandbox`: Chromium refuses
-to start as root, and `render_png.py` finds no other renderer there. Run
-every script with `PATH="$HOME/.cache/logo-design/bin:$PATH"`. Without
+it also writes a `chromium` wrapper that adds `--no-sandbox` when it runs
+as root: Chromium refuses to start as root with its sandbox, and
+`render_png.py` finds no other renderer there. Put the wrapper on PATH
+for this skill's commands only, never in a profile:
+`PATH="$HOME/.cache/logo-design/bin:$PATH" python3 ...`. Without
 the fetch, the catalog still answers `search_library.py` and `--summary`;
 `--format paths`, `--refs-industry` and the peer test need the files.
 
