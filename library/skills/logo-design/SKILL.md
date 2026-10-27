@@ -60,6 +60,16 @@ gains the lines. The mark's colours are a proposal for
 design source settles it: impeccable's new-work where ops installed it,
 else the founder.
 
+**Letterforms come from a real face.** A wordmark concept starts from a
+typeface under an open license (SIL OFL from `google/fonts`), outlined
+to paths with fontTools and shaped with HarfBuzz so the kerning is the
+face's own: `python3 -m pip install fonttools uharfbuzz`, then a sparse
+clone of `google/fonts` for the `ofl/<family>/` folders (the session
+proxy refuses a raw file download from GitHub). Primitives with round
+caps are for symbols; a word built from them reads as a toy, and a
+founder who names Notion or Apple rejects it on sight. The kit then
+customises at least one letter, so the mark is not a typed word.
+
 **Clearance stays human.** The session runs the look-alike checks below;
 the trademark search before the mark ships is the founder's.
 
