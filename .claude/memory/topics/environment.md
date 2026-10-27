@@ -89,3 +89,13 @@ mode hung for 60 s without writing a file. The headless shell,
 with `--no-sandbox` and the same flags wrote the PNG. A tool that looks
 for `chromium` on PATH needs a wrapper over the headless shell; the
 logo-design `setup.sh` writes one.
+
+## GitHub raw downloads are refused; git clones are not [2026-10-27]
+
+`curl` on `github.com/<owner>/<repo>/raw/...` for a repository outside
+the session's scope returns a JSON "GitHub access to this repository is
+not enabled for this session" body (378 bytes), while `git fetch` of the
+same public repository through the proxy works. To take a few files
+from a large public repository (`google/fonts`), use a sparse, blobless
+clone: `git sparse-checkout set --no-cone /ofl/<family>/` then
+`git fetch --depth 1 --filter=blob:none origin main`.

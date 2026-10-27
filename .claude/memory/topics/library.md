@@ -118,3 +118,10 @@ and tests, and no key.
   wrapper.
 - The founder-brand addendum hands the logo brief to logo-design where
   both are installed. impeccable has no logo work.
+- First use, three rounds in one session [2026-10-27]: round 1 took the
+  fast track (no questions) and put a message bubble in every concept,
+  rejected as kitsch; round 2 drew the letters from primitives with round
+  caps, rejected as a toy. Round 3 outlined real OFL faces (Fraunces,
+  Instrument Serif, Instrument Sans) with fontTools + uharfbuzz, both
+  pip-installable in the web container. The addendum now says so. Ask
+  the five questions when the founder is in the chat.
