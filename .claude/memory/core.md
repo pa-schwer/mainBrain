@@ -31,8 +31,10 @@ playwright-cli, taste-skill, awesome-design-md, impeccable) and the
 container config playwright-cli needs. The `design` need swaps
 ui-ux-pro-max for impeccable and gives ops a `design/` mockup folder. The
 Founder skill pack sits under `validation`; its namesakes on GitHub are
-other bundles. unlazy is standing; parallel subagents are a convention,
-since the Agent tool needs no permission.
+other bundles. The `logo` need takes logo-design; its trademarked
+reference logos go to the container cache, never into a repo. unlazy is
+standing; parallel subagents are a convention, since the Agent tool
+needs no permission.
 → topics/library.md
 
 ## Product board
