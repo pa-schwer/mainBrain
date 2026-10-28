@@ -93,3 +93,19 @@ UI source (`ui-ux-pro-max`, or `impeccable`) stays the one advisor there.
 skill draws no concept: that skill owns the mark. Without it, logo
 concepts stay in `founder/`, marked as concepts, and none ships in a
 product repo.
+
+**The trademark check is a script, run before the shortlist.**
+`scripts/tm-screen.py NAME [NAME ...] --json founder/trademark-screen-<date>.json`
+queries the USPTO's own trademark index (one JSON request per name, no
+key, no browser) and answers BLOCKED, WATCH or OPEN per name: the live
+marks that contain the word, the exact-word marks in any class, the
+marks in the classes of interest whose goods name the product's field,
+and the one-letter neighbours that do. Set `--classes` and `--probe` to
+the product (the defaults fit software, answering and legal services).
+Run it on every candidate before the shortlist, and again on the pick
+before anyone falls in love with it; check nicknames and translations by
+hand, since an edit distance misses them. A BLOCKED name leaves the
+list. An OPEN name is a candidate for the attorney's search, not a
+clearance: the script reads word marks in the federal register only, no
+design marks, no state registers, no unregistered use. The records it
+saves are the proof the handoff asks for.
