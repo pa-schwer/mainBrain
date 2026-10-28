@@ -247,9 +247,9 @@
     {
       "name": "founder-brand", "kind": "skill", "mode": "on-demand",
       "path": "skills/founder-brand", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
-      "summary": "Name candidates with the trademark, domain and handle checks to run, a promise, a voice and a brief for the look.",
+      "summary": "Name candidates screened against the USPTO index, with the domain and handle checks to run, a promise, a voice and a brief for the look.",
       "needs": ["validation"], "default_for": [],
-      "local_change": true, "local_change_note": "Addendum: founder/brand.md is a proposal, BRAND.md stays the founder's; the look is a brief for the design source, never a token; ui-ux-pro-max keeps static UI; the logo brief goes to logo-design where ops has it."
+      "local_change": true, "local_change_note": "Addendum: founder/brand.md is a proposal, BRAND.md stays the founder's; the look is a brief for the design source, never a token; ui-ux-pro-max keeps static UI; the logo brief goes to logo-design where ops has it. scripts/tm-screen.py screens name candidates against the USPTO index before the shortlist."
     },
     {
       "name": "founder-ops", "kind": "skill", "mode": "on-demand",

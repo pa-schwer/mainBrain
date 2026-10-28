@@ -125,3 +125,8 @@ and tests, and no key.
   Instrument Serif, Instrument Sans) with fontTools + uharfbuzz, both
   pip-installable in the web container. The addendum now says so. Ask
   the five questions when the founder is in the chat.
+- founder-brand carries `scripts/tm-screen.py`: the USPTO knockout screen,
+  run on every name candidate before the shortlist. The index behind
+  tmsearch.uspto.gov answers a plain JSON POST; the per-serial details
+  endpoint answers too. A name is BLOCKED, WATCH or OPEN; OPEN is a
+  candidate for the attorney's search, not a clearance.
