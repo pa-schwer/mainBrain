@@ -130,3 +130,19 @@ and tests, and no key.
   tmsearch.uspto.gov answers a plain JSON POST; the per-serial details
   endpoint answers too. A name is BLOCKED, WATCH or OPEN; OPEN is a
   candidate for the attorney's search, not a clearance.
+
+## decomplexify [2026-11-02]
+
+- Rémi Guyot's interface simplification, written here (no bundle of the
+  method exists): first use case and Not now list at the spec, five
+  operations with one verdict per component on every mockup and changed
+  screen, the absence test for every doubt, a removal named for every
+  addition. Gate, default for site and app, under the `simplicity` need.
+- Domain split with impeccable: decomplexify decides what stays and where
+  it ranks, impeccable decides how it looks; `distill` starts from it.
+  The code-simplifier pass ("simplification" in the questionnaire) is a
+  different thing: code, not screens.
+- Sources that hold the method: the Blend Web Mix 2019 talk write-up
+  (blogdumoderateur, HORSE/CORSE, absence test, fanatical focus), the
+  LunaWeb interview (First Use Case, ego, 2017 removal roadmap), La
+  Fabrique by CA (280-character pitch, toboggan product, golden nuggets).

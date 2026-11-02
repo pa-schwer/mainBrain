@@ -85,6 +85,10 @@ The gates, in order, all automated:
 - a UI review, run by Claude with `web-design-guidelines` on every site or
   app pull request that touches markup, styles or components; a finding
   on accessibility, focus, forms or its anti-pattern list is red
+- an interface simplification review, run by Claude with `decomplexify`
+  on every site or app pull request that adds or changes something a
+  user sees; a component with no verdict, an addition that names no
+  removal and no reason, or an item from the card's Not now line is red
 
 A gate that is red blocks the merge. There is no override.
 

@@ -45,6 +45,13 @@ the single source for style, color, type, layout and spacing, and
 section of `docs/design-system.md`, and `review-animations` gates it.
 `clarify` and any visible text follow `BRAND.md`, which wins.
 
+**What a screen keeps.** When `decomplexify` is installed, it decides
+what stays on a screen and where it ranks; this skill decides how what
+stays looks. `distill` starts from its first use case, five operations
+and absence test, then applies its own lists below to what survives.
+`critique` on a mockup reads the simplification review in `NOTES.md`,
+and a missing review is a finding.
+
 **Gates.** On a mockup, `bash design/check.sh` runs the detector with the
 token checks. In site and app, `web-design-guidelines` stays the merge
 gate, and `detect` runs alongside it on the changed files; a finding

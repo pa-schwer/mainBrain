@@ -208,10 +208,15 @@ session.
 of static design in this project: style, color, type, layout, spacing.
 Its context is `docs/product.md`, `BRAND.md` and `docs/design-system.md`.
 
+`decomplexify` decides what a mockup keeps: the card's first use case,
+a verdict for every component, an absence test for every doubt. It runs
+before impeccable styles what survives.
+
 A mockup reaches the founder, or a card's Design link, once
-`bash design/check.sh` is green and impeccable's `critique` and `audit`
-have run on it. The screen built from it matches it: the design system
-wins over the mockup, and the mockup wins over taste.
+`bash design/check.sh` is green, its simplification review is in
+`NOTES.md`, and impeccable's `critique` and `audit` have run on it. The
+screen built from it matches it: the design system wins over the
+mockup, and the mockup wins over taste.
 
 """
 

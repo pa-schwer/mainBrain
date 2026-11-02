@@ -126,6 +126,11 @@ bash scripts/no-hardcoded-tokens.sh
 - A pull request that touches markup, styles or components passes
   `web-design-guidelines` before merge, read by path from
   `{{PROJECT}}-ops/.claude/skills/`.
+- A pull request that adds or changes something a user sees passes
+  `decomplexify` before merge, read by path from
+  `{{PROJECT}}-ops/.claude/skills/decomplexify/SKILL.md`: the screen keeps
+  only what its card's first use case needs, and an addition names what
+  it removed, or why nothing could go.
 - A component, toast, chart or state library comes from `pick-ui-library`,
   read by path from the same folder, and lands after its line in
   `{{PROJECT}}-ops/docs/decisions.md`.

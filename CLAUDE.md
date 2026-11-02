@@ -95,7 +95,7 @@ Adding a bundle: vendor it with its LICENSE under `library/skills/`, add
 the catalog entry, mark any local change inline so an update can strip it,
 and run `scripts/check-library.sh`. Two advisors on one domain is the
 failure to avoid: one source for static UI, one for motion, one for
-security review.
+what a screen keeps (`decomplexify`), one for security review.
 
 ## The way back: structural changes flow up
 

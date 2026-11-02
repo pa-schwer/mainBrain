@@ -61,8 +61,8 @@ and reads.
 …". The defaults for the chosen repo kinds are installed without asking
 (the prose, memory, self-improvement, discovery, security,
 simplification and completion directives, plus browser testing, UI guidance, the UI
-review gate and the Cloudflare plugin for any front end, and the library
-picker for the app); the
+review gate, the interface simplification gate (`decomplexify`) and the
+Cloudflare plugin for any front end, and the library picker for the app); the
 list below is what is asked.
 
 | Need | Ask it as | Installs |
