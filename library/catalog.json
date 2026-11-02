@@ -11,6 +11,7 @@
     "browser-testing": "drive a local web app with playwright-cli",
     "ui": "static UI guidance: style, color, type, layout",
     "ui-review": "a merge gate on UI code: accessibility, focus, forms, performance",
+    "simplicity": "screens stripped to what one first use case needs: five operations on every component, the absence test for every doubt, a removal named for every addition",
     "components": "one library per UI task, each pick a recorded decision",
     "motion": "animation and interaction, plus a merge gate for it",
     "design": "screens mocked up in the ops repo before they are built, under a design director with deterministic rules; replaces the default static UI source",
@@ -96,7 +97,7 @@
       "path": "skills/impeccable", "origin": "pbakaus/impeccable", "license": "Apache 2.0",
       "summary": "Design director for mockups and screens: a mode per surface (Operate, Persuade, Read), a craft floor of absolute bans, critique and audit, 24 commands, and an engine whose detector fails on design anti-patterns (exit 2). Drives the ops design/ folder and its check.sh.",
       "needs": ["design"], "default_for": [], "supersedes": ["ui-ux-pro-max"],
-      "local_change": true, "local_change_note": "Addendum: context files are docs/product.md and docs/design-system.md, never a root PRODUCT.md or DESIGN.md; static UI is its own, motion goes through animate, copy through BRAND.md; telemetry off, no hook, no pin; variants as sibling mockups. The launcher checks the engine download against scripts/engine.sha256, pinned here."
+      "local_change": true, "local_change_note": "Addendum: context files are docs/product.md and docs/design-system.md, never a root PRODUCT.md or DESIGN.md; static UI is its own, motion goes through animate, copy through BRAND.md, what a screen keeps through decomplexify (distill starts there); telemetry off, no hook, no pin; variants as sibling mockups. The launcher checks the engine download against scripts/engine.sha256, pinned here."
     },
     {
       "name": "logo-design", "kind": "skill", "mode": "on-demand",
@@ -118,6 +119,13 @@
       "summary": "Merge gate on any site or app pull request that touches UI: about 100 rules on accessibility, focus, forms, performance and i18n, checked in code, findings as file:line. Rules vendored in command.md, never fetched.",
       "needs": ["ui-review"], "default_for": ["site", "app"],
       "local_change": true, "local_change_note": "Addendum: read command.md instead of fetching; accessibility, focus, forms and anti-pattern findings block; review-animations, BRAND.md and the static UI source (ui-ux-pro-max, or impeccable) keep their domains."
+    },
+    {
+      "name": "decomplexify", "kind": "skill", "mode": "gate",
+      "path": "skills/decomplexify", "origin": "mainBrain, after Rémi Guyot", "license": "MIT",
+      "summary": "Rémi Guyot's interface simplification: one first use case per feature with its Not now list, the five operations (eliminate, hide, reduce, organise, standardise) on every component of a screen with a recorded verdict, the absence test for every doubt, and a removal named for every addition. Runs at the spec, on every mockup before it reaches the founder, and as a merge gate on any site or app pull request that changes what a user sees. Decides what stays; the static UI source decides how it looks.",
+      "needs": ["simplicity"], "default_for": ["site", "app"],
+      "local_change": false
     },
     {
       "name": "pick-ui-library", "kind": "skill", "mode": "on-demand",

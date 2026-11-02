@@ -36,7 +36,7 @@ The page follows the App Spec template, in this order:
 | Section | Holds |
 |---|---|
 | 👤 I'm / 👉 I need / 🎯 To | the user story, three lines |
-| 📋 Description | the need, the pain, how this story answers it |
+| 📋 Description | the first use case in one line, the need, the pain, how this story answers it, and the Not now line |
 | 🌀 User flow | the path through the feature, step by step |
 | 🎨 Mockup, Action list 👇 | the capture of the screen, then every "I can ..." with its expected behaviour |
 | ✅ Test | the checks a person runs on staging |
@@ -52,6 +52,17 @@ is if the mockup does not say, the outcome that proves the feature works,
 a rule or a number the screens cannot show (a limit, a delay, a price),
 the project and the priority if nobody said. Never ask what the mockup
 already shows. A request with nothing open gets no questions.
+
+**The first use case.** Before you cut cards, write the feature's first
+use case in one line: one user, one moment, one problem (Rémi Guyot's
+First Use Case). It opens the global card's Description, and its pitch
+fits in 280 characters. A second use case is a second feature: it goes
+on the Not now line, or onto its own card at Idea. Every action, field
+and state on the cards serves that first use case; one that serves none
+moves to Not now. When nothing the user gave names one user, one moment
+and one problem, ask for it first in the batch. In a project's ops repo,
+`.claude/skills/decomplexify/SKILL.md` holds the full method; this
+paragraph is enough to write the cards.
 
 ## 3. Cut it into cards
 
@@ -79,7 +90,9 @@ Every sub-card's Action list covers, in product terms:
 - each rule with its number: limits, lengths, delays, prices, rounding,
   time zones;
 - each field: required or optional, format, what an invalid value shows;
-- what is out of scope, in one line, so a session does not build it.
+- what is out of scope, in the Not now line that closes the
+  Description, so a session does not build it. Everything the first use
+  case does not need lands there.
 
 Test rows are checks a person runs on staging: what to do, what to see.
 At least one per action, one per error state, and one per rule with a
@@ -136,7 +149,9 @@ Project: <project> · Type: Feature · Priority: <Now|Next|Later> · Repos: <...
 **👉 I need :** ...
 **🎯 To :** ...
 ### 📋 Description :
+First use case: <one user, one moment, one problem>
 ...
+Not now: <what waits>
 ### 🌀 User flow :
 1. ...
 ### 🎨 Mockup :

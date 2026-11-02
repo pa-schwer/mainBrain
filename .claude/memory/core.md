@@ -32,7 +32,9 @@ container config playwright-cli needs. The `design` need swaps
 ui-ux-pro-max for impeccable and gives ops a `design/` mockup folder. The
 Founder skill pack sits under `validation`; its namesakes on GitHub are
 other bundles. The `logo` need takes logo-design; its trademarked
-reference logos go to the container cache, never into a repo. unlazy is
+reference logos go to the container cache, never into a repo.
+`decomplexify` (Rémi Guyot's method) decides what a screen keeps, at the
+spec, the mockup and the UI merge; impeccable styles what stays. unlazy is
 standing; parallel subagents are a convention, since the Agent tool
 needs no permission.
 → topics/library.md

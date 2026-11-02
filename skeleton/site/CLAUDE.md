@@ -112,4 +112,9 @@ of the Vite types make `astro check` fail on the Tailwind plugin.
 - A pull request that touches markup, styles or components passes
   `web-design-guidelines` before merge, read by path from
   `{{PROJECT}}-ops/.claude/skills/`.
+- A pull request that adds or changes something a user sees passes
+  `decomplexify` before merge, read by path from
+  `{{PROJECT}}-ops/.claude/skills/decomplexify/SKILL.md`: the screen keeps
+  only what its card's first use case needs, and an addition names what
+  it removed, or why nothing could go.
 {{STATIC_UI_RULE}}

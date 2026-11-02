@@ -60,6 +60,10 @@ Filled by the founder. `ok`, `ko`, or `skip` with a word.
 Anything `ko` goes to `docs/bugs.md` if it does not block the release, or
 back to the session if it does.
 
+A remark about the screen itself rather than the task (where to tap,
+what a word means, what to look at first) is a finding too: the session
+runs that screen through `decomplexify` again.
+
 ## Verdict
 
 - [ ] go prod
