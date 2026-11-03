@@ -97,6 +97,15 @@ or pasted into an issue. `scripts/bootstrap.sh` does not touch them.
   result is read. Each brief names the files that subagent may write, and
   the session re-runs a subagent's checks before trusting its report.
   `.claude/settings.json` allows `Agent`.
+- A design session's title starts with 🫟. A design session is one whose
+  goal is a mockup, the design system or its tokens, a logo, or a design
+  critique or audit; a session that builds a screen from its mockup is a
+  build session and keeps its title. Once the goal is clear, before the
+  first change, the session reads its title and, when the 🫟 is missing,
+  renames itself `🫟 <title>`, keeping the rest: in a cloud session with
+  `get_session` and `set_session_title` from the `claude-code-remote`
+  tools, loaded through ToolSearch; in a local one, by asking the founder
+  to run `/rename 🫟 <title>`.
 
 ## Workflow
 
