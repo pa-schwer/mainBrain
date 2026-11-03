@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Arm the "Create Firebase projects" workflow for one Google Cloud
-# organization: docs/gcp-provisioning.md steps 2 and 5 in one run. Run it
+# organization: docs/gcp-provisioning.md steps 2 and 5 in one run, and the
+# identity "Grant team access" runs under. Run it
 # once, in Cloud Shell, signed in as the organization admin:
 #
 #   bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/mainBrain/<commit>/scripts/arm-gcp.sh) <owner>/mainBrain
@@ -173,6 +174,53 @@ TRIES=45 retry gcloud iam service-accounts add-iam-policy-binding "$SA" --projec
   --member="principalSet://iam.googleapis.com/$pool/attribute.repository_id/$REPO_ID" > /dev/null
 ok "$GITHUB_REPO on main, environment provisioning"
 
+say "the team-access identity"
+# "Grant team access" runs with no approval, so it does not run as the
+# provisioner: its own service account, Firebase Authentication on the
+# folder's projects and nothing else, and its own pool. A second provider
+# in the pool above would not do: the provisioner's grant names that pool,
+# so any token the pool accepts could act as the provisioner.
+TEAM_SA="mainbrain-team-access@$ADMIN_PROJECT.iam.gserviceaccount.com"
+if gcloud iam service-accounts describe "$TEAM_SA" --project="$ADMIN_PROJECT" > /dev/null 2>&1; then
+  ok "service account exists"
+else
+  retry gcloud iam service-accounts create mainbrain-team-access --display-name="mainBrain team access" \
+    --project="$ADMIN_PROJECT" > /dev/null
+  did "service account"
+fi
+# Read and update sign-in accounts, see which folder a project sits in,
+# and bill the Identity Toolkit call to the project it reads.
+for role in roles/firebaseauth.admin roles/browser roles/serviceusage.serviceUsageConsumer; do
+  TRIES=45 retry gcloud resource-manager folders add-iam-policy-binding "$FOLDER_ID" \
+    --member="serviceAccount:$TEAM_SA" --role="$role" --condition=None > /dev/null
+done
+ok "Firebase Authentication on the folder's projects, nothing else"
+if gcloud iam workload-identity-pools describe github-team --location=global --project="$ADMIN_PROJECT" > /dev/null 2>&1; then
+  ok "identity pool exists"
+else
+  retry gcloud iam workload-identity-pools create github-team --location=global \
+    --display-name="GitHub Actions, team access" --project="$ADMIN_PROJECT" > /dev/null
+  did "identity pool"
+fi
+verb=create-oidc
+if gcloud iam workload-identity-pools providers describe github --workload-identity-pool=github-team \
+     --location=global --project="$ADMIN_PROJECT" > /dev/null 2>&1; then
+  verb=update-oidc
+fi
+# One workflow file, on main, dispatched by hand: a branch or another
+# workflow of the repository gets no token.
+retry gcloud iam workload-identity-pools providers "$verb" github \
+  --workload-identity-pool=github-team --location=global --project="$ADMIN_PROJECT" \
+  --issuer-uri="https://token.actions.githubusercontent.com" \
+  --attribute-mapping="google.subject=assertion.sub,attribute.repository_id=assertion.repository_id" \
+  --attribute-condition="assertion.repository_id == '$REPO_ID' && assertion.ref == 'refs/heads/main' && assertion.event_name == 'workflow_dispatch' && assertion.workflow_ref.endsWith('/.github/workflows/grant-team-access.yml@refs/heads/main')" \
+  > /dev/null
+team_pool="projects/$ADMIN_NUMBER/locations/global/workloadIdentityPools/github-team"
+TRIES=45 retry gcloud iam service-accounts add-iam-policy-binding "$TEAM_SA" --project="$ADMIN_PROJECT" \
+  --role=roles/iam.workloadIdentityUser \
+  --member="principalSet://iam.googleapis.com/$team_pool/attribute.repository_id/$REPO_ID" > /dev/null
+ok "$GITHUB_REPO on main, Grant team access only, no approval"
+
 say "done. Three repository variables for $GITHUB_REPO (docs step 4):"
 echo "  https://github.com/$GITHUB_REPO/settings/variables/actions"
 echo
@@ -181,3 +229,4 @@ echo "  GCP_PROVISIONER_SA  $SA"
 echo "  GCP_FOLDER_ID       $FOLDER_ID"
 echo
 echo "No billing secret: the workflow finds the one billing account the identity can use."
+echo "No variable for team access: Grant team access derives its identity from the first two."
