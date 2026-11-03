@@ -108,7 +108,13 @@ finds exactly one of each. Then, in order:
 5. lets GitHub Actions act as it through Workload Identity Federation:
    this repository by id, on `main`, in a job of the `provisioning`
    environment, so only an approved run gets a token;
-6. prints the three repository variables of step 4.
+6. creates `mainbrain-team-access`, the identity "Grant team access" runs
+   under with no approval: Firebase Authentication Admin, Browser and
+   Service Usage Consumer on the folder, nothing else, reachable through
+   its own pool `github-team` by this repository's
+   `grant-team-access.yml` on `main`, dispatched by hand. Its own pool,
+   because the provisioner trusts every token of the first one;
+7. prints the three repository variables of step 4.
 
 Grants and policies take minutes to apply, a folder policy up to fifteen,
 and the script waits for them. A run that stops anyway can be started
@@ -240,15 +246,22 @@ for that account.
 A project with an admin space lets in the accounts that carry the
 Firebase Auth custom claim `team: true`, and its server functions check
 that claim on every call. The app never sets it. The "Grant team access"
-workflow does, behind the same approval:
+workflow does, with no approval:
 
 1. The person creates an account in the project's app with their
    address, on each project they need (staging, prod), or signs in with
    it: the grant binds to the account that holds the address, so the
    person proves it opens with their own password first.
 2. A session, or the founder, runs Actions → "Grant team access" with
-   the project ids, that address and `grant`.
-3. The founder approves the run (Review deployments → Approve).
+   the project ids, that address and `grant`. It runs at once.
+
+It does not run as the provisioner, which can create projects and link
+billing, but as `mainbrain-team-access` (step 2, item 6), which can
+manage the sign-in accounts of the folder's projects and nothing else.
+Who can dispatch a workflow in this repository can therefore grant
+team access. An organization armed before that identity existed runs
+`arm-gcp.sh` again, once, at a commit that carries it: the run fails on
+`Unable to acquire impersonated credentials` until then.
 
 The run finds the one account with that address in each project, adds
 `team: true` to the claims it already has (`accountId` stays), and reads
@@ -278,3 +291,5 @@ Filled in as failures are met, the way `docs/repo-creation.md` was.
 | `PERMISSION_DENIED` on `iam.workloadIdentityPools.create`, or a 403 on the auth config or the Storage bucket, a minute after `created firebase` | the project is new and the owner grant has not reached that service yet; the script waits up to eight minutes for each | run the workflow again; it skips what exists |
 | `could not set GCP_WIF_PROVIDER_…` or `could not write .env.…`, with `Resource not accessible by personal access token` | step 3 not done: `REPO_ADMIN_TOKEN` lacks Variables or Contents on that repository | widen the token, then run the workflow again; it skips what exists |
 | `Unable to acquire impersonated credentials` | the provider accepts this repository on `main` in the `provisioning` environment only | dispatch the workflow from `main`; a renamed or recreated repository needs `arm-gcp.sh` again |
+| `Unable to acquire impersonated credentials` in "Grant team access" | `mainbrain-team-access` or its pool `github-team` does not exist yet | run `arm-gcp.sh` again, at a commit that creates them |
+| `lookup on <id> answered 403` in "Grant team access" | the folder grants of `mainbrain-team-access` have not reached the project yet | wait a few minutes, then run it again |

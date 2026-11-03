@@ -3,9 +3,15 @@ name: Grant team access
 # Marks a project's sign-in account as part of the product team: the
 # Firebase Auth custom claim `team: true`, which a project's admin space
 # and its server functions read. The app can never set it; this run is
-# the one way in, behind the same identity and the same gate as "Create
-# Firebase projects": a human approves every run. `revoke` takes the claim
-# away and ends the account's sessions.
+# the one way in. `revoke` takes the claim away and ends the account's
+# sessions.
+#
+# It runs with no approval, so it has its own identity rather than the
+# provisioner's: `mainbrain-team-access`, Firebase Authentication on the
+# mainbrain-projects folder and nothing else, reachable through its own
+# identity pool from this file on main, dispatched by hand
+# (scripts/arm-gcp.sh, docs/gcp-provisioning.md). Who can dispatch a
+# workflow here can grant; that is the gate.
 #
 # The account has to exist first: the person creates it in the app with
 # this address. Its other claims (`accountId`) are kept.
@@ -43,7 +49,6 @@ jobs:
   team:
     name: ${{ inputs.access }} team access
     runs-on: ubuntu-latest
-    environment: provisioning
     steps:
       - name: Read and mask the address
         run: |
@@ -72,11 +77,25 @@ jobs:
             printf '%s' "$id" | grep -Eq '^[a-z][a-z0-9-]{4,28}[a-z0-9]$' || { echo "not a project id: $id"; exit 1; }
           done
 
+      - name: Name the team-access identity
+        id: who
+        env:
+          PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
+          PROVISIONER: ${{ vars.GCP_PROVISIONER_SA }}
+        run: |
+          # arm-gcp.sh creates it beside the provisioner: the same admin
+          # project, its own pool `github-team`. Read from the provisioner's
+          # variables, so arming it adds no repository variable.
+          [ -n "$PROVIDER" ] || { echo "GCP_WIF_PROVIDER is not set (docs/gcp-provisioning.md, step 4)"; exit 1; }
+          [ -n "$PROVISIONER" ] || { echo "GCP_PROVISIONER_SA is not set (docs/gcp-provisioning.md, step 4)"; exit 1; }
+          echo "provider=${PROVIDER%%/workloadIdentityPools/*}/workloadIdentityPools/github-team/providers/github" >> "$GITHUB_OUTPUT"
+          echo "sa=mainbrain-team-access@${PROVISIONER#*@}" >> "$GITHUB_OUTPUT"
+
       - name: "Authenticate to Google Cloud (no key, OIDC from this run)"
         uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
         with:
-          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
-          service_account: ${{ vars.GCP_PROVISIONER_SA }}
+          workload_identity_provider: ${{ steps.who.outputs.provider }}
+          service_account: ${{ steps.who.outputs.sa }}
 
       - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2.2.1
 
@@ -117,7 +136,7 @@ jobs:
           }
 
           for id in $PROJECT_IDS; do
-            # Only the folder's projects: the provisioner owns nothing else,
+            # Only the folder's projects: the identity holds nothing else,
             # and this run must not try to reach anything else.
             parent_type=$(gcloud projects describe "$id" --format='value(parent.type)')
             parent_id=$(gcloud projects describe "$id" --format='value(parent.id)')
