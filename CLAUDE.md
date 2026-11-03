@@ -148,6 +148,16 @@ green does not merge.
   the background, before the first result is read. `.claude/settings.json`
   allows `Agent`, and `library/harness/settings.json` carries the same rule
   into every ops repo.
+- A design session's title starts with 🫟, here and in every spawned
+  project. A design session is one whose goal is a mockup, a design
+  system or its tokens, a logo, a design skill of the library, or a
+  design critique or audit. Once the goal is clear, before the first
+  change, the session reads its title and, when the 🫟 is missing,
+  renames itself `🫟 <title>`, keeping the rest: in a cloud session with
+  `get_session` and `set_session_title` from the `claude-code-remote`
+  tools, loaded through ToolSearch; in a local one, by asking the founder
+  to run `/rename 🫟 <title>`. The ops, app and site skeletons carry the
+  rule in their CLAUDE.md; functions and lib hold no design work.
 
 ## Memory and skills for this repo
 

@@ -117,4 +117,9 @@ of the Vite types make `astro check` fail on the Tailwind plugin.
   `{{PROJECT}}-ops/.claude/skills/decomplexify/SKILL.md`: the screen keeps
   only what its card's first use case needs, and an addition names what
   it removed, or why nothing could go.
+- A design session's title starts with 🫟: a session whose goal is the
+  tokens, a mockup or a design review renames itself `🫟 <title>` before
+  its first change, with `set_session_title` in a cloud session or by
+  asking the founder for `/rename` in a local one. What counts as design,
+  and how to rename, are in `{{PROJECT}}-ops/CLAUDE.md`, "Conventions".
 {{STATIC_UI_RULE}}

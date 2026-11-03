@@ -135,5 +135,10 @@ bash scripts/no-hardcoded-tokens.sh
   read by path from the same folder, and lands after its line in
   `{{PROJECT}}-ops/docs/decisions.md`.
 {{STATIC_UI_RULE}}
+- A design session's title starts with 🫟: a session whose goal is the
+  tokens, a mockup or a design review renames itself `🫟 <title>` before
+  its first change, with `set_session_title` in a cloud session or by
+  asking the founder for `/rename` in a local one. What counts as design,
+  and how to rename, are in `{{PROJECT}}-ops/CLAUDE.md`, "Conventions".
 - Every feature lands with a happy-path test, error logging, and a line in
   `{{PROJECT}}-ops/docs/decisions.md` if an architectural choice was made.
