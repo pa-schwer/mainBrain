@@ -13,28 +13,40 @@ For each repo below, the same settings:
 
 {{CF_REPO_LIST}}
 
+- Project name: the Worker name above
 - Build command: `npm run build`
 - Deploy command: `npx wrangler deploy`
-- Production branch: `prod`
-- Builds for non-production branches: **on**, Preview command
-  `npx wrangler preview`. That is what makes `main` a Preview, which is
-  staging, at `main-<worker>.<subdomain>.workers.dev`.
-- Preview URLs: **on** (the Worker → Settings → Domains & Routes).
+- Preview command: `npx wrangler preview`
+- Enable Preview builds: **on**
+- Protect with Cloudflare Access: off
+- API token: **Create new token**. Never another project's token: it
+  can lack a permission this build needs (the form warns), and revoking
+  it for one project breaks the other.
 - No environment variables{{CF_ENV_NOTE}}
 
-If Settings → Build then shows only the production branch, or Preview
-URLs are off, a session with the C3 token sets both itself; ask it. It
-creates the second build trigger through the API (`POST
-/accounts/<account>/builds/triggers`, same repo connection and build
-token, every branch but `prod`, command `npx wrangler preview`) and turns
-the Worker's previews on (`POST
-/accounts/<account>/workers/scripts/<worker>/subdomain` with
-`previews_enabled: true`). Not `npx wrangler versions upload`: that makes
-a Version URL, which serves nothing while the Worker's previews are off.
+The form has no production-branch field: it takes the repository's
+default branch, `main`, and Settings → Build → Production branch lists
+only branches that exist. `prod` does not, until the first go prod. So
+until then `main` is the production branch, built with staging values
+(only `prod` builds for prod) and served at
+`<worker>.<subdomain>.workers.dev`. Every other branch builds a Preview.
 
-Proof: the build of a push to `main` ends with `Preview URL:
-https://main-<worker>.<subdomain>.workers.dev`, and that URL serves the
-scaffold page.
+At the first go prod, once `prod` exists: Settings → Build → Production
+branch → `prod`, then one push to `main`. From then on `main` is a
+Preview, which is staging, at `main-<worker>.<subdomain>.workers.dev`.
+
+Preview builds live under Settings → Build → **Previews Base**: the
+switch "Builds for Preview branches" and the Preview command. A session
+with the C3 token can read and set the same through the API: `GET` or
+`PATCH /accounts/<account>/builds/workers/<worker tag>`, with
+`{"previews_enabled": true}`,
+`{"previews_base_config": {"deploy_command": "npx wrangler preview"}}`,
+or `{"git_repository": {"branch": "prod"}}` for the switch above. Not
+`npx wrangler versions upload`: that makes a Version URL, not a Preview.
+
+Proof: the first build of `main` is green, and
+`https://<worker>.<subdomain>.workers.dev` serves the scaffold page. The
+first push to another branch ends with a `Preview URL:`.
 
 ### C2 — Custom domains (launch)
 

@@ -2,9 +2,11 @@
 // static build in dist/ through Workers Static Assets. Cloudflare marks the
 // older Pages flow as legacy, so new projects go here.
 //
-// Workers Builds runs `npm run build` and then `npx wrangler deploy` on each
-// push. The production branch is `prod`; every other branch gets a preview
-// deployment, which is how `main` becomes staging.
+// Workers Builds runs `npm run build` on each push, then `npx wrangler
+// deploy` on the production branch and `npx wrangler preview` on any other.
+// The production branch is `prod`, and `main` is a Preview, which is
+// staging; until the first go prod creates `prod`, `main` is production
+// (HANDOFF.md C1).
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "{{PROJECT}}-site",

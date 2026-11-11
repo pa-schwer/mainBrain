@@ -72,10 +72,13 @@ Firestore imports it.
 
 `wrangler.jsonc` describes an assets-only Worker: no script, `dist/` served
 as static files, single-page-application handling so the client router owns
-every path that is not a file. Workers Builds runs `npm run build` then
-`npx wrangler deploy` on every push. The production branch is `prod`;
-every other branch is a preview deployment, and `main` is staging. Setup
-is in `HANDOFF.md`.
+every path that is not a file. Workers Builds runs `npm run build` on
+every push, then `npx wrangler deploy` on the production branch and
+`npx wrangler preview` on any other. The production branch is `prod`,
+and `main` is a Preview, which is staging. Until the first go prod
+creates `prod`, `main` is the production branch, and staging is served at
+the Worker's own `workers.dev` address (`HANDOFF.md` C1). Setup is in
+`HANDOFF.md`.
 
 ## Design tokens
 

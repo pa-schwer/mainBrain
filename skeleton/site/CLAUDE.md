@@ -66,9 +66,12 @@ names it.
 
 `wrangler.jsonc` describes an assets-only Worker: no script, `dist/` served
 as static files. Cloudflare marks the older Pages flow as legacy, so this
-is the Workers Builds path: on every push Cloudflare runs `npm run build`
-then `npx wrangler deploy`. The production branch is `prod`; every other
-branch is a preview deployment, and `main` is staging. Setup is in
+is the Workers Builds path: on every push Cloudflare runs `npm run build`,
+then `npx wrangler deploy` on the production branch and
+`npx wrangler preview` on any other. The production branch is `prod`, and
+`main` is a Preview, which is staging. Until the first go prod creates
+`prod`, `main` is the production branch, and staging is served at the
+Worker's own `workers.dev` address (`HANDOFF.md` C1). Setup is in
 `HANDOFF.md`.
 
 `public/_headers` applies; Workers Static Assets reads it.
