@@ -65,6 +65,11 @@ git fetch origin main
 git push origin origin/main:prod
 ```
 
+The first go prod creates `prod`, so it also moves each front-end
+Worker's production branch from `main` to `prod` (`HANDOFF.md` C1).
+Cloudflare offers only branches that exist, so until then `main` builds
+as production, on staging values.
+
 ## Branches and merges
 
 Features land on a branch and go through a pull request, because the pull

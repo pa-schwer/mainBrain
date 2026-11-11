@@ -25,8 +25,9 @@ both projects. The app is served by Cloudflare, not by Firebase Hosting,
 and Firebase opens a sign-in provider's sheet (Google and the like), or
 lets an email link continue into the app, only from a domain it lists:
 
-- `{{FIREBASE_STAGING}}`: the host of the `main` preview URL (C1's proof),
-  without `https://` and without a path
+- `{{FIREBASE_STAGING}}`: the host that serves `main`, without `https://`
+  and without a path: `<worker>.<subdomain>.workers.dev` until the first
+  go prod, then `main-<worker>.<subdomain>.workers.dev` as well (C1)
 - `{{FIREBASE_PROD}}`: `{{APP_DOMAIN}}`, once C2 is done
 
 Keep `localhost` and the `firebaseapp.com` and `web.app` entries Firebase
