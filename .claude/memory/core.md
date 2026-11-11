@@ -36,7 +36,8 @@ reference logos go to the container cache, never into a repo.
 `decomplexify` (Rémi Guyot's method) decides what a screen keeps, at the
 spec, the mockup and the UI merge; impeccable styles what stays. unlazy is
 standing; parallel subagents are a convention, since the Agent tool
-needs no permission.
+needs no permission. LinkedIn splits in two: `linkedin-profile-optimizer`
+reworks a profile from pasted text, `social` writes the posts.
 → topics/library.md
 
 ## Product board

@@ -22,6 +22,8 @@
     "activation": "the path from paid to first value",
     "experiments": "design an A/B test before a change ships as one",
     "outbound": "cold outreach: a qualified prospect list, cold email that gets replies, replies scored and routed",
+    "linkedin-profile": "a LinkedIn profile audited section by section and rewritten: headline, About, Featured, banner, experience, skills",
+    "social": "organic social content: posts, carousels, short-form video scripts, a calendar, on LinkedIn, X, Instagram, TikTok, Facebook",
     "cloudflare": "operate the front ends on Cloudflare: Workers, Wrangler, DNS, domains",
     "board": "specs as cards on the Notion product board, read and moved by every session that builds",
     "completion": "substantial work finished against written, runnable gates and proven before the done report",
@@ -190,6 +192,18 @@
       "path": "skills/revops", "origin": "coreyhaines31/marketingskills", "license": "MIT",
       "summary": "Lead lifecycle stages with entry and exit rules, fit-plus-engagement scoring, routing and handoff. Qualifies what outbound brings in.",
       "needs": ["outbound"], "default_for": [], "local_change": false
+    },
+    {
+      "name": "linkedin-profile-optimizer", "kind": "skill", "mode": "on-demand",
+      "path": "skills/linkedin-profile-optimizer", "origin": "sergebulaev/linkedin-skills", "license": "MIT",
+      "summary": "Audits a LinkedIn profile pasted into the session on nine sections (photo, banner, headline, About, Featured, Experience, Skills, URL, recommendations), then rewrites what fails, before and after. No key, no network. The one advisor on the profile; posts belong to `social`, outreach to `cold-email`.",
+      "needs": ["linkedin-profile"], "default_for": [], "local_change": true
+    },
+    {
+      "name": "social", "kind": "skill", "mode": "on-demand",
+      "path": "skills/social", "origin": "coreyhaines31/marketingskills", "license": "MIT",
+      "summary": "Organic social content for LinkedIn, X, Instagram, TikTok and Facebook: posts, threads, carousels, short-form video scripts, calendars, build-in-public posts from commits, listening. The one advisor on what to post; it holds nothing on the profile.",
+      "needs": ["social"], "default_for": [], "local_change": false
     },
     {
       "name": "signup", "kind": "skill", "mode": "on-demand",

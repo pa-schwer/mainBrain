@@ -146,3 +146,27 @@ and tests, and no key.
   (blogdumoderateur, HORSE/CORSE, absence test, fanatical focus), the
   LunaWeb interview (First Use Case, ego, 2017 removal roadmap), La
   Fabrique by CA (280-character pitch, toboggan product, golden nuggets).
+
+## LinkedIn: profile and posts are two skills [2026-11-11]
+
+- skills.sh search for "linkedin", by installs: deepline
+  linkedin-url-lookup 38.3K (enrichment, not advice), resumeskills
+  linkedin-profile-optimizer 13.2K (recruiter-facing only), samber
+  linkedin-ghostwriting 5.8K, claude-office-skills LinkedIn Automation
+  5.3K (automates the account: the risk cold-email warns about),
+  kostja94 linkedin-posts 3.7K, sergebulaev linkedin-marketing 2K.
+  coreyhaines31 `social` 96.1K is the leader for posts.
+- `social` (2.5.2 at `3e72962`) holds nothing on the profile: no
+  headline, About, Featured or banner. Posts, carousels, calendars,
+  short-form video, listening. Taken unmodified under the `social` need.
+- The profile takes `linkedin-profile-optimizer` from
+  `sergebulaev/linkedin-skills` (MIT, `8f8bc4b`), one skill of twelve,
+  under `linkedin-profile`. It works from pasted profile text: no actor
+  reads a profile URL. The bundle's other skills stay out: post writer,
+  planner and humanizer double `social` and `stop-slop`; its Python
+  posts through Publora and reads through Apify, both keyed.
+- The addendum: no figure in a rewrite unless the person gave it;
+  upstream's uplift benchmarks are a vendor's, cited without a link;
+  output in `linkedin/profiles/` in the ops repo, never here.
+- LinkedIn outreach already sits in `cold-email`,
+  `references/linkedin-outreach.md`.
