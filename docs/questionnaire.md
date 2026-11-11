@@ -76,6 +76,8 @@ list below is what is asked.
 | `activation` | "Is there a path from paid to first value that must not leak?" | onboarding |
 | `experiments` | "Will changes be A/B tested?" | ab-testing |
 | `outbound` | "Will the project prospect by cold email: build lists, write the emails, qualify the replies?" | prospecting + cold-email + revops |
+| `linkedin-profile` | "Will a session rework LinkedIn profiles: audit one section by section, then rewrite the headline, About, Featured and experience?" | linkedin-profile-optimizer, writing to `linkedin/profiles/` in the ops repo |
+| `social` | "Will a session write what the project posts: LinkedIn posts and carousels, threads, short-form video scripts, a content calendar?" | social |
 | `validation` | "Will a session test the business itself: competitors, simulated buyers, price, unit economics, a launch plan, the business plan?" | the Founder skill pack: the eleven `founder-*` skills, writing to `founder/` in the ops repo |
 | `skill-authoring` | "Will this project write skills of its own?" | skill-creator |
 
