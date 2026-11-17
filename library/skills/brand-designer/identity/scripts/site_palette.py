@@ -401,7 +401,7 @@ def _download(url, user_agent):
 
     if not svgsafe.public_host(urllib.parse.urlsplit(url).hostname):  # LOCAL CHANGE (mainBrain)
         return 0, url, {}, b""
-    opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx), Redirects())
+    opener = urllib.request.build_opener(*svgsafe.guarded_handlers(ctx), Redirects())  # LOCAL CHANGE (mainBrain)
     req = urllib.request.Request(url, headers={"User-Agent": user_agent, "Accept": "*/*",
                                                "Accept-Encoding": "gzip, deflate"})
     try:
