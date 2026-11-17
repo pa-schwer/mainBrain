@@ -127,11 +127,16 @@ What a human must still verify, listed in section 7 of the file every time:
 
 ## Gate
 
+At the checkpoint, `review.md` holds its critique sections and the list of what was not run;
+the rubric, the blind tests on the system and the fixes wait for Part B. The lines below on
+the rubric, the blind tests and the seven sections apply after delivery.
+
 A script or a count can check:
 - [ ] The checkpoint message puts brief and criteria before the first set.
 - [ ] Between one and four sets; each has an idea sentence, a trade-off and its checks.
 - [ ] One set carries "recommended"; two or more reasons cite a criterion.
-- [ ] The message and the review contain none of: like, love, nice, clean, modern, off.
+- [ ] Your own sentences in the message and the review use none of these as a whole word of
+      taste: like, love, nice, clean, modern, off. ("Trade-off" and "reads like" pass.)
 - [ ] Every critique note carries an idea or execution tag.
 - [ ] Ten rubric lines, each with a verdict and a cited artefact; no sum, no average, no grade.
 - [ ] Three blind tests recorded with question and answer.

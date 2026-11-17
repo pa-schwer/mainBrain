@@ -1,8 +1,9 @@
 # Mark and type craft
 
 Trains the drawing: mark type, construction, optical corrections, small cut, wordmark, brand
-type, lockups, tests. Writes no Markdown: its evidence is the contact sheet, the audits, the
-results table, the build gates. Tags: `[fetched]` `[secondary]` `[house start value]`
+type, lockups, tests. It writes `brand/<slug>/marks.md`: per mark the type, the reason, the 16 px
+reduction and the constants, then the results table. The rest of its evidence is the contact
+sheet, the audits and the build gates. Tags: `[fetched]` `[secondary]` `[house start value]`
 `[unverified]`.
 
 ## What the best do
@@ -70,16 +71,18 @@ why in `<skill>/mark/references/visual-techniques.md` §3; against its percentag
     1 to 3 % of height (`[house start value]`); centre lopsided shapes by mass (`[unverified]`).
 11. A circle beside a square of equal height looks small. Material's keylines pair a 152 dp
     square with a 176 dp circle (`[secondary]`). Start 13 to 16 % larger (`[house start value]`).
-12. Irradiation: white on dark looks heavier, so the reversed mark gets its own lighter drawing
-    (Logo Geek `[fetched]`, no number given). Start with an inset of 1 to 2 % of the stroke
-    width (`[house start value]`) and judge at 32 px.
+12. Irradiation: white on dark looks heavier (Logo Geek `[fetched]`, no number given). Before
+    the pick the engine reuses the positive paths: judge the reversed row of the contact sheet
+    at 32 px and name the defect when it looks heavier. The lighter drawing is kit-stage work,
+    an inset of 1 to 2 % of the stroke width to start (`[house start value]`).
 13. Gaps are strokes. The narrowest gap measures 0.8 of the narrowest stroke or more (`[house
     start value]`). Design each counter as a shape. A second reading is a bonus: the mark works
     when a viewer misses it (`[unverified]`).
 14. The small cut is a separate drawing in `symbol_small_svg` or `logo.monogram`: heavier, more
     open, fewer parts. At 16 px, main strokes cover 2 px or more (12.5 units on the 100 grid),
-    gaps 1 px or more, edges on whole pixels (`[house start value]`). Thin lines and text die
-    in small icons (Apple HIG,
+    gaps 1 px or more (`[house start value]`). The engine refits the small cut to its ink box, so
+    pixel alignment set on the grid does not survive: the 16 px render is the judge. Thin lines
+    and text die in small icons (Apple HIG,
     https://developer.apple.com/design/human-interface-guidelines/app-icons.md `[fetched]`).
 15. The pipeline outlines the wordmark from the set's display face. You add one ownable detail
     in `wordmark_detail_svg`, taken from the name: a ligature across a real problem pair, a cut
@@ -145,7 +148,7 @@ Results table, one column per candidate, pass or fail with the evidence in a few
 | Test | A | B | C |
 |---|---|---|---|
 | One colour, black on white | | | |
-| Reversed, own drawing | | | |
+| Reversed: same weight as the positive at 32 px | | | |
 | 16 px and 32 px (small cut) | | | |
 | Blur: silhouette holds | | | |
 | Mirror | | | |

@@ -58,8 +58,10 @@ own rule.
 1. List 8 to 15 brands in four roles: direct competitors, substitutes (including the habit the
    buyer has today), the category leader, one or two admired outsiders. Start from `brief.md`
    and the intake answers; fill gaps with web search.
-2. Collect each brand's real mark with web fetch, from its own site. Look at it. Record the URL;
-   describing a mark from memory does not count.
+2. Collect each brand's real mark from its own site and look at it: a headless-browser
+   screenshot of the header, or the logo file itself. A text fetch shows no mark. Record the
+   URL; describing a mark from memory does not count. A site that blocks the browser goes in
+   the table as "blocked", with what you could see. `field-notes.md` says where files go.
 3. Read the sector's conventions in the reference library (run `bash <skill>/scripts/setup.sh`
    once per container):
    `python3 <skill>/mark/scripts/search_library.py --industry X --summary`. The library leans
@@ -87,7 +89,10 @@ own rule.
     and "Competitor type map" in `<skill>/identity/references/type.md`. That library holds
     colours; do not query it for marks. Link the results from `audit.md`.
 11. Later, when marks exist, run the shelf test on each shortlisted one:
-    `python3 <skill>/mark/scripts/preview_sheet.py … --refs-industry X -o preview.html`.
+    `python3 <skill>/mark/scripts/preview_sheet.py <mark.svg> --refs <rival.svg …> -o
+    preview.html` with the rivals' logo files you collected; `--refs-industry X` fills the shelf
+    from the library when it holds the sector. With neither, judge the shelf by eye on your
+    screenshots and say so. `field-notes.md` names the file to pass and how to see the sheet.
 12. Run the look-alike screen on each shortlisted mark, before the founder sees it:
     - Write the dominant element in five words ("circle split by diagonal bar").
     - Search that description and the symbol subject in four places: the marks table; the
@@ -95,7 +100,10 @@ own rule.
       sector added to the query; the public registers by hand (USPTO, EUIPO, WIPO Global Brand
       Database) for the classes and countries the brand trades in.
     - Log each search: date, source, query, nearest match, its sector. A source you could not
-      reach goes in the log as "not searched".
+      reach goes in the log as "not searched" with the reason, and the checkpoint message
+      repeats it: a row that says "not searched" fills the log and clears nothing.
+    - The brand's name stays out of web searches until the founder agrees to it; an unreleased
+      name sent to a search engine is a disclosure.
     - Decide. Same sector plus same dominant element: drop the mark or redraw it. Different
       sector: note it and go on.
 13. Write `brand/<slug>/audit.md` with these sections, in this order:

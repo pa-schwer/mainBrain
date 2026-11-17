@@ -38,7 +38,8 @@ an accident hunt per finalist. Tags: `[fetched]` `[secondary]` `[house start val
    falling out of it. A visual double meaning helps memory (Rand, 1988 interview `[secondary]`).
 5. A route is a different idea. A weight, a colour or a rotation of the same idea is a variation
    and counts once.
-6. Three routes go forward. They differ in idea and in mark type (wordmark, letterform, symbol);
+6. Three routes go forward. They differ in idea and in mark type (wordmark, letterform, symbol:
+   `field-notes.md` maps these to the engine's `logo.type` values);
    `<skill>/identity/references/cohesion.md` sets how the sets differ on the axes.
 7. Each route becomes one set with its 4 to 6 best lines, and the engine builds one of them
    (`<skill>/identity/references/logo.md`, Process).

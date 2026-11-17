@@ -19,9 +19,10 @@ Two vendored engines and a training layer make this skill.
 
 The engines know how to draw, measure and export. The cards hold what a
 script cannot: what to ask, what to refuse, when a mark is ownable, how
-to present. Read `references/routing.md` before the first run; it names
-the one source for each phase and the engine sections this skill
-retires.
+to present. Read `references/routing.md` and `references/field-notes.md`
+before the first run. The first names the one source for each phase and
+the engine sections this skill retires; the second says what to do when
+a step cannot be done and lists the engines' quirks.
 
 ## The stance
 
@@ -74,8 +75,8 @@ The ops repo, in `brand/<slug>/` at its root:
 `brand.py init "<Name>" --root brand`. The identity engine owns that
 tree (`brief.json`, `sets.json`, `sets/`, `board.png`, `kit/`); its
 scripts read it, so its layout never bends. You add beside it
-`brief.md`, `audit.md`, `concepts.md`, `review.md`, and after the pick
-`system.md` and `rollout.md`. Product repos hold no concept and no
+`brief.md`, `audit.md`, `concepts.md`, `marks.md`, `review.md`, and
+after the pick `system.md` and `rollout.md`. Product repos hold no concept and no
 master file.
 
 ## One source per domain
@@ -138,19 +139,21 @@ Put independent commands in one turn. The identity engine's own turn
 plan is in `identity/ENGINE.md` §2; this run wraps it.
 
 1. **Read first.** `docs/product.md`, `BRAND.md`, `founder/brand.md`,
-   any existing assets. Open the work folder with
+   any existing assets; an absent file is recorded, and the request
+   stands in for it. Open the work folder with
    `brand.py init "<Name>" --root brand`, then read an existing site
    into it (`brand.py site extract URL WORK`).
-2. **Brief** (card 01). One intake message, only what still blocks.
-   Write `brief.md`. With the founder in the chat, wait for their yes
-   on the one idea. With no founder to answer, state the assumptions at
-   the top of `brief.md` and go on.
-3. **Init again** with what the brief settled:
-   `brand.py init "<Name>" --root brand --force --sets 3 --langs …`
-   and the sector, audience, attributes, competitors and real brand
-   copy.
-4. **Audit** (card 02). Competitors' real marks, colours and type; the
+2. **Brief, first half** (card 01). One intake message, only what
+   still blocks. Write `brief.md` sections 1 to 9. With the founder in
+   the chat, wait for their yes on the one idea. With no founder to
+   answer, state the assumptions at the top of `brief.md` and go on.
+3. **Audit** (card 02). Competitors' real marks, colours and type; the
    codes; the white space. Write `audit.md`.
+4. **Brief, second half, and init.** Ideas, axes and criteria in
+   `brief.md` sections 10 to 12, then
+   `brand.py init "<Name>" --root brand --force --sets 3 --langs …`
+   with the sector, audience, attributes, competitors and real brand
+   copy.
 5. **Concepts** (card 03). Cliché purge, word map, thirty one-line
    concepts in `concepts.md`, three routes. Each route becomes a set.
 6. **Draft and draw** (card 04, `identity/ENGINE.md` §3 and §4). All
@@ -161,10 +164,13 @@ plan is in `identity/ENGINE.md` §2; this run wraps it.
    the look-alike screen (card 02) on each mark.
 8. **Build.** `brand.py build WORK`; look at `review.png`; clear every
    gate.
-9. **Review** (card 07). Critique your own sets against the brief
-   first. Drop a set you would not defend. Write `review.md`.
+9. **Review** (card 07, Part A). Critique your own sets against the
+   brief first. Drop a set you would not defend. Write the critique
+   and the list of what you could not run in `review.md`; its rubric
+   waits for delivery.
 10. **Checkpoint.** The message of `identity/ENGINE.md` §5, opened with
-    the brief in three lines and the criteria. Then stop.
+    the brief in three lines and the criteria, sent with `board.png`
+    itself. Then stop.
 11. **After the pick** (cards 05 and 06). Misuses of this mark, `brand.py
     kit`, the web icons, `system.md`, `rollout.md`, the hand-over pull
     requests.
