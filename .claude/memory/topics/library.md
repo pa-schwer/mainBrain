@@ -170,3 +170,38 @@ and tests, and no key.
   output in `linkedin/profiles/` in the ops repo, never here.
 - LinkedIn outreach already sits in `cold-email`,
   `references/linkedin-outreach.md`.
+
+## Brand need: brand-designer replaces logo-design [2026-11-17]
+
+- skills.sh search for "logo branding", "brand identity", "logo design",
+  "brand guidelines", read before ranking: `fatihaydost/brand-identity-skill`
+  (MIT, 333 installs) is the only one that builds logo, type and palette
+  together and measures them; `arnabbagxd/brand-building-skills` (2.8K)
+  and its derivative `cofoundy/brand-skills` stop at a brief for a
+  designer; `rampstackco/claude-skills` splits logo and identity inside a
+  suite of 40; `anthropics/skills` brand-guidelines applies one company's
+  guide; `rknall/claude-skills` SVG Logo Designer (9.1K) has no license
+  and nothing the two engines lack but three small ideas.
+- One bundle, `library/skills/brand-designer/`: `identity/` (brand-identity
+  at `af7ba40`), `mark/` (the former logo-design at `7340903`), and
+  `SKILL.md`, `references/`, `evals/`, `scripts/setup.sh` written here.
+  Both upstream `SKILL.md` are `ENGINE.md`. The identity engine is the
+  spine; `references/routing.md` holds the phase table and the conflicts.
+- The identity engine runs in the web container as it is: `uv` is on
+  PATH and fetches fonttools, uharfbuzz and skia-pathops; it drives
+  `/usr/bin/google-chrome` over DevTools and adds `--no-sandbox` itself;
+  Google Fonts files download through the session proxy. Three sets to
+  the board take under a minute of machine time, the kit twelve seconds.
+- Its kit has no `favicon.ico`, apple-touch icon, maskable icon, manifest
+  or head snippet. `mark/scripts/export_variants.py --web-icons` makes
+  them from the kit's `symbol-only.svg`; `evals/smoke.sh` proves the
+  bridge end to end.
+- Its `assets/library/` names 318 real brands with their sites: fetched
+  by `setup.sh` into `~/.cache/brand-identity/library`, like the logos.
+- The founder's method for a skill: research the competencies that
+  separate the best practitioners, then write the training for each
+  (rules, procedure, gate, drill). No file held it before this bundle;
+  `references/sources.md` and `evals/README.md` show it applied. Three
+  research agents by slice, one comparing the bundles, three writing the
+  cards from the research files.
+

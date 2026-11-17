@@ -1,0 +1,64 @@
+{
+  "skill_name": "brand-designer",
+  "evals": [
+    {
+      "id": 1,
+      "name": "full-identity-no-site",
+      "prompt": "We're starting Tidewater, an app that tells year-round sea swimmers on the Atlantic coast when to get in: tide, swell, water temperature. No site yet, no logo, no colours. English and French. The app shows a lot of times and temperatures. Three words: calm, exact, salty. People compare us with the big surf forecast apps. I'm not around to answer questions today, go as far as you can and show me what to pick from.",
+      "expected_output": "States its assumptions at the top of brief.md and proceeds. Writes brief.md, audit.md, concepts.md, builds three sets, clears the gates, writes review.md, shows the board with one recommendation and stops before any kit.",
+      "expectations": [
+        "brief.md holds one idea in a single sentence and an onliness sentence that turns false when a competitor's name replaces the brand's",
+        "brief.md lists three to five attributes, each with its opposite, and a list of things the identity will not say",
+        "audit.md tabulates at least eight brands with their mark type, lead colour and type class, names at least three category codes with counts and a keep, break or avoid decision each",
+        "concepts.md lists the category clichés it bans and at least thirty one-line concepts tagged with at least five methods",
+        "The three sets differ in idea and in mark type, and at least one set uses nothing from the model-defaults list",
+        "Every mark is built from fills with no text element, each wordmark comes from an outlined open-license face, and each set has a small cut for 16 px",
+        "brand.py build reports no failed gate on any set that is shown",
+        "audit.md holds a look-alike screen for each shown mark with its dominant element, the searches run and the sentence that this is not legal clearance",
+        "review.md critiques each set against the brief before general criteria and states what each set gives up",
+        "The final message restates the brief and the criteria before the sets, recommends exactly one set and stops without building a kit"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "palette-for-a-kept-logo",
+      "prompt": "Our bakery chain Mie has a logo we're keeping (a black wordmark, I'll paste the SVG) and Georgia everywhere on the site. What we lack is colour: today it's black on white plus whatever the last designer liked. Give me palettes to choose from. French only. We print boxes on kraft paper.",
+      "expected_output": "Treats the logo as kept and the type as kept, asks only what blocks, builds palettes around them, checks the kraft ground, invents no print values.",
+      "expectations": [
+        "The logo and the typeface are recorded as kept and no set changes either",
+        "Each palette is argued from the category's colours and the brief, with no claim that a colour causes a feeling or a sale",
+        "Contrast is measured for every text pair in light mode and on the kraft ground",
+        "No CMYK or Pantone value appears; print values are left to the printer against a proof",
+        "The checkpoint recommends one palette, gives a trade-off for each and stops"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "critique-existing",
+      "prompt": "Here's our current identity for Lumen Ledger, bookkeeping software for freelancers: navy and gold, a shield with an L in it, Poppins. Tell me honestly what you think and what you'd change first.",
+      "expected_output": "A critique in the identity engine's format: first impression, gates, findings per component, three fixes with effect and cost, no score.",
+      "expectations": [
+        "States the presumed brief or asks at most three questions before judging",
+        "Names what works before what does not, and tags each finding as a problem of idea or of execution",
+        "Flags the navy and gold pairing, the shield and the typeface against the category and the model-defaults list with a reason, not as a ban",
+        "Gives exactly three changes in order, each with what changes, the measured or stated effect and the cost",
+        "Gives no overall score and marks every unchecked gate as not checked"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "after-the-pick",
+      "prompt": "Set B it is. Build everything we need to launch the site and the app next month.",
+      "expected_output": "Adds misuses specific to the mark, builds the kit, exports the web icons with the mark engine, writes system.md and rollout.md, proposes the tokens without writing them into a product repo, lists what stays human.",
+      "expectations": [
+        "The kit folder holds the guidelines PDF, the logo variants, the tokens and fonts.md",
+        "A web folder holds favicon.ico, an SVG favicon, the apple-touch icon, 192 and 512 icons, a separate maskable icon, a web manifest and a head snippet",
+        "The misuse page shows at least one misuse only this mark can suffer",
+        "system.md declares the constants and the variables of the identity and derives each system element from the mark's geometry or the idea",
+        "rollout.md lists the touchpoints with an owner and a status each, an audit date and the rule for changing the identity",
+        "No colour is written into a product repo's tokens.css; the tokens are presented as a proposal for the design source",
+        "The hand-over names trademark clearance, print proofs and font purchases as the founder's"
+      ]
+    }
+  ]
+}

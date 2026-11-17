@@ -24,7 +24,7 @@ _use_utf8_console()
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LIBRARY_DIR = os.path.join(SKILL_DIR, "assets", "library")
 LIBRARY_SVG_DIR = os.path.join(LIBRARY_DIR, "svg")
-# LOCAL CHANGE (mainBrain): the vendored bundle ships no svg/; scripts/setup.sh fetches it here. Strip before updating.
+# LOCAL CHANGE (mainBrain): the vendored bundle ships no svg/; ../scripts/setup.sh (bundle root) fetches it here. Strip before updating.
 if not os.path.isdir(LIBRARY_SVG_DIR):
     LIBRARY_SVG_DIR = os.path.join(os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache"), "logo-design", "svg")
 CATALOG_PATH = os.path.join(LIBRARY_DIR, "catalog.json")
