@@ -89,8 +89,9 @@ ops installed it) as a brief. No value from it enters
 tokens; site and app keep Tailwind's defaults until then, and the static
 UI source (`ui-ux-pro-max`, or `impeccable`) stays the one advisor there.
 
-**The logo brief goes to `logo-design`** where ops installed it, and this
-skill draws no concept: that skill owns the mark. Without it, logo
+**The logo brief goes to `brand-designer`** where ops installed it, and this
+skill draws no concept: that skill owns the mark, the brand's type and
+its palette. Without it, logo
 concepts stay in `founder/`, marked as concepts, and none ships in a
 product repo.
 

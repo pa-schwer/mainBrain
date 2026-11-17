@@ -15,7 +15,7 @@
     "components": "one library per UI task, each pick a recorded decision",
     "motion": "animation and interaction, plus a merge gate for it",
     "design": "screens mocked up in the ops repo before they are built, under a design director with deterministic rules; replaces the default static UI source",
-    "logo": "a logo drawn in the ops repo: a brief, three SVG concepts tested down to 16 px, then the kit for the one the founder picks: variants, favicon and app icons, a usage guide",
+    "logo": "the brand's identity designed in the ops repo, or any part of it: a one-idea brief, three sets of logo, type and palette measured and compared, then for the set the founder picks the guidelines, logo files, favicon and app icons, tokens as a proposal, the system and a rollout plan",
     "marketing-copy": "conversion copy for public pages",
     "conversion": "audit a page or form that already exists",
     "signup": "self-serve account creation flow",
@@ -102,11 +102,11 @@
       "local_change": true, "local_change_note": "Addendum: context files are docs/product.md and docs/design-system.md, never a root PRODUCT.md or DESIGN.md; static UI is its own, motion goes through animate, copy through BRAND.md, what a screen keeps through decomplexify (distill starts there); telemetry off, no hook, no pin; variants as sibling mockups. The launcher checks the engine download against scripts/engine.sha256, pinned here."
     },
     {
-      "name": "logo-design", "kind": "skill", "mode": "on-demand",
-      "path": "skills/logo-design", "origin": "kaankiziltug/logo-design-skill", "license": "MIT",
-      "summary": "Identity designer for the mark: brief, word map, concepts across mark types, geometric SVG construction, optical corrections, tests at 16 px, one colour and reversed, a concept sheet at a founder checkpoint, then lockups, colour, the favicon and app-icon set and a usage guide. Standard-library Python, no API key; renders through Chromium. Works in the ops brand/logo/ folder.",
+      "name": "brand-designer", "kind": "skill", "mode": "on-demand",
+      "path": "skills/brand-designer", "origin": "mainBrain, over fatihaydost/brand-identity-skill and kaankiziltug/logo-design-skill", "license": "MIT",
+      "summary": "Senior identity designer for the whole brand: a one-idea brief, a category audit with a look-alike screen, thirty concepts cut to three routes, then logo, type and palette built together and measured (contrast, colour blindness, glyph coverage, font licences, 16 px renders), a board at a founder checkpoint, and for the chosen set a guidelines PDF, logo files, the favicon and app-icon set, tokens, an identity system and a rollout plan. Twelve competencies, each with its rules, gate and drill, over two vendored engines. Python with uv, Chromium, no API key. Works in the ops brand/<slug>/ folder.",
       "needs": ["logo"], "default_for": [],
-      "local_change": true, "local_change_note": "Addendum: setup.sh fetches the 1,432 trademarked reference logos into ~/.cache, never into a repo, and wraps Playwright's headless shell, adding --no-sandbox as root only; work lives in ops brand/logo/; the brief comes from founder/brand.md when present; the pick is the founder's; icons reach site and app by pull request; colours wait for the design source. A marked fallback in svglib.py reads the cache when the bundle has no svg/."
+      "local_change": true, "local_change_note": "SKILL.md, references/, evals/ and scripts/setup.sh are mainBrain's. identity/ is brand-identity at af7ba40 and mark/ is logo-design at 7340903 (1.4.5), each with its LICENSE; both SKILL.md files are renamed ENGINE.md so one skill loads. setup.sh fetches the two reference libraries (1,432 logos and 318 site palettes of real brands) into ~/.cache, never into a repo, and wraps Playwright's headless shell for the mark engine; marked fallbacks in identity/scripts/build_catalog.py and mark/scripts/svglib.py read the cache. references/routing.md names the one source per phase and the engine sections retired."
     },
     {
       "name": "cloudflare", "kind": "plugin", "mode": "on-demand",
@@ -271,7 +271,7 @@
       "path": "skills/founder-brand", "origin": "Jakeschincariol/founder-skill", "license": "MIT",
       "summary": "Name candidates screened against the USPTO index, with the domain and handle checks to run, a promise, a voice and a brief for the look.",
       "needs": ["validation"], "default_for": [],
-      "local_change": true, "local_change_note": "Addendum: founder/brand.md is a proposal, BRAND.md stays the founder's; the look is a brief for the design source, never a token; ui-ux-pro-max keeps static UI; the logo brief goes to logo-design where ops has it. scripts/tm-screen.py screens name candidates against the USPTO index before the shortlist."
+      "local_change": true, "local_change_note": "Addendum: founder/brand.md is a proposal, BRAND.md stays the founder's; the look is a brief for the design source, never a token; ui-ux-pro-max keeps static UI; the logo brief goes to brand-designer where ops has it. scripts/tm-screen.py screens name candidates against the USPTO index before the shortlist."
     },
     {
       "name": "founder-ops", "kind": "skill", "mode": "on-demand",

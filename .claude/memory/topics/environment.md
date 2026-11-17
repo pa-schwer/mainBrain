@@ -87,8 +87,15 @@ supported"). With it, the full build in `--headless=new --screenshot`
 mode hung for 60 s without writing a file. The headless shell,
 `/opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell`,
 with `--no-sandbox` and the same flags wrote the PNG. A tool that looks
-for `chromium` on PATH needs a wrapper over the headless shell; the
-logo-design `setup.sh` writes one.
+for a browser on PATH needs a wrapper over the headless shell; the
+brand-designer `setup.sh` writes one.
+
+Since 2026-11 the container also has `/usr/bin/google-chrome`, a script
+over the full build that adds `--no-sandbox` as root. It still hangs on
+`--screenshot`, and a tool that finds it first never reaches the
+headless shell: the wrapper takes the name `google-chrome` and goes
+first on PATH. A tool that drives Chrome over DevTools (the identity
+engine of brand-designer) works with the full build as it is.
 
 ## GitHub raw downloads are refused; git clones are not [2026-10-27]
 

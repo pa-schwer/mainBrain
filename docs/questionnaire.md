@@ -69,7 +69,7 @@ list below is what is asked.
 |---|---|---|
 | `motion` | "Will the site or app have animations, transitions, gestures worth getting right?" | animate + review-animations (a merge gate) |
 | `design` | "Will the founder mock up screens in the ops repo before they are built?" | impeccable, in place of ui-ux-pro-max, and the ops `design/` folder with its gate |
-| `logo` | "Does the project need its logo drawn: concepts first, then the favicon, app icons and usage guide for the one the founder picks?" | logo-design, working in `brand/logo/` in the ops repo; `setup.sh` fetches its reference logos into the container cache |
+| `logo` | "Does the project need its brand identity designed, or a part of it: a logo, brand fonts, a palette, then the favicon, app icons and guidelines for the set the founder picks?" | brand-designer, working in `brand/<slug>/` in the ops repo; `setup.sh` fetches its reference libraries into the container cache |
 | `marketing-copy` | "Will a session write the words that sell it?" | copywriting |
 | `conversion` | "Is there a page or form to optimize once it has traffic?" | cro |
 | `signup` | "Is there a self-serve account creation flow?" | signup |
