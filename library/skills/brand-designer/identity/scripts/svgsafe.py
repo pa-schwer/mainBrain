@@ -86,9 +86,15 @@ def sanitize_svg(text):
     return ET.tostring(root, encoding="unicode")
 
 
-def _proxied():
-    proxies = urllib.request.getproxies()
-    return bool(proxies.get("https") or proxies.get("http"))
+def _proxied(host, scheme="https"):
+    """True when a request for this host and scheme leaves through a configured proxy. Asked per request: a proxy
+    set for one scheme, or bypassed for a host through no_proxy, proxies nothing else."""
+    if not urllib.request.getproxies().get(scheme):
+        return False
+    try:
+        return not urllib.request.proxy_bypass(host or "")
+    except (OSError, ValueError):
+        return False
 
 
 def _checked_addresses(host):
@@ -107,16 +113,18 @@ def _checked_addresses(host):
     return [str(a) for a in addresses] if addresses and all(a.is_global for a in addresses) else []
 
 
-def public_host(host):
+def public_host(host, scheme="https"):
     """False for a host that names this machine, a private or link-local network, or a metadata service.
 
-    With a proxy configured the proxy resolves the name, so a name that does not resolve here passes and the proxy
-    fetches it; an address literal and a local name are still refused. With no proxy the answer fails closed, and
-    guarded_handlers() makes the connection go to the address that was checked."""
+    When this request leaves through a proxy, the proxy resolves the name: a name that does not resolve here
+    passes, while an address literal, a local name, and a name that resolves here to a private address are
+    refused. With no proxy for it the answer fails closed, and guarded_handlers() makes the connection go to the
+    address that was checked."""
     host = (host or "").strip("[]").lower()
     if _checked_addresses(host):
         return True
-    if not _proxied() or not host or host == "localhost" or host.endswith((".localhost", ".local", ".internal")):
+    if not _proxied(host, scheme) or not host or host == "localhost" \
+            or host.endswith((".localhost", ".local", ".internal")):
         return False
     try:
         ipaddress.ip_address(host)
@@ -151,19 +159,25 @@ def _pinned(base):
     return Pinned
 
 
+def _via_proxy(req):
+    """urllib has already routed this request: a tunnel host for https through a proxy, the full URL as selector
+    for http through one."""
+    return bool(getattr(req, "_tunnel_host", None)) or req.has_proxy()
+
+
 def guarded_handlers(context):
-    """urllib handlers for a download named by an untrusted page. Behind a proxy: the stock handlers, the proxy
-    connects. Direct: every connection, redirects included, is pinned to a checked public address."""
-    if _proxied():
-        return [urllib.request.HTTPSHandler(context=context)]
+    """urllib handlers for a download named by an untrusted page, for both schemes. Each request decides for
+    itself: one that urllib routed through a proxy uses the stock connection and the proxy connects; any other,
+    redirects included, is pinned to a checked public address."""
     https, plain = _pinned(http.client.HTTPSConnection), _pinned(http.client.HTTPConnection)
 
     class HTTPS(urllib.request.HTTPSHandler):
         def https_open(self, req):
-            return self.do_open(https, req, context=context)
+            conn = http.client.HTTPSConnection if _via_proxy(req) else https
+            return self.do_open(conn, req, context=context)
 
     class HTTP(urllib.request.HTTPHandler):
         def http_open(self, req):
-            return self.do_open(plain, req)
+            return self.do_open(http.client.HTTPConnection if _via_proxy(req) else plain, req)
 
     return [HTTPS(), HTTP()]

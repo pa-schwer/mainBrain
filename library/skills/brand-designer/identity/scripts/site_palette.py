@@ -382,6 +382,11 @@ def _lenient_b64(text):
     return base64.b64decode(t) if t else b""
 
 
+def _host_scheme(url):  # LOCAL CHANGE (mainBrain): what svgsafe.public_host needs from a URL
+    parts = urllib.parse.urlsplit(url)
+    return parts.hostname, parts.scheme.lower()
+
+
 def _download(url, user_agent):
     """context.request.get(url, {timeout: 20 s, maxRedirects: 5}) with ignoreHTTPSErrors: (status, final url,
     headers, body)."""
@@ -395,11 +400,11 @@ def _download(url, user_agent):
         def redirect_request(self, req, fp, code, msg, headers, newurl):
             if not re.match(r"^https?://", newurl, re.I):
                 return None
-            if not svgsafe.public_host(urllib.parse.urlsplit(newurl).hostname):  # LOCAL CHANGE (mainBrain)
+            if not svgsafe.public_host(*_host_scheme(newurl)):  # LOCAL CHANGE (mainBrain)
                 return None
             return super().redirect_request(req, fp, code, msg, headers, newurl)
 
-    if not svgsafe.public_host(urllib.parse.urlsplit(url).hostname):  # LOCAL CHANGE (mainBrain)
+    if not svgsafe.public_host(*_host_scheme(url)):  # LOCAL CHANGE (mainBrain)
         return 0, url, {}, b""
     opener = urllib.request.build_opener(*svgsafe.guarded_handlers(ctx), Redirects())  # LOCAL CHANGE (mainBrain)
     req = urllib.request.Request(url, headers={"User-Agent": user_agent, "Accept": "*/*",
