@@ -388,7 +388,7 @@ def _launch_once(browser, profile, timeout, no_sandbox):
            "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--mute-audio",
            "--use-mock-keychain", "--password-store=basic", "--disable-background-networking",
            "--disable-component-update", "--disable-sync", "--force-color-profile=srgb",
-           "--allow-file-access-from-files", "--remote-debugging-port=0",
+           "--remote-debugging-port=0",  # LOCAL CHANGE (mainBrain): --allow-file-access-from-files removed here
            f"--user-data-dir={profile}", "about:blank"]
     if no_sandbox:
         cmd.append("--no-sandbox")

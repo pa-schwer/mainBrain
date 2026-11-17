@@ -78,6 +78,8 @@ VIEWPORTS = {
 FULL_PAGE_MAX = 5000
 NAV_TIMEOUT = 45
 NO_SITE_FALLBACK = "Fallback without a live site: python3 scripts/site_preview.py --mock landing,app --palettes ..."
+import svgsafe  # LOCAL CHANGE (mainBrain): allowlist sanitiser and host guard, see svgsafe.py
+
 LOGO_MAX_BYTES = 2 * 1024 * 1024
 ROLE_KEYS = ["background", "surface", "surfaceAlt", "border", "text", "textMuted", "primary", "onPrimary", "accent",
              "onAccent", "link", "focus", "success", "warning", "danger", "info"]
@@ -393,8 +395,12 @@ def _download(url, user_agent):
         def redirect_request(self, req, fp, code, msg, headers, newurl):
             if not re.match(r"^https?://", newurl, re.I):
                 return None
+            if not svgsafe.public_host(urllib.parse.urlsplit(newurl).hostname):  # LOCAL CHANGE (mainBrain)
+                return None
             return super().redirect_request(req, fp, code, msg, headers, newurl)
 
+    if not svgsafe.public_host(urllib.parse.urlsplit(url).hostname):  # LOCAL CHANGE (mainBrain)
+        return 0, url, {}, b""
     opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx), Redirects())
     req = urllib.request.Request(url, headers={"User-Agent": user_agent, "Accept": "*/*",
                                                "Accept-Encoding": "gzip, deflate"})
@@ -403,16 +409,19 @@ def _download(url, user_agent):
     except urllib.error.HTTPError as e:
         return e.code, e.geturl(), {k.lower(): v for k, v in e.headers.items()}, b""
     with resp:
-        body = resp.read()
+        # LOCAL CHANGE (mainBrain): read and inflate with a ceiling one byte over the limit, so the caller's size
+        # check still fires and a small compressed body cannot expand without bound.
+        cap = LOGO_MAX_BYTES + 1
+        body = resp.read(cap)
         headers = {k.lower(): v for k, v in resp.headers.items()}
         enc = headers.get("content-encoding", "").lower()
         if enc in ("gzip", "x-gzip"):
-            body = gzip.decompress(body)
+            body = zlib.decompressobj(16 + zlib.MAX_WBITS).decompress(body, cap)
         elif enc == "deflate":
             try:
-                body = zlib.decompress(body)
+                body = zlib.decompressobj().decompress(body, cap)
             except zlib.error:
-                body = zlib.decompress(body, -zlib.MAX_WBITS)
+                body = zlib.decompressobj(-zlib.MAX_WBITS).decompress(body, cap)
         return resp.status, resp.geturl(), headers, body
 
 
@@ -427,6 +436,9 @@ def save_logo_source(S, page, raw, out):
             light = page.evaluate(S.src["pageLogoCopy"])
             if not truthy(light):
                 return
+            light = svgsafe.sanitize_svg(light)  # LOCAL CHANGE (mainBrain)
+            if not light:
+                return
             _write_text(os.path.join(out, "logo.svg"), light)
             lg["source"] = "logo.svg"
             page.emulate_media("dark")
@@ -436,6 +448,7 @@ def save_logo_source(S, page, raw, out):
             except Exception:  # noqa: BLE001
                 dark = None
             page.emulate_media("light")
+            dark = svgsafe.sanitize_svg(dark) if truthy(dark) else None  # LOCAL CHANGE (mainBrain)
             if truthy(dark) and dark != light:
                 _write_text(os.path.join(out, "logo-dark.svg"), dark)
                 lg["sourceDark"] = "logo-dark.svg"
@@ -487,7 +500,12 @@ def save_logo_source(S, page, raw, out):
             ext = (m.group(1) if m else "png").lower()
         name = f"logo.{'jpg' if ext == 'jpeg' else ext}"
         if ext == "svg":
-            _write_text(os.path.join(out, name), S.eng.call("stripScripts", buf.decode("utf-8", errors="replace")))
+            # LOCAL CHANGE (mainBrain): allowlist after upstream's script strip; an SVG that does not survive is skipped
+            clean = svgsafe.sanitize_svg(S.eng.call("stripScripts", buf.decode("utf-8", errors="replace")))
+            if not clean:
+                lg["sourceSkipped"] = "skipped: not a plain SVG drawing"
+                return
+            _write_text(os.path.join(out, name), clean)
         else:
             with open(os.path.join(out, name), "wb") as fh:
                 fh.write(buf)

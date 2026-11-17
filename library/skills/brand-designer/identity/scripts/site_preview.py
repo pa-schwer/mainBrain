@@ -177,6 +177,10 @@ def read_logo(path):
     svg = re.sub(r"<\?xml[^>]*\?>|<!DOCTYPE[^>]*>|<!--.*?-->", "", svg, flags=re.S | re.I).strip()
     if not svg.lower().startswith("<svg"):
         fail(f"{path} is not an SVG", 2)
+    import svgsafe  # LOCAL CHANGE (mainBrain): the file may come from a website; see svgsafe.py
+    svg = svgsafe.sanitize_svg(svg)
+    if not svg:
+        fail(f"{path} is not a plain SVG drawing", 2)
     return svg
 
 
